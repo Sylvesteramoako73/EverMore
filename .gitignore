@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local data (embedded db, uploads)
+/data/
+!.env.example
+
+# playwright
+/test-results/
+/playwright-report/
