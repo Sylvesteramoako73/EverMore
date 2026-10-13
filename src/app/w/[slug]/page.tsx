@@ -16,6 +16,7 @@ type Props = PageProps<"/w/[slug]">;
 const tokenFrom = (sp: Record<string, string | string[] | undefined>) => (typeof sp.invite === "string" ? sp.invite : null);
 
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
+  await connection(); // depends on the database and the current time: always request-time
   const { slug } = await params;
   const result = await loadPublicWedding(slug, { inviteToken: tokenFrom(await searchParams), isMember: async () => false });
   if (result.kind !== "ok") return { title: "Wedding", robots: { index: false, follow: false } };
@@ -49,6 +50,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 export default async function WeddingPage(props: Props) {
   // Resolve the address before streaming starts, so unknown pages get a real 404 and old
   // addresses a real permanent redirect (both are impossible once the response has begun).
+  await connection(); // the database driver reads the clock internally: request-time only
   const { slug } = await props.params;
   const resolved = await resolveSlug(slug);
   if (!resolved) notFound();
