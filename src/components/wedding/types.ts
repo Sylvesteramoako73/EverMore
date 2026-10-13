@@ -61,6 +61,8 @@ export type WeddingView = {
   memories: MemoryView[];
   hiddenSections: string[];
   shareUrl: string;
+  /** Links that differ between real pages and samples. */
+  links: { qr: string; card: string | null; calendar: string | null };
   /** Draft/preview banner, sample pages, and invitation context. */
   mode: "live" | "preview" | "sample";
 };

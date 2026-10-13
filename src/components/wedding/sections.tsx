@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { formatLongDate, formatPlainDate, formatTimeRange } from "@/lib/dates";
 import type { Theme } from "@/lib/themes";
@@ -101,7 +102,7 @@ function osmEmbed(lat: number, lng: number) {
   return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lng}`;
 }
 
-function EventDetails({ e, slug, showCalendar }: { e: EventView; slug: string; showCalendar: boolean }) {
+function EventDetails({ e, calendar, showCalendar }: { e: EventView; calendar: string | null; showCalendar: boolean }) {
   const start = new Date(e.startsAt);
   const hasVenue = Boolean(e.venueName || e.venueAddress);
   return (
@@ -119,7 +120,7 @@ function EventDetails({ e, slug, showCalendar }: { e: EventView; slug: string; s
       )}
       {e.dressCode && (
         <p>
-          <span className="w-label !mb-0 inline">Dress code · </span>
+          <span className="w-muted text-[0.78rem] font-semibold tracking-[0.08em] uppercase">Dress code: </span>
           {e.dressCode}
         </p>
       )}
@@ -130,8 +131,8 @@ function EventDetails({ e, slug, showCalendar }: { e: EventView; slug: string; s
             Directions<span className="sr-only"> to {e.venueName || e.name} (opens in a new tab)</span>
           </a>
         )}
-        {showCalendar && (
-          <a className="w-btn w-btn-ghost" href={`/w/${slug}/calendar.ics?event=${e.id}`}>
+        {showCalendar && calendar && (
+          <a className="w-btn w-btn-ghost" href={`${calendar}?event=${e.id}`}>
             Add to calendar<span className="sr-only">: {e.name}</span>
           </a>
         )}
@@ -168,7 +169,7 @@ export function ScheduleSection({ w, theme, now }: { w: WeddingView; theme: Them
               <Reveal as="li" key={e.id} className="relative pl-10 sm:grid sm:grid-cols-2 sm:gap-14 sm:pl-0">
                 <span aria-hidden className="absolute top-2 left-0 h-5 w-5 rounded-full border-2 border-[var(--w-accent)] bg-[var(--w-bg)] sm:left-1/2 sm:-translate-x-1/2" />
                 <div className={i % 2 ? "sm:col-start-2" : "sm:text-right [&_.flex]:sm:justify-end"}>
-                  <EventDetails e={e} slug={w.slug} showCalendar={Date.parse(e.startsAt) > now} />
+                  <EventDetails e={e} calendar={w.links.calendar} showCalendar={Date.parse(e.startsAt) > now} />
                 </div>
                 {hasMap && (
                   <div className={`mt-6 h-64 sm:mt-0 ${i % 2 ? "sm:col-start-1 sm:row-start-1" : ""}`}>
@@ -188,7 +189,7 @@ export function ScheduleSection({ w, theme, now }: { w: WeddingView; theme: Them
       <ol className={`grid gap-6 ${w.events.length > 1 ? "lg:grid-cols-2" : "mx-auto max-w-3xl"}`}>
         {w.events.map((e) => (
           <Reveal as="li" key={e.id} className="w-surface flex flex-col gap-6 overflow-hidden p-6 sm:p-8">
-            <EventDetails e={e} slug={w.slug} showCalendar={Date.parse(e.startsAt) > now} />
+            <EventDetails e={e} calendar={w.links.calendar} showCalendar={Date.parse(e.startsAt) > now} />
             {e.venueLat !== null && <div className="h-56"><EventMap e={e} /></div>}
           </Reveal>
         ))}
@@ -273,7 +274,7 @@ export function Footer({ w, theme }: { w: WeddingView; theme: Theme }) {
         </p>
       )}
       <p className="w-muted mt-10 text-xs">
-        Made with love on <a href="/" className="underline underline-offset-4">EverMore</a>
+        Made with love on <Link href="/" className="underline underline-offset-4">EverMore</Link>
       </p>
     </footer>
   );

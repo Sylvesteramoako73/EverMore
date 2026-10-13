@@ -43,8 +43,16 @@ function create(): Handle {
   const { PGlite } = require("@electric-sql/pglite") as typeof import("@electric-sql/pglite");
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { drizzle } = require("drizzle-orm/pglite") as typeof import("drizzle-orm/pglite");
-  const client =
-    url === "memory://" ? new PGlite() : new PGlite(path.join(/*turbopackIgnore: true*/ process.cwd(), "data", "pglite"));
+  let client: InstanceType<typeof PGlite>;
+  if (url === "memory://") {
+    client = new PGlite();
+  } else {
+    const dir = path.join(/*turbopackIgnore: true*/ process.cwd(), "data", "pglite");
+    // PGlite doesn't create missing parent folders.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    (require("node:fs") as typeof import("node:fs")).mkdirSync(dir, { recursive: true });
+    client = new PGlite(dir);
+  }
   const db = drizzle({ client, schema, casing: "snake_case" });
   return {
     db: db as unknown as Database,
