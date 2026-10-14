@@ -102,7 +102,9 @@ test("a family creates a celebration-of-life page without a countdown", async ({
   await page.getByLabel("Starts").fill(`${year}-02-07T08:00`);
   await page.getByLabel(/Venue name/).fill("Presbyterian Church");
   await page.getByRole("button", { name: "Add event" }).click();
-  await page.goto("/onboarding?step=6");
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("button", { name: "Skip for now" }).click();
+  await page.getByRole("button", { name: "Continue to review" }).click();
   await page.getByRole("button", { name: "Publish my page" }).click();
   await expect(page.getByText("Your page is live")).toBeVisible({ timeout: 20_000 });
   const slug = new URL(await page.locator("code").first().innerText()).pathname.slice(1);

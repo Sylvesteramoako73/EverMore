@@ -221,7 +221,10 @@ export const publishSettingsSchema = z.object({
 
 // ───────────────────────────── Guests
 
-export const rsvpBaseSchema = z.object({
+/** Optional fields may be absent from the guest form (no phone field, meals not offered, declining). */
+export const rsvpBaseSchema = z.preprocess(
+  (v) => ({ phone: "", mealChoice: "", dietary: "", message: "", ...(v as object) }),
+  z.object({
   name: required(100, "Your name"),
   email,
   phone: text(40),
@@ -233,7 +236,8 @@ export const rsvpBaseSchema = z.object({
   mealChoice: text(60),
   dietary: text(300),
   message: text(1000),
-});
+}),
+);
 
 export const guestbookSchema = z.object({
   name: required(80, "Your name"),

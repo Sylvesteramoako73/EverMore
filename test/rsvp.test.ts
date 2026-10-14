@@ -50,6 +50,14 @@ describe("RSVP validation", () => {
   });
 });
 
+describe("minimal replies", () => {
+  it("accepts the fields the guest form actually sends (no phone, meal or dietary fields)", () => {
+    const e = [{ id: "e1", name: "Wedding" }];
+    const raw = { name: "Esi", email: "esi@example.com", [rsvpField("e1")]: "no" };
+    expect(ok(parseRsvp(raw, e, { maxPartySize: 2, mealOptions: [], askDietary: true })).answers).toEqual([{ eventId: "e1", attending: false }]);
+  });
+});
+
 describe("saving RSVPs", () => {
   it("updates instead of duplicating when the same email replies again (any case)", async () => {
     const { celebration, events } = await twoEvents();
