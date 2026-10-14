@@ -10,6 +10,20 @@ export type FontKey =
   | "cormorant" | "bodoni" | "playfair" | "marcellus" | "fraunces" | "newsreader"
   | "dmSans" | "jost" | "manrope" | "instrumentSans";
 
+/** How each section is laid out. Mixing these is what makes themes feel genuinely different. */
+export type Layout = {
+  story: "split" | "centered" | "magazine" | "overlap";
+  schedule: "zigzag" | "list" | "cards" | "ticket" | "agenda";
+  venues: "cards" | "split" | "minimal";
+  gallery: "grid" | "masonry" | "polaroid" | "filmstrip" | "editorial";
+  countdown: "band" | "big" | "circles";
+  divider: "none" | "wave" | "zigzag" | "curve";
+  texture: "none" | "paper" | "dots" | "topo" | "confetti" | "kente";
+  card: "soft" | "outline" | "flat" | "offset";
+  /** Put a few sections on the accent colour for a bolder, more graphic page. */
+  pop: boolean;
+};
+
 export type Theme = {
   id: string;
   name: string;
@@ -38,6 +52,9 @@ export type Theme = {
   /** Photo treatment in galleries and cards. */
   photo: "rounded" | "square" | "polaroid";
   radius: string;
+  layout: Layout;
+  /** Second accent for playful themes (badges, confetti, highlights). */
+  accent2: string;
 };
 
 const ALL: OccasionKind[] = ["wedding", "birthday", "funeral", "outing", "naming", "anniversary", "graduation", "reunion", "shower", "other"];
@@ -61,6 +78,8 @@ export const THEMES: Theme[] = [
     ornament: "none",
     photo: "rounded",
     radius: "14px",
+    layout: { story: "split", schedule: "zigzag", venues: "cards", gallery: "grid", countdown: "band", divider: "none", texture: "none", card: "soft", pop: false },
+    accent2: "#C9A98A",
   },
   {
     id: "timeless-elegance",
@@ -79,6 +98,8 @@ export const THEMES: Theme[] = [
     ornament: "fine-lines",
     photo: "square",
     radius: "4px",
+    layout: { story: "centered", schedule: "list", venues: "minimal", gallery: "masonry", countdown: "band", divider: "none", texture: "paper", card: "outline", pop: false },
+    accent2: "#C69A4A",
   },
   {
     id: "golden-hour",
@@ -96,6 +117,8 @@ export const THEMES: Theme[] = [
     ornament: "none",
     photo: "rounded",
     radius: "20px",
+    layout: { story: "overlap", schedule: "cards", venues: "split", gallery: "filmstrip", countdown: "big", divider: "curve", texture: "none", card: "soft", pop: true },
+    accent2: "#F2B544",
   },
   {
     id: "confetti",
@@ -113,6 +136,8 @@ export const THEMES: Theme[] = [
     ornament: "confetti",
     photo: "polaroid",
     radius: "24px",
+    layout: { story: "overlap", schedule: "cards", venues: "cards", gallery: "polaroid", countdown: "circles", divider: "zigzag", texture: "confetti", card: "offset", pop: true },
+    accent2: "#2EC4B6",
   },
   {
     id: "serene",
@@ -130,6 +155,8 @@ export const THEMES: Theme[] = [
     ornament: "dove",
     photo: "square",
     radius: "8px",
+    layout: { story: "centered", schedule: "list", venues: "minimal", gallery: "grid", countdown: "band", divider: "none", texture: "none", card: "flat", pop: false },
+    accent2: "#A9B8A9",
   },
   {
     id: "adventure",
@@ -148,6 +175,8 @@ export const THEMES: Theme[] = [
     ornament: "none",
     photo: "rounded",
     radius: "12px",
+    layout: { story: "split", schedule: "ticket", venues: "split", gallery: "filmstrip", countdown: "big", divider: "zigzag", texture: "topo", card: "offset", pop: true },
+    accent2: "#E9B44C",
   },
   {
     id: "little-blessings",
@@ -165,6 +194,8 @@ export const THEMES: Theme[] = [
     ornament: "botanical",
     photo: "rounded",
     radius: "24px",
+    layout: { story: "overlap", schedule: "cards", venues: "cards", gallery: "masonry", countdown: "circles", divider: "wave", texture: "dots", card: "soft", pop: false },
+    accent2: "#E8B4BC",
   },
   {
     id: "modern-minimalist",
@@ -182,6 +213,8 @@ export const THEMES: Theme[] = [
     ornament: "none",
     photo: "square",
     radius: "0px",
+    layout: { story: "magazine", schedule: "list", venues: "minimal", gallery: "editorial", countdown: "big", divider: "none", texture: "none", card: "flat", pop: false },
+    accent2: "#151515",
   },
   {
     id: "romantic-garden",
@@ -199,6 +232,8 @@ export const THEMES: Theme[] = [
     ornament: "botanical",
     photo: "rounded",
     radius: "18px",
+    layout: { story: "centered", schedule: "zigzag", venues: "cards", gallery: "masonry", countdown: "circles", divider: "wave", texture: "none", card: "soft", pop: false },
+    accent2: "#E7A9A1",
   },
   {
     id: "luxury-editorial",
@@ -217,6 +252,8 @@ export const THEMES: Theme[] = [
     ornament: "rule",
     photo: "square",
     radius: "0px",
+    layout: { story: "magazine", schedule: "agenda", venues: "split", gallery: "editorial", countdown: "big", divider: "none", texture: "none", card: "outline", pop: false },
+    accent2: "#8E7A55",
   },
   {
     id: "traditional-celebration",
@@ -235,6 +272,8 @@ export const THEMES: Theme[] = [
     ornament: "filigree",
     photo: "square",
     radius: "6px",
+    layout: { story: "centered", schedule: "zigzag", venues: "cards", gallery: "grid", countdown: "band", divider: "none", texture: "paper", card: "outline", pop: false },
+    accent2: "#C9A35A",
   },
   {
     id: "contemporary-african-romance",
@@ -252,6 +291,8 @@ export const THEMES: Theme[] = [
     ornament: "geometric",
     photo: "rounded",
     radius: "14px",
+    layout: { story: "overlap", schedule: "ticket", venues: "split", gallery: "editorial", countdown: "band", divider: "zigzag", texture: "kente", card: "offset", pop: true },
+    accent2: "#D9A441",
   },
 ];
 

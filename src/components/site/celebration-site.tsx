@@ -6,9 +6,10 @@ import { Hero } from "./hero";
 import { Gallery, GuestbookPanel, RsvpForm, ShareSection, SiteNav } from "./interactive";
 import { Reveal } from "./live";
 import {
-  ClosingCard, ColoursSection, CountdownBand, Footer, GiftsSection, MemoriesSection, ProgrammeSection, RsvpContacts,
-  SaveTheDate, Section, StorySection, ThankYouSection, TripSection, VenuesSection,
+  ClosingCard, ColoursSection, CountdownBand, Footer, GiftsSection, MemoriesSection, RsvpContacts, SaveTheDate, Section,
+  ThankYouSection, TripSection,
 } from "./sections";
+import { ProgrammeVariant, StoryVariant, VenuesVariant } from "./variants";
 import { SharedMoments } from "./shared-moments";
 import type { CelebrationView } from "./types";
 import "./celebration.css";
@@ -31,6 +32,7 @@ export function CelebrationSite({ w, now, inviteToken = null }: { w: Celebration
     "--w-muted": theme.colors.muted,
     "--w-accent": theme.colors.accent,
     "--w-accent-ink": theme.colors.accentInk,
+    "--w-accent2": theme.accent2,
     "--w-line": theme.colors.line,
     "--w-band": theme.colors.band,
     "--w-band-ink": theme.colors.bandInk,
@@ -82,7 +84,7 @@ export function CelebrationSite({ w, now, inviteToken = null }: { w: Celebration
 
   const gallery = show.gallery && (
     <Section id="gallery" eyebrow={after ? "On the day" : "Captured moments"} title="Gallery" theme={theme}>
-      <Gallery images={w.gallery} />
+      <Gallery images={w.gallery} layout={theme.layout.gallery} />
     </Section>
   );
 
@@ -106,8 +108,8 @@ export function CelebrationSite({ w, now, inviteToken = null }: { w: Celebration
         {shared}
         {gallery}
         {show.memories && <MemoriesSection w={w} theme={theme} />}
-        {show.story && <StorySection w={w} theme={theme} />}
-        {show.schedule && <ProgrammeSection w={w} theme={theme} now={now} />}
+        {show.story && <StoryVariant w={w} theme={theme} />}
+        {show.schedule && <ProgrammeVariant w={w} theme={theme} now={now} />}
         {guestbook}
       </>
     );
@@ -115,9 +117,9 @@ export function CelebrationSite({ w, now, inviteToken = null }: { w: Celebration
     body = (
       <>
         {show.saveTheDate && <SaveTheDate w={w} />}
-        {show.story && <StorySection w={w} theme={theme} />}
-        {show.schedule && <VenuesSection w={w} theme={theme} />}
-        {show.schedule && <ProgrammeSection w={w} theme={theme} now={now} />}
+        {show.story && <StoryVariant w={w} theme={theme} />}
+        {show.schedule && <ProgrammeVariant w={w} theme={theme} now={now} />}
+        {show.schedule && <VenuesVariant w={w} theme={theme} />}
         {show.colours && <ColoursSection w={w} theme={theme} />}
         {w.occasion.kind === "outing" && <TripSection w={w} theme={theme} />}
         {rsvp}
@@ -132,7 +134,7 @@ export function CelebrationSite({ w, now, inviteToken = null }: { w: Celebration
   }
 
   return (
-    <div id="top" style={style} data-photo={theme.photo} className="w-page flex-1">
+    <div id="top" style={style} data-photo={theme.photo} data-card={theme.layout.card} data-texture={theme.layout.texture} className="w-page flex-1">
       {w.mode !== "live" && (
         <div role="status" className="fixed inset-x-0 bottom-0 z-50 bg-[#101C35] px-4 py-2.5 text-center text-xs text-[#FAF7F0] sm:text-sm">
           {w.mode === "sample" ? "This is a sample page. Create your own in a few minutes." : "Preview: only you can see this page until you publish it."}

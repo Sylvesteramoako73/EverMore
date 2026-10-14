@@ -1,9 +1,9 @@
 import {
-  Bus, Cake, Camera, Check, Church, Feather, Flame, Flower2, Gift, GlassWater, Heart, Map, MapPin, Music, Phone, Star, Sun, Utensils,
+  Bus, Cake, Camera, Check, Church, Feather, Flame, Flower2, Gift, GlassWater, Heart, Map, Music, Phone, Star, Sun, Utensils,
 } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { formatLongDate, formatPlainDate, formatTime, formatTimeRange, parsePlainDate, plainDateInZone } from "@/lib/dates";
+import { formatLongDate, formatPlainDate, formatTime, parsePlainDate, plainDateInZone } from "@/lib/dates";
 import type { Theme } from "@/lib/themes";
 import { Picture } from "./hero";
 import { Countdown, Reveal } from "./live";
@@ -20,9 +20,11 @@ export function Section({
   title: string;
   theme: Theme;
   children: ReactNode;
-  tone?: "plain" | "tint" | "band";
+  tone?: "plain" | "tint" | "band" | "pop";
   intro?: ReactNode;
 }) {
+  const bg = tone === "tint" ? "var(--w-tint)" : tone === "band" ? "var(--w-band)" : tone === "pop" ? "var(--w-accent)" : "var(--w-bg)";
+  const shaped = tone !== "plain" && theme.layout.divider !== "none";
   const left = theme.heading === "editorial-left";
   const size =
     theme.heading === "minimal-caps" ? "text-3xl tracking-[0.12em] uppercase sm:text-4xl"
@@ -34,8 +36,10 @@ export function Section({
     <section
       id={id}
       aria-labelledby={`${id}-title`}
-      className={`scroll-mt-20 px-5 py-20 sm:px-8 sm:py-28 ${tone === "tint" ? "w-tint" : tone === "band" ? "w-band" : ""}`}
+      style={{ ["--w-section-bg" as string]: bg }}
+      className={`scroll-mt-20 px-5 py-20 sm:px-8 sm:py-28 ${tone === "tint" ? "w-tint" : tone === "band" ? "w-band" : tone === "pop" ? "w-pop" : ""} ${shaped ? "w-shaped" : ""}`}
     >
+      {shaped && <SectionShape kind={theme.layout.divider} fill={bg} />}
       <div className="mx-auto max-w-6xl">
         <Reveal className={`mb-12 sm:mb-16 ${left ? "text-left" : "text-center"}`}>
           {theme.heading === "band" && <GeometricBand className="mx-auto mb-6 !h-3 max-w-[9rem]" />}
@@ -52,6 +56,20 @@ export function Section({
 }
 
 // ───────────────────────────── Save the date: tilted photo + month calendar
+
+/** Wavy, zig-zag or curved edges painted in the section's own colour, overlapping its neighbours. */
+export function SectionShape({ kind, fill }: { kind: Theme["layout"]["divider"]; fill: string }) {
+  const d =
+    kind === "wave" ? "M0 48 C 200 0 400 0 600 24 S 1000 48 1200 12 V48 Z"
+    : kind === "curve" ? "M0 48 Q 600 -6 1200 48 Z"
+    : `M0 48 ${Array.from({ length: 31 }, (_, i) => `L${i * 40} ${i % 2 ? 20 : 40}`).join(" ")} L1200 48 Z`;
+  return (
+    <>
+      <svg aria-hidden className="w-shape w-shape-top" viewBox="0 0 1200 48" preserveAspectRatio="none"><path d={d} fill={fill} /></svg>
+      <svg aria-hidden className="w-shape w-shape-bottom" viewBox="0 0 1200 48" preserveAspectRatio="none"><path d={d} fill={fill} /></svg>
+    </>
+  );
+}
 
 export function SaveTheDate({ w }: { w: CelebrationView }) {
   const p = w.events.find((e) => e.id === w.primaryEventId) ?? w.events[0];
@@ -106,94 +124,15 @@ export function SaveTheDate({ w }: { w: CelebrationView }) {
 
 // ───────────────────────────── Story & occasion facts
 
-export function StorySection({ w, theme }: { w: CelebrationView; theme: Theme }) {
-  const f = w.facts;
-  const facts = [
-    w.occasion.kind === "naming" && f.nameMeaning && ["The meaning", f.nameMeaning],
-    f.parents && ["Proud parents", f.parents],
-    w.occasion.kind === "birthday" && f.turningAge && ["Turning", String(f.turningAge)],
-    f.institution && ["Graduating from", f.institution],
-  ].filter(Boolean) as [string, string][];
-  const hasText = Boolean(w.story || w.guestMessage || w.announcement || facts.length);
-  if (!hasText) return null;
-  const portrait = w.portraits[1] ?? w.portraits[0];
-  return (
-    <Section id="story" eyebrow={w.phase === "after" ? "Where it began" : "Welcome"} title={w.occasion.copy.storyTitle} theme={theme}>
-      <div className={`mx-auto grid max-w-5xl items-center gap-12 ${portrait ? "lg:grid-cols-[0.85fr_1.15fr]" : ""}`}>
-        {portrait && (
-          <Reveal className="w-photo mx-auto w-full max-w-sm">
-            <Picture image={portrait} sizes="(min-width: 1024px) 380px, 90vw" className="aspect-[4/5] w-full object-cover" />
-          </Reveal>
-        )}
-        <Reveal className={portrait ? "" : "mx-auto max-w-2xl text-center"}>
-          {w.guestMessage && <p className="w-display text-2xl leading-snug italic sm:text-3xl">&ldquo;{w.guestMessage}&rdquo;</p>}
-          {facts.length > 0 && (
-            <dl className={`mt-8 grid gap-4 ${portrait ? "" : "justify-center"} sm:grid-cols-2`}>
-              {facts.map(([label, value]) => (
-                <div key={label} className="w-card p-5">
-                  <dt className="w-eyebrow">{label}</dt>
-                  <dd className="w-display mt-2 text-2xl">{value}</dd>
-                </div>
-              ))}
-            </dl>
-          )}
-          {w.story && <p className="w-muted mt-8 whitespace-pre-line">{w.story}</p>}
-          {w.announcement && <p className="mt-8 whitespace-pre-line">{w.announcement}</p>}
-          {w.hashtag && <p className="w-eyebrow mt-8">#{w.hashtag}</p>}
-        </Reveal>
-      </div>
-    </Section>
-  );
-}
-
 // ───────────────────────────── Venues
 
-function mapsSearch(e: EventView) {
+export function mapsSearch(e: EventView) {
   const q = e.venueLat !== null && e.venueLng !== null ? `${e.venueLat},${e.venueLng}` : [e.venueName, e.venueAddress].filter(Boolean).join(", ");
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
 }
-function mapsDirections(e: EventView) {
+export function mapsDirections(e: EventView) {
   const q = e.venueLat !== null && e.venueLng !== null ? `${e.venueLat},${e.venueLng}` : [e.venueName, e.venueAddress].filter(Boolean).join(", ");
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(q)}`;
-}
-
-export function VenuesSection({ w, theme }: { w: CelebrationView; theme: Theme }) {
-  const withVenue = w.events.filter((e) => e.venueName || e.venueAddress);
-  if (!withVenue.length) return null;
-  return (
-    <Section id="venues" eyebrow={w.phase === "after" ? "Where it happened" : "Where to find us"} title={withVenue.length > 1 ? "The Venues" : "The Venue"} theme={theme}>
-      <ul className={`grid gap-6 ${withVenue.length > 1 ? "md:grid-cols-2" : "mx-auto max-w-2xl"}`}>
-        {withVenue.map((e) => (
-          <Reveal as="li" key={e.id} className="w-surface flex flex-col p-6 text-center sm:p-8">
-            <h3 className="w-display text-3xl italic">{e.name}</h3>
-            {e.venueName && <p className="mt-3 font-semibold">{e.venueName}</p>}
-            {e.venueAddress && <p className="w-muted text-sm">{e.venueAddress}</p>}
-            {e.venueImage ? (
-              <div className="w-photo mt-6">
-                <Picture image={e.venueImage} sizes="(min-width: 768px) 520px, 90vw" className="aspect-[16/7] w-full object-cover" />
-              </div>
-            ) : e.venueLat !== null && e.venueLng !== null ? (
-              <iframe
-                title={`Map of ${e.venueName || e.name}`}
-                src={`https://www.openstreetmap.org/export/embed.html?bbox=${e.venueLng! - 0.008},${e.venueLat! - 0.005},${e.venueLng! + 0.008},${e.venueLat! + 0.005}&layer=mapnik&marker=${e.venueLat},${e.venueLng}`}
-                loading="lazy"
-                referrerPolicy="no-referrer"
-                className="mt-6 aspect-[16/7] w-full rounded-[var(--w-radius)] border-0 grayscale-[30%]"
-              />
-            ) : null}
-            <div className="mt-6 flex flex-wrap justify-center gap-2">
-              <a className="w-btn w-btn-sm" href={mapsSearch(e)} target="_blank" rel="noopener noreferrer">
-                <MapPin className="h-4 w-4" aria-hidden /> View map<span className="sr-only"> for {e.venueName || e.name} (opens in a new tab)</span>
-              </a>
-              <a className="w-btn w-btn-sm w-btn-ghost" href={mapsDirections(e)} target="_blank" rel="noopener noreferrer">
-                Directions<span className="sr-only"> to {e.venueName || e.name} (opens in a new tab)</span>
-              </a>
-            </div>
-          </Reveal>
-        ))}
-      </ul>
-    </Section>
-  );
 }
 
 // ───────────────────────────── Programme timeline
@@ -204,7 +143,7 @@ const ICONS: Record<string, typeof Heart> = {
 };
 
 /** A sensible icon when the host hasn't picked one. */
-function iconFor(e: EventView) {
+export function iconFor(e: EventView) {
   if (e.icon && ICONS[e.icon]) return ICONS[e.icon];
   const n = e.name.toLowerCase();
   if (/church|service|mass|thanksgiving|dedication/.test(n)) return Church;
@@ -219,63 +158,6 @@ function iconFor(e: EventView) {
   return Star;
 }
 
-export function ProgrammeSection({ w, theme, now }: { w: CelebrationView; theme: Theme; now: number }) {
-  if (!w.events.length) return null;
-  const multiDay = new Set(w.events.map((e) => plainDateInZone(new Date(e.startsAt), e.timezone))).size > 1;
-  return (
-    <Section
-      id="programme"
-      eyebrow={w.occasion.label}
-      title={w.occasion.copy.scheduleTitle}
-      theme={theme}
-      tone="tint"
-      intro={w.dressCode ? <p>Dress code: <strong className="font-semibold text-[var(--w-ink)]">{w.dressCode}</strong></p> : undefined}
-    >
-      <ol className="relative mx-auto max-w-4xl space-y-12 before:absolute before:top-2 before:bottom-2 before:left-5 before:w-px before:bg-[var(--w-line)] md:before:left-1/2">
-        {w.events.map((e, i) => {
-          const Icon = iconFor(e);
-          const start = new Date(e.startsAt);
-          const right = i % 2 === 1;
-          return (
-            <Reveal as="li" key={e.id} className="relative grid gap-5 pl-14 md:grid-cols-2 md:gap-12 md:pl-0">
-              <span aria-hidden className="absolute top-1 left-1 grid h-9 w-9 place-items-center rounded-full border border-[var(--w-line)] bg-[var(--w-surface)] text-[var(--w-accent)] md:left-1/2 md:-translate-x-1/2">
-                <Icon className="h-4 w-4" />
-              </span>
-              <div className={right ? "md:col-start-2" : "md:pr-6 md:text-right"}>
-                <p className="w-eyebrow">
-                  {multiDay ? `${new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: e.timezone }).format(start)} · ` : ""}
-                  {formatTimeRange(start, e.endsAt ? new Date(e.endsAt) : null, e.timezone)}
-                </p>
-                <h3 className="w-display mt-2 text-3xl sm:text-4xl">{e.name}</h3>
-                {e.description && <p className="w-muted mt-3 whitespace-pre-line">{e.description}</p>}
-                {e.dressCode && <p className="mt-2 text-sm"><span className="w-muted">Dress code:</span> {e.dressCode}</p>}
-                {w.links.calendar && Date.parse(e.startsAt) > now && (
-                  <a className="mt-3 inline-block text-sm underline underline-offset-4" href={`${w.links.calendar}?event=${e.id}`}>
-                    Add to calendar<span className="sr-only">: {e.name}</span>
-                  </a>
-                )}
-              </div>
-              {(e.venueName || e.venueAddress) && (
-                <div className={right ? "md:col-start-1 md:row-start-1 md:pl-6" : ""}>
-                  <div className="w-card flex items-center gap-4 p-5">
-                    <span aria-hidden className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[var(--w-tint)] text-[var(--w-accent)]">
-                      <MapPin className="h-5 w-5" />
-                    </span>
-                    <div className="min-w-0 text-left">
-                      <p className="font-semibold">{e.venueName || "Venue"}</p>
-                      {e.venueAddress && <p className="w-muted truncate text-sm">{e.venueAddress}</p>}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </Reveal>
-          );
-        })}
-      </ol>
-    </Section>
-  );
-}
-
 // ───────────────────────────── Colours of the day
 
 export function ColoursSection({ w, theme }: { w: CelebrationView; theme: Theme }) {
@@ -283,7 +165,7 @@ export function ColoursSection({ w, theme }: { w: CelebrationView; theme: Theme 
   const names = w.colours.map((c) => c.name);
   const title = names.length > 1 ? `${names.slice(0, -1).join(", ")} & ${names.at(-1)}` : names[0];
   return (
-    <Section id="colours" eyebrow="Colours of the day" title={title} theme={theme} intro={<p>Join us in these colours, if you&apos;d like to.</p>}>
+    <Section id="colours" eyebrow="Colours of the day" title={title} theme={theme} tone={theme.layout.pop ? "pop" : "plain"} intro={<p>Join us in these colours, if you&apos;d like to.</p>}>
       <ul className={`mx-auto grid max-w-5xl gap-5 ${w.colours.length >= 3 ? "sm:grid-cols-3" : "sm:grid-cols-2"} ${w.colours.length > 3 ? "lg:grid-cols-5" : ""}`}>
         {w.colours.map((c) => (
           <Reveal as="li" key={c.hex + c.name} className="w-card flex flex-col items-center p-5 text-center">
@@ -371,14 +253,16 @@ export function RsvpContacts({ w }: { w: CelebrationView }) {
 export function CountdownBand({ w, theme }: { w: CelebrationView; theme: Theme }) {
   const p = w.events.find((e) => e.id === w.primaryEventId) ?? w.events[0];
   if (!p || !w.occasion.countdown || w.phase !== "upcoming") return null;
+  const look = theme.layout.countdown;
+  const cls = look === "band" ? "w-band" : look === "big" ? (theme.layout.pop ? "w-pop" : "w-band") : "";
+  const heading = w.occasion.kind === "outing" ? "Adventure Awaits" : w.occasion.kind === "birthday" ? "The Party Starts In" : "Our Big Day Awaits";
   return (
-    <section aria-label="Countdown" className="px-5 py-20 text-center sm:py-24">
+    <section aria-label="Countdown" className={`px-5 py-20 text-center sm:py-24 ${cls}`}>
       <Reveal>
-        <p className="w-display text-4xl italic sm:text-5xl">{w.occasion.kind === "outing" ? "Adventure Awaits" : "Our Big Day Awaits"}</p>
-        <div className="mx-auto mt-8 flex max-w-md justify-center">
-          <Countdown to={p.startsAt} tone="dark" after={<p className="w-display text-2xl italic">{w.occasion.copy.today}</p>} />
+        <p className={`w-display ${look === "big" ? "text-3xl uppercase tracking-[0.12em] sm:text-4xl" : "text-4xl italic sm:text-5xl"}`}>{heading}</p>
+        <div className="mx-auto mt-10 flex max-w-4xl justify-center">
+          <Countdown to={p.startsAt} tone={look === "circles" ? "dark" : "light"} look={look === "band" ? "boxes" : look} after={<p className="w-display text-2xl italic">{w.occasion.copy.today}</p>} />
         </div>
-        {theme.ornament !== "none" && <div className="mt-8"><OrnamentDivider kind={theme.ornament} /></div>}
       </Reveal>
     </section>
   );

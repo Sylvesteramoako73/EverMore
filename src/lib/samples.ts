@@ -1,67 +1,77 @@
 import type { CelebrationView, EventView, ImageView, OccasionView } from "@/components/site/types";
 import { addDays, plainDateInZone, zonedLocalToUtc } from "./dates";
-import { getOccasion, OCCASIONS, type ColourSwatch, type OccasionKind } from "./occasions";
+import { getOccasion, type ColourSwatch, type OccasionKind } from "./occasions";
+import photos from "./sample-photos.json";
 import { getTheme, THEMES } from "./themes";
 
 // Sample celebrations for the marketing site. Names, dates and places are fictional; images are
 // abstract illustrations (inline SVG), clearly not photos of real people.
 
-type Scene = "dusk" | "garden" | "city" | "hills" | "coast" | "weave" | "confetti" | "lake";
+type Photo = { id: string; by: string; alt: string; src: string; thumb: string; width?: number; height?: number };
+const PHOTOS = photos as Record<string, Photo>;
 
-function art(scene: Scene, p: { a: string; b: string; c: string; d: string }, w = 1200, h = 1500): string {
-  const shapes: Record<Scene, string> = {
-    dusk: `<circle cx="${w * 0.84}" cy="${h * 0.14}" r="${w * 0.08}" fill="${p.c}" opacity=".85"/>
-      <path d="M0 ${h * 0.62} Q ${w * 0.3} ${h * 0.5} ${w * 0.55} ${h * 0.6} T ${w} ${h * 0.56} V ${h} H 0Z" fill="${p.d}" opacity=".85"/>
-      <path d="M0 ${h * 0.72} Q ${w * 0.4} ${h * 0.64} ${w} ${h * 0.74} V ${h} H 0Z" fill="${p.a}" opacity=".9"/>`,
-    garden: `<path d="M${w * 0.2} ${h} V ${h * 0.45} a ${w * 0.3} ${w * 0.3} 0 0 1 ${w * 0.6} 0 V ${h}" fill="none" stroke="${p.d}" stroke-width="${w * 0.035}" opacity=".7"/>
-      ${Array.from({ length: 14 }, (_, i) => `<circle cx="${w * (0.18 + (i % 7) * 0.11)}" cy="${h * (0.3 + Math.floor(i / 7) * 0.08 + (i % 3) * 0.02)}" r="${w * 0.035}" fill="${i % 2 ? p.c : p.b}" opacity=".85"/>`).join("")}
-      <path d="M0 ${h * 0.8} Q ${w * 0.5} ${h * 0.74} ${w} ${h * 0.8} V ${h} H 0Z" fill="${p.d}" opacity=".5"/>`,
-    city: `${Array.from({ length: 12 }, (_, i) => `<rect x="${(i * w) / 12}" y="${h * (0.45 + ((i * 37) % 23) / 100)}" width="${w / 12 - 6}" height="${h}" fill="${p.d}" opacity="${0.55 + (i % 3) * 0.15}"/>`).join("")}
-      <circle cx="${w * 0.84}" cy="${h * 0.12}" r="${w * 0.06}" fill="${p.c}" opacity=".9"/>`,
-    hills: `<path d="M0 ${h * 0.55} Q ${w * 0.25} ${h * 0.42} ${w * 0.5} ${h * 0.55} T ${w} ${h * 0.5} V ${h} H 0Z" fill="${p.c}" opacity=".7"/>
-      <path d="M0 ${h * 0.68} Q ${w * 0.35} ${h * 0.58} ${w * 0.7} ${h * 0.7} T ${w} ${h * 0.66} V ${h} H 0Z" fill="${p.d}" opacity=".85"/>
-      <circle cx="${w * 0.16}" cy="${h * 0.13}" r="${w * 0.06}" fill="${p.b}" opacity=".8"/>`,
-    coast: `<rect y="${h * 0.58}" width="${w}" height="${h * 0.42}" fill="${p.d}" opacity=".75"/>
-      ${Array.from({ length: 6 }, (_, i) => `<path d="M0 ${h * (0.62 + i * 0.05)} Q ${w * 0.5} ${h * (0.6 + i * 0.05)} ${w} ${h * (0.62 + i * 0.05)}" stroke="${p.b}" stroke-width="3" fill="none" opacity=".35"/>`).join("")}
-      <circle cx="${w * 0.5}" cy="${h * 0.6}" r="${w * 0.07}" fill="${p.c}" opacity=".85"/>`,
-    lake: `<path d="M0 ${h * 0.5} L ${w * 0.3} ${h * 0.3} L ${w * 0.55} ${h * 0.48} L ${w * 0.8} ${h * 0.26} L ${w} ${h * 0.45} V ${h * 0.6} H 0Z" fill="${p.d}" opacity=".8"/>
-      <rect y="${h * 0.6}" width="${w}" height="${h * 0.4}" fill="${p.c}" opacity=".55"/>
-      ${Array.from({ length: 5 }, (_, i) => `<path d="M${w * 0.1} ${h * (0.66 + i * 0.06)} H ${w * 0.9}" stroke="${p.b}" stroke-width="3" opacity=".3"/>`).join("")}`,
-    weave: `${Array.from({ length: 10 }, (_, r) => Array.from({ length: 8 }, (_, c) => `<path d="M${c * (w / 8)} ${r * (h / 10) + h / 20} l${w / 16} ${-h / 20} ${w / 16} ${h / 20} ${-w / 16} ${h / 20}z" fill="${(r + c) % 3 === 0 ? p.c : (r + c) % 3 === 1 ? p.d : p.b}" opacity=".8"/>`).join("")).join("")}`,
-    confetti: `${Array.from({ length: 40 }, (_, i) => `<rect x="${(i * 97) % w}" y="${(i * 173) % h}" width="${w * 0.04}" height="${w * 0.016}" rx="4" fill="${[p.c, p.d, p.b, "#2EC4B6", "#FFB627"][i % 5]}" transform="rotate(${(i * 37) % 180} ${(i * 97) % w} ${(i * 173) % h})" opacity=".9"/>`).join("")}`,
-  };
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid slice">
-    <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${p.a}"/><stop offset="1" stop-color="${p.b}"/></linearGradient></defs>
-    <rect width="${w}" height="${h}" fill="url(#g)"/>${shapes[scene]}</svg>`;
-  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg.replace(/\s+/g, " "))}`;
-}
-
-const PALETTES: Record<string, { a: string; b: string; c: string; d: string }> = {
-  "earth-and-ivory": { a: "#3b2418", b: "#c9a98a", c: "#f6eee1", d: "#291811" },
-  "timeless-elegance": { a: "#1d2b4a", b: "#c9a86a", c: "#f3e2b8", d: "#101c35" },
-  "golden-hour": { a: "#e9a15a", b: "#fbe6c6", c: "#fff3d6", d: "#9a4b1c" },
-  confetti: { a: "#fff1e0", b: "#ffd9b8", c: "#e4572e", d: "#1f1a3a" },
-  serene: { a: "#c9d1cc", b: "#f2f3f0", c: "#ffffff", d: "#5e7263" },
-  adventure: { a: "#9db5a3", b: "#f3e7cf", c: "#4f7a8a", d: "#1e3329" },
-  "little-blessings": { a: "#cfdcea", b: "#fbf3ee", c: "#f4d6dc", d: "#8fa9c4" },
-  "modern-minimalist": { a: "#d9d9d6", b: "#f6f6f4", c: "#151515", d: "#8a8a86" },
-  "romantic-garden": { a: "#f5dcd6", b: "#fbf5f2", c: "#e7a9a1", d: "#8a9b7a" },
-  "luxury-editorial": { a: "#0e0e0f", b: "#3a3125", c: "#d4b47c", d: "#18181a" },
-  "traditional-celebration": { a: "#5a1f30", b: "#c9a35a", c: "#f1d79b", d: "#3a1420" },
-  "contemporary-african-romance": { a: "#b4532a", b: "#f2c27b", c: "#2f5d46", d: "#2b2118" },
-};
-
-const SCENES: Record<OccasionKind, Scene[]> = {
-  wedding: ["dusk", "garden", "coast", "hills"],
-  anniversary: ["coast", "dusk", "garden", "hills"],
-  birthday: ["confetti", "city", "dusk", "garden"],
-  funeral: ["hills", "lake", "garden", "dusk"],
-  outing: ["lake", "hills", "coast", "dusk"],
-  naming: ["garden", "hills", "coast", "dusk"],
-  graduation: ["city", "confetti", "hills", "dusk"],
-  reunion: ["hills", "coast", "city", "garden"],
-  shower: ["garden", "confetti", "coast", "hills"],
-  other: ["dusk", "city", "garden", "hills"],
+/** Which stock photos each occasion's sample uses. */
+const PHOTO_SETS: Record<OccasionKind, { hero: string; portraits: string[]; gallery: string[]; venues: string[] }> = {
+  wedding: {
+    hero: "wed-couple-suit",
+    portraits: ["wed-pose", "wed-kiss"],
+    gallery: ["wed-hands", "wed-traditional", "wed-palm", "wed-beach", "wed-ring", "wed-group", "flowers-table", "wed-tree"],
+    venues: ["venue-church", "venue-reception", "venue-pavilion", "venue-tables"],
+  },
+  anniversary: {
+    hero: "wed-beach",
+    portraits: ["wed-palm", "wed-hands"],
+    gallery: ["wed-ring", "wed-kiss", "flowers-table", "venue-tables", "wed-tree", "wed-pose"],
+    venues: ["venue-church", "venue-tables"],
+  },
+  birthday: {
+    hero: "bday-cake-group",
+    portraits: ["man-suit", "man-smile"],
+    gallery: ["bday-friends", "bday-cake", "bday-women", "bday-candles", "bday-tables", "bday-kids", "bday-balloon"],
+    venues: ["venue-church", "venue-reception"],
+  },
+  funeral: {
+    hero: "mem-rose",
+    portraits: ["mem-candles", "mem-candle"],
+    gallery: ["mem-flowers", "mem-candle-flowers", "mem-church-candle", "mem-stained-glass", "mem-candles", "flowers-table"],
+    venues: ["mem-stained-glass", "venue-pavilion", "venue-church", "venue-church"],
+  },
+  outing: {
+    hero: "trip-sunset-group",
+    portraits: ["trip-sand", "trip-field"],
+    gallery: ["trip-boat-sunset", "trip-safari", "trip-truck", "trip-boat", "trip-road", "friends-three"],
+    venues: ["trip-road", "trip-boat", "trip-boat-sunset", "trip-truck"],
+  },
+  naming: {
+    hero: "baby-fabric",
+    portraits: ["baby-cap", "family-mother"],
+    gallery: ["baby-bed", "family-attire", "baby-bump", "family-dance", "flowers-table"],
+    venues: ["family-group", "venue-tables"],
+  },
+  graduation: {
+    hero: "grad-flowers",
+    portraits: ["grad-cap", "grad-man"],
+    gallery: ["grad-group", "grad-bubbles", "bday-friends", "family-group"],
+    venues: ["venue-reception"],
+  },
+  reunion: {
+    hero: "family-group",
+    portraits: ["friends-three", "family-dance"],
+    gallery: ["family-attire", "bday-women", "family-games", "trip-sand", "bday-friends"],
+    venues: ["venue-church", "venue-reception"],
+  },
+  shower: {
+    hero: "baby-bump",
+    portraits: ["flowers-table", "baby-cap"],
+    gallery: ["bday-tables", "family-mother", "bday-cake", "baby-bed"],
+    venues: ["venue-tables"],
+  },
+  other: {
+    hero: "family-games",
+    portraits: ["bday-tables", "friends-three"],
+    gallery: ["family-group", "flowers-table", "bday-friends", "bday-cake"],
+    venues: ["venue-pavilion"],
+  },
 };
 
 type SampleSpec = {
@@ -203,9 +213,9 @@ function occasionView(kind: OccasionKind): OccasionView {
   return { kind: o.kind, label: o.label, countdown: o.countdown, after: o.after, copy: { ...o.copy } };
 }
 
-function image(id: string, scene: Scene, palette: (typeof PALETTES)[string], caption = ""): ImageView {
-  const src = art(scene, palette);
-  return { id, src, thumb: src, alt: `Illustration: ${scene}`, caption, width: 1200, height: 1500, placeholder: null };
+function image(name: string, caption = ""): ImageView {
+  const p = PHOTOS[name];
+  return { id: `sample-${name}`, src: p.src, thumb: p.thumb, alt: p.alt, caption, width: p.width ?? null, height: p.height ?? null, placeholder: null };
 }
 
 /** A complete sample page for an occasion in a theme, `daysAhead` from today (negative = already happened). */
@@ -214,9 +224,8 @@ export function sampleCelebration(
   { occasion = "wedding", daysAhead = 96, now = Date.now() }: { occasion?: OccasionKind; daysAhead?: number; now?: number } = {},
 ): CelebrationView {
   const theme = getTheme(themeId);
-  const palette = PALETTES[theme.id];
   const spec = SPECS[occasion];
-  const scenes = SCENES[occasion];
+  const set = PHOTO_SETS[occasion];
   const tz = "Africa/Accra";
   const day = addDays(plainDateInZone(new Date(now), tz), daysAhead);
   const at = (d: string, time: string) => zonedLocalToUtc(`${d}T${time}`, tz).toISOString();
@@ -228,7 +237,7 @@ export function sampleCelebration(
       id: `sample-${i}`, name: e.name, startsAt: at(d, e.start), endsAt: at(endDay, e.end), timezone: tz,
       venueName: e.venue, venueAddress: e.address, venueLat: null, venueLng: null, description: e.description,
       dressCode: e.dressCode ?? "", icon: e.icon,
-      venueImage: i < 2 ? image(`sample-venue-${i}`, i === 0 ? "city" : "garden", palette) : null,
+      venueImage: set.venues[i] ? image(set.venues[i]) : null,
     };
   });
   const main = events.find((e) => plainDateInZone(new Date(e.startsAt), tz) === day) ?? events[0];
@@ -242,7 +251,7 @@ export function sampleCelebration(
     names: spec.names,
     monogram: spec.names.length === 2 ? `${spec.names[0][0]}&${spec.names[1][0]}` : spec.title[0],
     guestMessage: spec.guestMessage,
-    story: `${spec.story}\n\nThis is a sample page: names, places and dates are made up to show how ${theme.name} looks.`,
+    story: `${spec.story}\n\nThis is a sample page: names, places and dates are made up to show how ${theme.name} looks. Photos from Unsplash.`,
     announcement: "",
     hashtag: spec.names.length === 2 ? `${spec.names[0]}And${spec.names[1]}` : "",
     dressCode: "",
@@ -252,9 +261,9 @@ export function sampleCelebration(
       ...spec.facts,
     },
     contact: null,
-    hero: image("sample-hero", scenes[0], palette),
-    portraits: [image("sample-p1", scenes[1], palette), image("sample-p2", scenes[2], palette)],
-    gallery: scenes.concat(scenes.slice().reverse()).map((s, i) => image(`sample-g${i}`, s, palette)),
+    hero: image(set.hero),
+    portraits: set.portraits.map((n) => image(n)),
+    gallery: set.gallery.map((n) => image(n)),
     colours: spec.colours,
     events,
     primaryEventId: main.id,
@@ -297,11 +306,28 @@ export function sampleCelebration(
   };
 }
 
-/** Which occasion to show for each theme on the marketing site. */
+/** Each theme's showcase occasion on the marketing site, chosen for variety. */
+const SHOWCASE: Record<string, OccasionKind> = {
+  "earth-and-ivory": "wedding",
+  "timeless-elegance": "anniversary",
+  "golden-hour": "reunion",
+  confetti: "birthday",
+  serene: "funeral",
+  adventure: "outing",
+  "little-blessings": "naming",
+  "modern-minimalist": "graduation",
+  "romantic-garden": "shower",
+  "luxury-editorial": "wedding",
+  "traditional-celebration": "wedding",
+  "contemporary-african-romance": "naming",
+};
+
 export const SAMPLE_THEMES = THEMES.map((t) => ({
   id: t.id,
   name: t.name,
   tagline: t.tagline,
   premium: t.premium,
-  occasion: (Object.values(OCCASIONS).find((o) => o.recommendedThemes[0] === t.id)?.kind ?? t.suitedFor[0]) as OccasionKind,
+  occasion: SHOWCASE[t.id] ?? t.suitedFor[0],
 }));
+
+export const PHOTO_CREDITS = Object.values(PHOTOS).map((p) => ({ by: p.by, id: p.id }));

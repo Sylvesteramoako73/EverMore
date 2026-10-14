@@ -224,7 +224,7 @@ export function GuestbookPanel({ w, inviteToken }: { w: CelebrationView; inviteT
 
   return (
     <div className="grid gap-10 lg:grid-cols-[minmax(0,380px)_1fr]">
-      <form action={action} key={state?.ok ? "sent" : "form"} className="w-surface relative h-fit space-y-5 p-6 sm:p-8 lg:sticky lg:top-24" noValidate>
+      <form action={action} key={state?.ok ? "sent" : "form"} className="w-card relative h-fit space-y-5 p-6 sm:p-8 lg:sticky lg:top-24" noValidate>
         <Honeypot />
         <p className="w-muted">{w.occasion.copy.guestbookPrompt}</p>
         <TextField name="name" label="Your name" autoComplete="name" required errors={errors.name} defaultValue={state?.ok ? "" : state?.values?.name} />
@@ -256,7 +256,7 @@ export function GuestbookPanel({ w, inviteToken }: { w: CelebrationView; inviteT
         ) : (
           <ul className="columns-1 gap-4 sm:columns-2">
             {w.guestbook.entries.map((e) => (
-              <li key={e.id} className="w-surface mb-4 break-inside-avoid p-6">
+              <li key={e.id} className="w-card mb-4 break-inside-avoid p-6">
                 <blockquote className="whitespace-pre-line">{e.message}</blockquote>
                 <div className="mt-4 flex items-center justify-between gap-3">
                   <p className="w-display w-accent text-xl italic">— {e.name}</p>
@@ -287,7 +287,31 @@ export function GuestbookPanel({ w, inviteToken }: { w: CelebrationView; inviteT
 
 // ───────────────────────────── Gallery with lightbox
 
-export function Gallery({ images }: { images: ImageView[] }) {
+type GalleryLayout = "grid" | "masonry" | "polaroid" | "filmstrip" | "editorial";
+
+const LIST: Record<GalleryLayout, string> = {
+  grid: "grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3",
+  masonry: "columns-2 gap-3 sm:gap-4 lg:columns-3",
+  polaroid: "flex flex-wrap justify-center gap-6 sm:gap-8",
+  filmstrip: "w-filmstrip -mx-5 flex gap-4 overflow-x-auto px-5 pb-4 sm:-mx-8 sm:px-8",
+  editorial: "grid grid-cols-2 auto-rows-[150px] gap-3 sm:auto-rows-[210px] sm:gap-4 md:grid-cols-4",
+};
+const IMG: Record<GalleryLayout, string> = {
+  grid: "aspect-[4/5]",
+  masonry: "",
+  polaroid: "aspect-square",
+  filmstrip: "aspect-[3/4]",
+  editorial: "",
+};
+function itemClass(layout: GalleryLayout, i: number) {
+  if (layout === "masonry") return "mb-3 break-inside-avoid sm:mb-4";
+  if (layout === "polaroid") return `w-[44%] sm:w-[30%] lg:w-[22%] ${["-rotate-3", "rotate-2", "-rotate-1", "rotate-3", "rotate-1", "-rotate-2"][i % 6]}`;
+  if (layout === "filmstrip") return "w-[70%] shrink-0 sm:w-[40%] lg:w-[28%]";
+  if (layout === "editorial") return i === 0 ? "col-span-2 row-span-2" : i % 5 === 3 ? "md:col-span-2" : "";
+  return "";
+}
+
+export function Gallery({ images, layout = "masonry" }: { images: ImageView[]; layout?: GalleryLayout }) {
   const [open, setOpen] = useState<number | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
@@ -317,12 +341,14 @@ export function Gallery({ images }: { images: ImageView[] }) {
   const current = open === null ? null : images[open];
   return (
     <>
-      <ul className="columns-2 gap-3 sm:gap-4 lg:columns-3">
+      <ul className={LIST[layout]}>
         {images.map((img, i) => (
-          <li key={img.id} className="mb-3 break-inside-avoid sm:mb-4">
+          <li key={img.id} className={itemClass(layout, i)}>
             <button
               type="button"
-              className="w-photo group block w-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--w-accent)]"
+              className={`group block h-full w-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--w-accent)] ${
+                layout === "polaroid" ? "bg-white p-2.5 pb-10 shadow-[0_18px_40px_-22px_rgba(0,0,0,.5)]" : "w-photo"
+              }`}
               onClick={(e) => {
                 triggerRef.current = e.currentTarget;
                 setOpen(i);
@@ -336,7 +362,7 @@ export function Gallery({ images }: { images: ImageView[] }) {
                 height={img.height ?? undefined}
                 loading="lazy"
                 decoding="async"
-                className="w-full transition-transform duration-700 group-hover:scale-[1.03]"
+                className={`w-full transition-transform duration-700 group-hover:scale-[1.03] ${layout === "masonry" ? "" : "h-full object-cover"} ${IMG[layout]}`}
                 style={img.placeholder ? { backgroundImage: `url(${img.placeholder})`, backgroundSize: "cover" } : undefined}
               />
             </button>

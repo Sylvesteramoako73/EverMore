@@ -1,0 +1,506 @@
+{
+  "wed-hands": {
+    "id": "1529519195486-16945f0fb37f",
+    "by": "Alekon pictures",
+    "alt": "Couple holding hands",
+    "src": "/samples/photos/wed-hands.webp",
+    "thumb": "/samples/photos/wed-hands-sm.webp",
+    "width": 1067,
+    "height": 1600
+  },
+  "wed-couple-suit": {
+    "id": "1608009232260-9b527a5bb9bd",
+    "by": "Steward Masweneng",
+    "alt": "Groom in a black suit and bride in a white dress",
+    "src": "/samples/photos/wed-couple-suit.webp",
+    "thumb": "/samples/photos/wed-couple-suit-sm.webp",
+    "width": 1600,
+    "height": 1060
+  },
+  "wed-tree": {
+    "id": "1695281536457-01f9a07c575b",
+    "by": "Samwel francis",
+    "alt": "Bride and groom embracing under a tree",
+    "src": "/samples/photos/wed-tree.webp",
+    "thumb": "/samples/photos/wed-tree-sm.webp",
+    "width": 1068,
+    "height": 1600
+  },
+  "wed-pose": {
+    "id": "1695281535578-ce371088bb3e",
+    "by": "Samwel francis",
+    "alt": "Bride and groom posing for a wedding photo",
+    "src": "/samples/photos/wed-pose.webp",
+    "thumb": "/samples/photos/wed-pose-sm.webp",
+    "width": 1271,
+    "height": 1600
+  },
+  "wed-traditional": {
+    "id": "1661332517932-2d441bfb2994",
+    "by": "Tope. A Asokere",
+    "alt": "Couple in traditional clothing",
+    "src": "/samples/photos/wed-traditional.webp",
+    "thumb": "/samples/photos/wed-traditional-sm.webp",
+    "width": 1600,
+    "height": 1586
+  },
+  "wed-group": {
+    "id": "1660675133902-acd1b057f75d",
+    "by": "Emmanuel Yeboah Okine",
+    "alt": "Guests in traditional dress",
+    "src": "/samples/photos/wed-group.webp",
+    "thumb": "/samples/photos/wed-group-sm.webp",
+    "width": 1600,
+    "height": 1067
+  },
+  "wed-palm": {
+    "id": "1684253866485-b26f847ff97e",
+    "by": "Elizabeth Pappoe",
+    "alt": "Bride and groom in front of a palm tree",
+    "src": "/samples/photos/wed-palm.webp",
+    "thumb": "/samples/photos/wed-palm-sm.webp",
+    "width": 1067,
+    "height": 1600
+  },
+  "wed-beach": {
+    "id": "1606495186270-395860907235",
+    "by": "Osarugue Igbinoba",
+    "alt": "Couple holding hands on a beach",
+    "src": "/samples/photos/wed-beach.webp",
+    "thumb": "/samples/photos/wed-beach-sm.webp",
+    "width": 1600,
+    "height": 1067
+  },
+  "wed-ring": {
+    "id": "1507650029083-5092f9b2b2e6",
+    "by": "Andrew Itaga",
+    "alt": "Placing a ring on a finger",
+    "src": "/samples/photos/wed-ring.webp",
+    "thumb": "/samples/photos/wed-ring-sm.webp",
+    "width": 1600,
+    "height": 1068
+  },
+  "wed-kiss": {
+    "id": "1665416557437-6dd757e90ce8",
+    "by": "Jeff Kweba",
+    "alt": "Couple embracing",
+    "src": "/samples/photos/wed-kiss.webp",
+    "thumb": "/samples/photos/wed-kiss-sm.webp",
+    "width": 1067,
+    "height": 1600
+  },
+  "flowers-table": {
+    "id": "1617813437449-c4f8f233dcd6",
+    "by": "Antoine Demare",
+    "alt": "White and pink flowers on a table",
+    "src": "/samples/photos/flowers-table.webp",
+    "thumb": "/samples/photos/flowers-table-sm.webp",
+    "width": 1600,
+    "height": 1067
+  },
+  "venue-tables": {
+    "id": "1510076857177-7470076d4098",
+    "by": "Abby Savage",
+    "alt": "Reception tables with white cloths",
+    "src": "/samples/photos/venue-tables.webp",
+    "thumb": "/samples/photos/venue-tables-sm.webp",
+    "width": 1600,
+    "height": 1065
+  },
+  "venue-reception": {
+    "id": "1761114905078-163aa92141c8",
+    "by": "Lucas T Photography",
+    "alt": "Reception dinner with guests",
+    "src": "/samples/photos/venue-reception.webp",
+    "thumb": "/samples/photos/venue-reception-sm.webp",
+    "width": 1600,
+    "height": 1067
+  },
+  "venue-church": {
+    "id": "1663321231228-2625873fbdcd",
+    "by": "CJ Dayrit",
+    "alt": "Church with rows of chairs",
+    "src": "/samples/photos/venue-church.webp",
+    "thumb": "/samples/photos/venue-church-sm.webp",
+    "width": 1600,
+    "height": 1067
+  },
+  "venue-pavilion": {
+    "id": "1780728955330-73e2031d1bf6",
+    "by": "Troy Olson",
+    "alt": "Outdoor pavilion overlooking fields",
+    "src": "/samples/photos/venue-pavilion.webp",
+    "thumb": "/samples/photos/venue-pavilion-sm.webp",
+    "width": 1600,
+    "height": 1067
+  },
+  "bday-cake-group": {
+    "id": "1635800055994-64fdf108b873",
+    "by": "Walter Baluku",
+    "alt": "People around a birthday cake",
+    "src": "/samples/photos/bday-cake-group.webp",
+    "thumb": "/samples/photos/bday-cake-group-sm.webp",
+    "width": 1067,
+    "height": 1600
+  },
+  "bday-friends": {
+    "id": "1737649507334-92c9fa4beb7c",
+    "by": "Eyo Archibong",
+    "alt": "Friends standing together",
+    "src": "/samples/photos/bday-friends.webp",
+    "thumb": "/samples/photos/bday-friends-sm.webp",
+    "width": 1600,
+    "height": 900
+  },
+  "bday-kids": {
+    "id": "1648556141401-eb1389a12571",
+    "by": "Ayrus Hill",
+    "alt": "Children in party hats",
+    "src": "/samples/photos/bday-kids.webp",
+    "thumb": "/samples/photos/bday-kids-sm.webp",
+    "width": 1600,
+    "height": 1052
+  },
+  "bday-balloon": {
+    "id": "1615815102957-02a1bc1971ce",
+    "by": "Emmanuel Yeboah Okine",
+    "alt": "Girl holding a yellow balloon",
+    "src": "/samples/photos/bday-balloon.webp",
+    "thumb": "/samples/photos/bday-balloon-sm.webp",
+    "width": 1170,
+    "height": 1600
+  },
+  "bday-cake": {
+    "id": "1610670444950-0b29430891b4",
+    "by": "Duncan Kidd",
+    "alt": "Chocolate cake with lit candles",
+    "src": "/samples/photos/bday-cake.webp",
+    "thumb": "/samples/photos/bday-cake-sm.webp",
+    "width": 1065,
+    "height": 1600
+  },
+  "bday-candles": {
+    "id": "1545696563-af8f6ec2295a",
+    "by": "Aneta Pawlik",
+    "alt": "Lighting candles on a birthday cake",
+    "src": "/samples/photos/bday-candles.webp",
+    "thumb": "/samples/photos/bday-candles-sm.webp",
+    "width": 1060,
+    "height": 1600
+  },
+  "bday-tables": {
+    "id": "1744891470331-c660191721b5",
+    "by": "Anubhav Event Productions",
+    "alt": "Colourful tables set for an event",
+    "src": "/samples/photos/bday-tables.webp",
+    "thumb": "/samples/photos/bday-tables-sm.webp",
+    "width": 1068,
+    "height": 1600
+  },
+  "bday-women": {
+    "id": "1789589724989-700a09d0d08c",
+    "by": "ishakah rumbani",
+    "alt": "Women in matching outfits at a celebration",
+    "src": "/samples/photos/bday-women.webp",
+    "thumb": "/samples/photos/bday-women-sm.webp",
+    "width": 1600,
+    "height": 1067
+  },
+  "man-suit": {
+    "id": "1688120320226-a73ed520c8b7",
+    "by": "Samson Balogun",
+    "alt": "Man in a blue suit",
+    "src": "/samples/photos/man-suit.webp",
+    "thumb": "/samples/photos/man-suit-sm.webp",
+    "width": 1600,
+    "height": 988
+  },
+  "man-smile": {
+    "id": "1522529599102-193c0d76b5b6",
+    "by": "Elizeu Dias",
+    "alt": "Man smiling outdoors",
+    "src": "/samples/photos/man-smile.webp",
+    "thumb": "/samples/photos/man-smile-sm.webp",
+    "width": 1600,
+    "height": 1067
+  },
+  "mem-candles": {
+    "id": "1602693875034-52c6b2e79785",
+    "by": "Sixteen Miles Out",
+    "alt": "White candles on a wooden table",
+    "src": "/samples/photos/mem-candles.webp",
+    "thumb": "/samples/photos/mem-candles-sm.webp",
+    "width": 1600,
+    "height": 1280
+  },
+  "mem-candle": {
+    "id": "1612052975847-270c7a668ce1",
+    "by": "stefzn",
+    "alt": "Lit candle in a glass holder",
+    "src": "/samples/photos/mem-candle.webp",
+    "thumb": "/samples/photos/mem-candle-sm.webp",
+    "width": 1280,
+    "height": 1600
+  },
+  "mem-candle-flowers": {
+    "id": "1640863399547-b6549b473c9d",
+    "by": "Adarsh Kumar Singh",
+    "alt": "White candle surrounded by flowers",
+    "src": "/samples/photos/mem-candle-flowers.webp",
+    "thumb": "/samples/photos/mem-candle-flowers-sm.webp",
+    "width": 1600,
+    "height": 1060
+  },
+  "mem-rose": {
+    "id": "1604350917589-8006cd10f4b5",
+    "by": "Nikola Johnny Mirkovic",
+    "alt": "Pink rose in a glass bottle",
+    "src": "/samples/photos/mem-rose.webp",
+    "thumb": "/samples/photos/mem-rose-sm.webp",
+    "width": 1100,
+    "height": 1600
+  },
+  "mem-flowers": {
+    "id": "1780400357798-99f176a9e066",
+    "by": "DEAD GOOD LEGACIES",
+    "alt": "Flower arrangements in glass jars",
+    "src": "/samples/photos/mem-flowers.webp",
+    "thumb": "/samples/photos/mem-flowers-sm.webp",
+    "width": 1600,
+    "height": 1067
+  },
+  "mem-stained-glass": {
+    "id": "1699830506478-af7b3f5e6cc9",
+    "by": "Jack Gardner",
+    "alt": "Church with stained glass windows",
+    "src": "/samples/photos/mem-stained-glass.webp",
+    "thumb": "/samples/photos/mem-stained-glass-sm.webp",
+    "width": 1600,
+    "height": 901
+  },
+  "mem-church-candle": {
+    "id": "1640544351861-930d12160bbb",
+    "by": "Peter Herrmann",
+    "alt": "Candle lit in a church",
+    "src": "/samples/photos/mem-church-candle.webp",
+    "thumb": "/samples/photos/mem-church-candle-sm.webp",
+    "width": 1600,
+    "height": 1065
+  },
+  "trip-sunset-group": {
+    "id": "1667792703678-da968ac1cc2b",
+    "by": "Frederick Shaw",
+    "alt": "Friends photographing the sunset",
+    "src": "/samples/photos/trip-sunset-group.webp",
+    "thumb": "/samples/photos/trip-sunset-group-sm.webp",
+    "width": 1600,
+    "height": 1067
+  },
+  "trip-field": {
+    "id": "1623944439126-4bd1f3a7a4db",
+    "by": "Nicolas Lobos",
+    "alt": "Group standing in a field",
+    "src": "/samples/photos/trip-field.webp",
+    "thumb": "/samples/photos/trip-field-sm.webp",
+    "width": 1503,
+    "height": 1600
+  },
+  "trip-sand": {
+    "id": "1627897495484-229b29feb0d5",
+    "by": "Inatimi Nathus",
+    "alt": "Group on sand on a sunny day",
+    "src": "/samples/photos/trip-sand.webp",
+    "thumb": "/samples/photos/trip-sand-sm.webp",
+    "width": 1600,
+    "height": 1068
+  },
+  "trip-river": {
+    "id": "1684261422279-034c2d714154",
+    "by": "Provincial Archives of Alberta",
+    "alt": "Friends sitting on rocks by a river",
+    "src": "/samples/photos/trip-river.webp",
+    "thumb": "/samples/photos/trip-river-sm.webp",
+    "width": 1600,
+    "height": 943
+  },
+  "trip-boat": {
+    "id": "1572889464105-3d3f39ee2cf7",
+    "by": "Patrick Schiele",
+    "alt": "Boat silhouetted on the water",
+    "src": "/samples/photos/trip-boat.webp",
+    "thumb": "/samples/photos/trip-boat-sm.webp",
+    "width": 1280,
+    "height": 1600
+  },
+  "trip-boat-sunset": {
+    "id": "1722547083154-a6a3038d43b3",
+    "by": "Zia Ur Rehman",
+    "alt": "Boat crossing the water at sunset",
+    "src": "/samples/photos/trip-boat-sunset.webp",
+    "thumb": "/samples/photos/trip-boat-sunset-sm.webp",
+    "width": 1600,
+    "height": 915
+  },
+  "trip-safari": {
+    "id": "1785094209983-5f4040c201bc",
+    "by": "Gilley Aguilar",
+    "alt": "Game drive at sunset",
+    "src": "/samples/photos/trip-safari.webp",
+    "thumb": "/samples/photos/trip-safari-sm.webp",
+    "width": 1600,
+    "height": 1067
+  },
+  "trip-truck": {
+    "id": "1767819657087-fbbb63a28e1a",
+    "by": "Marina Zvada",
+    "alt": "Friends riding in the back of a truck",
+    "src": "/samples/photos/trip-truck.webp",
+    "thumb": "/samples/photos/trip-truck-sm.webp",
+    "width": 1200,
+    "height": 1600
+  },
+  "trip-road": {
+    "id": "1694771169765-e8248b0e7d17",
+    "by": "Michael Ali",
+    "alt": "Dirt road with mountains",
+    "src": "/samples/photos/trip-road.webp",
+    "thumb": "/samples/photos/trip-road-sm.webp",
+    "width": 1600,
+    "height": 1067
+  },
+  "baby-fabric": {
+    "id": "1781263409297-77997e64f2e0",
+    "by": "Aliburhan S",
+    "alt": "Adult holding a smiling baby wrapped in colourful fabric",
+    "src": "/samples/photos/baby-fabric.webp",
+    "thumb": "/samples/photos/baby-fabric-sm.webp",
+    "width": 1069,
+    "height": 1600
+  },
+  "baby-cap": {
+    "id": "1604807788279-ea778c075cee",
+    "by": "Gabriel Tovar",
+    "alt": "Baby in a white knit cap",
+    "src": "/samples/photos/baby-cap.webp",
+    "thumb": "/samples/photos/baby-cap-sm.webp",
+    "width": 1600,
+    "height": 1065
+  },
+  "baby-bed": {
+    "id": "1625646294209-34dbc389e7b1",
+    "by": "Zoe Graham",
+    "alt": "Baby lying on a bed",
+    "src": "/samples/photos/baby-bed.webp",
+    "thumb": "/samples/photos/baby-bed-sm.webp",
+    "width": 1600,
+    "height": 1201
+  },
+  "baby-bump": {
+    "id": "1512094476718-4d8f19366c62",
+    "by": "Andre Adjahoe",
+    "alt": "Parents-to-be",
+    "src": "/samples/photos/baby-bump.webp",
+    "thumb": "/samples/photos/baby-bump-sm.webp",
+    "width": 1067,
+    "height": 1600
+  },
+  "family-mother": {
+    "id": "1769451741731-999ed37e471c",
+    "by": "Folakemi Oke",
+    "alt": "Woman in traditional attire with children",
+    "src": "/samples/photos/family-mother.webp",
+    "thumb": "/samples/photos/family-mother-sm.webp",
+    "width": 1063,
+    "height": 1600
+  },
+  "family-games": {
+    "id": "1577896849786-738ed6c78bd3",
+    "by": "National Cancer Institute",
+    "alt": "Family playing board games",
+    "src": "/samples/photos/family-games.webp",
+    "thumb": "/samples/photos/family-games-sm.webp",
+    "width": 1600,
+    "height": 1063
+  },
+  "family-group": {
+    "id": "1515658323406-25d61c141a6e",
+    "by": "Ian Macharia",
+    "alt": "Group gathered outdoors",
+    "src": "/samples/photos/family-group.webp",
+    "thumb": "/samples/photos/family-group-sm.webp",
+    "width": 1127,
+    "height": 1600
+  },
+  "family-dance": {
+    "id": "1515657834497-26509e295154",
+    "by": "Ian Macharia",
+    "alt": "Woman dancing among friends",
+    "src": "/samples/photos/family-dance.webp",
+    "thumb": "/samples/photos/family-dance-sm.webp",
+    "width": 1165,
+    "height": 1600
+  },
+  "family-attire": {
+    "id": "1780847614316-c9e933e9a9e0",
+    "by": "Omotayo Tajudeen",
+    "alt": "People in traditional attire",
+    "src": "/samples/photos/family-attire.webp",
+    "thumb": "/samples/photos/family-attire-sm.webp",
+    "width": 1067,
+    "height": 1600
+  },
+  "friends-three": {
+    "id": "1589483232748-515c025575bc",
+    "by": "Siviwe Kapteyn",
+    "alt": "Three friends smiling",
+    "src": "/samples/photos/friends-three.webp",
+    "thumb": "/samples/photos/friends-three-sm.webp",
+    "width": 1600,
+    "height": 1064
+  },
+  "grad-group": {
+    "id": "1633734973050-d6499a977c17",
+    "by": "Emmanuel Offei",
+    "alt": "Graduates in gowns",
+    "src": "/samples/photos/grad-group.webp",
+    "thumb": "/samples/photos/grad-group-sm.webp",
+    "width": 1600,
+    "height": 1067
+  },
+  "grad-flowers": {
+    "id": "1770028919746-f68e3095073f",
+    "by": "Chidera Faustina Okeke",
+    "alt": "Graduate holding a bouquet",
+    "src": "/samples/photos/grad-flowers.webp",
+    "thumb": "/samples/photos/grad-flowers-sm.webp",
+    "width": 898,
+    "height": 1600
+  },
+  "grad-man": {
+    "id": "1594750852563-5ed8e0421d40",
+    "by": "Nqobile Vundla",
+    "alt": "Graduate in an academic gown",
+    "src": "/samples/photos/grad-man.webp",
+    "thumb": "/samples/photos/grad-man-sm.webp",
+    "width": 1067,
+    "height": 1600
+  },
+  "grad-cap": {
+    "id": "1686213011642-b25f94b95b96",
+    "by": "Divaris Shirichena",
+    "alt": "Graduate in cap and gown",
+    "src": "/samples/photos/grad-cap.webp",
+    "thumb": "/samples/photos/grad-cap-sm.webp",
+    "width": 1495,
+    "height": 1600
+  },
+  "grad-bubbles": {
+    "id": "1639741660848-a07ebe5e2ce0",
+    "by": "Bigger Smiles",
+    "alt": "Graduate blowing bubbles",
+    "src": "/samples/photos/grad-bubbles.webp",
+    "thumb": "/samples/photos/grad-bubbles-sm.webp",
+    "width": 1067,
+    "height": 1600
+  }
+}
