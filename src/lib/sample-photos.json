@@ -494,15 +494,6 @@
     "width": 1600,
     "height": 1068
   },
-  "trip-river": {
-    "id": "1684261422279-034c2d714154",
-    "by": "Provincial Archives of Alberta",
-    "alt": "Friends sitting on rocks by a river",
-    "src": "/samples/photos/trip-river.webp",
-    "thumb": "/samples/photos/trip-river-sm.webp",
-    "width": 1600,
-    "height": 943
-  },
   "trip-boat": {
     "id": "1572889464105-3d3f39ee2cf7",
     "by": "Patrick Schiele",
@@ -566,15 +557,6 @@
     "width": 1600,
     "height": 1065
   },
-  "baby-bed": {
-    "id": "1625646294209-34dbc389e7b1",
-    "by": "Zoe Graham",
-    "alt": "Baby lying on a bed",
-    "src": "/samples/photos/baby-bed.webp",
-    "thumb": "/samples/photos/baby-bed-sm.webp",
-    "width": 1600,
-    "height": 1201
-  },
   "baby-bump": {
     "id": "1512094476718-4d8f19366c62",
     "by": "Andre Adjahoe",
@@ -602,24 +584,6 @@
     "width": 1600,
     "height": 1063
   },
-  "family-group": {
-    "id": "1515658323406-25d61c141a6e",
-    "by": "Ian Macharia",
-    "alt": "Group gathered outdoors",
-    "src": "/samples/photos/family-group.webp",
-    "thumb": "/samples/photos/family-group-sm.webp",
-    "width": 1127,
-    "height": 1600
-  },
-  "family-dance": {
-    "id": "1515657834497-26509e295154",
-    "by": "Ian Macharia",
-    "alt": "Woman dancing among friends",
-    "src": "/samples/photos/family-dance.webp",
-    "thumb": "/samples/photos/family-dance-sm.webp",
-    "width": 1165,
-    "height": 1600
-  },
   "family-attire": {
     "id": "1780847614316-c9e933e9a9e0",
     "by": "Omotayo Tajudeen",
@@ -629,21 +593,111 @@
     "width": 1067,
     "height": 1600
   },
-  "friends-three": {
-    "id": "1589483232748-515c025575bc",
-    "by": "Siviwe Kapteyn",
-    "alt": "Three friends smiling",
-    "src": "/samples/photos/friends-three.webp",
-    "thumb": "/samples/photos/friends-three-sm.webp",
+  "reunion-friends": {
+    "id": "1622730877504-ea613376a2df",
+    "by": "Eli Ayeke",
+    "alt": "Friends smiling together",
+    "src": "/samples/photos/reunion-friends.webp",
+    "thumb": "/samples/photos/reunion-friends-sm.webp",
     "width": 1600,
-    "height": 1064
+    "height": 1067
   },
-  "grad-group": {
-    "id": "1633734973050-d6499a977c17",
-    "by": "Emmanuel Offei",
-    "alt": "Graduates in gowns",
-    "src": "/samples/photos/grad-group.webp",
-    "thumb": "/samples/photos/grad-group-sm.webp",
+  "reunion-hug": {
+    "id": "1755715253215-d38bd76e3a1b",
+    "by": "Ufoma Ojo",
+    "alt": "Two friends hugging",
+    "src": "/samples/photos/reunion-hug.webp",
+    "thumb": "/samples/photos/reunion-hug-sm.webp",
+    "width": 1280,
+    "height": 1600
+  },
+  "reunion-laugh": {
+    "id": "1768244016470-271b210a8407",
+    "by": "Brian Kungu",
+    "alt": "Three friends laughing and hugging outdoors",
+    "src": "/samples/photos/reunion-laugh.webp",
+    "thumb": "/samples/photos/reunion-laugh-sm.webp",
+    "width": 1067,
+    "height": 1600
+  },
+  "reunion-outdoor": {
+    "id": "1768244016479-756ee49fe26c",
+    "by": "Brian Kungu",
+    "alt": "Young people enjoying an outdoor event",
+    "src": "/samples/photos/reunion-outdoor.webp",
+    "thumb": "/samples/photos/reunion-outdoor-sm.webp",
+    "width": 1600,
+    "height": 1067
+  },
+  "reunion-table": {
+    "id": "1681936489933-743255b50a7a",
+    "by": "Ayodele Adeniyi",
+    "alt": "Family around a table",
+    "src": "/samples/photos/reunion-table.webp",
+    "thumb": "/samples/photos/reunion-table-sm.webp",
+    "width": 1600,
+    "height": 1067
+  },
+  "reunion-group": {
+    "id": "1614317354806-860a3bf79069",
+    "by": "Carrita Tanner",
+    "alt": "Friends standing by a doorway",
+    "src": "/samples/photos/reunion-group.webp",
+    "thumb": "/samples/photos/reunion-group-sm.webp",
+    "width": 1600,
+    "height": 1067
+  },
+  "reunion-women": {
+    "id": "1630726410985-a1021e8a232a",
+    "by": "Andra C Taylor Jr",
+    "alt": "Women laughing together",
+    "src": "/samples/photos/reunion-women.webp",
+    "thumb": "/samples/photos/reunion-women-sm.webp",
+    "width": 1600,
+    "height": 1239
+  },
+  "reunion-lunch": {
+    "id": "1529832588601-c01e066263a8",
+    "by": "Mohau Mannathoko",
+    "alt": "Friends at an outdoor lunch table",
+    "src": "/samples/photos/reunion-lunch.webp",
+    "thumb": "/samples/photos/reunion-lunch-sm.webp",
+    "width": 1600,
+    "height": 1067
+  },
+  "party-dance": {
+    "id": "1711743658461-38c875d37c8e",
+    "by": "Sthembile Nobathana",
+    "alt": "Friends dancing at a party",
+    "src": "/samples/photos/party-dance.webp",
+    "thumb": "/samples/photos/party-dance-sm.webp",
+    "width": 1600,
+    "height": 1287
+  },
+  "grad-kente-walk": {
+    "id": "1692883702706-a50fc21da44f",
+    "by": "Raymond Owusu-Afriyie",
+    "alt": "Two graduates in gowns and kente stoles",
+    "src": "/samples/photos/grad-kente-walk.webp",
+    "thumb": "/samples/photos/grad-kente-walk-sm.webp",
+    "width": 1067,
+    "height": 1600
+  },
+  "grad-kente": {
+    "id": "1680265254066-b2b65e1e95ca",
+    "by": "Emmanuel Yeboah Okine",
+    "alt": "Graduate in a kente stole",
+    "src": "/samples/photos/grad-kente.webp",
+    "thumb": "/samples/photos/grad-kente-sm.webp",
+    "width": 1600,
+    "height": 1067
+  },
+  "grad-celebrate": {
+    "id": "1645263012710-35e2fc89cb5c",
+    "by": "Oscar Omondi",
+    "alt": "Graduate celebrating",
+    "src": "/samples/photos/grad-celebrate.webp",
+    "thumb": "/samples/photos/grad-celebrate-sm.webp",
     "width": 1600,
     "height": 1067
   },

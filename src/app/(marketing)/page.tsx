@@ -14,7 +14,7 @@ const OCCASIONS = [
   { kind: "outing", theme: "adventure", label: "Outings & trips", blurb: "Itinerary, meeting point and what to bring.", photo: "trip-sunset-group", span: "md:col-span-2" },
   { kind: "naming", theme: "little-blessings", label: "Naming ceremonies", blurb: "The name, its meaning and blessings.", photo: "baby-fabric", span: "" },
   { kind: "graduation", theme: "modern-minimalist", label: "Graduations", blurb: "Celebrate the graduate with everyone.", photo: "grad-flowers", span: "" },
-  { kind: "reunion", theme: "golden-hour", label: "Reunions", blurb: "Family and class reunions, before and after.", photo: "family-group", span: "md:col-span-2" },
+  { kind: "reunion", theme: "golden-hour", label: "Reunions", blurb: "Family and class reunions, before and after.", photo: "reunion-friends", span: "md:col-span-2" },
 ] as const;
 
 const FAQ = [
@@ -70,23 +70,23 @@ export default async function HomePage() {
             </ul>
           </div>
 
-          <div className="relative mx-auto h-[520px] w-full max-w-[560px]" aria-hidden>
-            <div className="absolute top-0 left-0 h-[260px] w-[46%] -rotate-3 overflow-hidden rounded-3xl shadow-2xl">
-              <Image src={P("wed-white-tux")} alt="" fill priority sizes="260px" className="object-cover" />
+          {/* One couple, one story: their photo, and the page they made for their guests. */}
+          <div className="relative mx-auto w-full max-w-[520px] pb-10 pl-14 sm:pl-24" aria-hidden>
+            <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] shadow-[0_50px_100px_-40px_rgba(0,0,0,.8)] ring-1 ring-white/10">
+              <Image src={P("wed-kente-couple")} alt="" fill priority sizes="(min-width: 1024px) 440px, 80vw" className="object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-navy/70 via-transparent to-transparent" />
+              <div className="absolute right-6 bottom-6 text-right">
+                <p className="font-display text-3xl">Ama &amp; Kofi</p>
+                <p className="mt-1 text-xs tracking-[0.25em] text-ivory/80 uppercase">Wedding · 18 January</p>
+              </div>
             </div>
-            <div className="absolute bottom-6 left-[6%] h-[210px] w-[40%] rotate-2 overflow-hidden rounded-3xl shadow-2xl">
-              <Image src={P("bday-cake-group")} alt="" fill sizes="220px" className="object-cover" />
-            </div>
-            <div className="absolute top-8 right-0 h-[180px] w-[34%] rotate-3 overflow-hidden rounded-3xl shadow-2xl">
-              <Image src={P("trip-sunset-group")} alt="" fill sizes="200px" className="object-cover" />
-            </div>
-            <Phone src="/samples/screens/earth-and-ivory-phone.webp" alt="" className="absolute top-14 left-1/2 w-[200px] -translate-x-[30%] sm:w-[230px]" />
-            <div className="absolute right-2 bottom-20 rounded-2xl bg-white px-4 py-3 text-navy shadow-xl">
-              <p className="text-xs text-muted-foreground">New RSVP</p>
-              <p className="text-sm font-semibold">Esi is coming (+1) ✓</p>
-            </div>
-            <div className="absolute top-[44%] -left-2 rounded-2xl bg-champagne px-4 py-3 text-navy shadow-xl">
-              <p className="flex items-center gap-1.5 text-sm font-semibold"><Camera className="h-4 w-4" /> 12 photos shared</p>
+            <Phone src="/samples/screens/traditional-celebration-phone.webp" alt="" className="absolute bottom-0 left-0 w-[150px] sm:w-[200px]" />
+            <div className="absolute top-8 -right-2 flex items-center gap-3 rounded-2xl bg-white py-3 pr-5 pl-3 text-navy shadow-xl sm:-right-8">
+              <span className="grid h-9 w-9 place-items-center rounded-full bg-success/15 text-success"><Check className="h-4 w-4" /></span>
+              <span>
+                <span className="block text-xs text-muted-foreground">New RSVP</span>
+                <span className="block text-sm font-semibold">Esi is coming, +1</span>
+              </span>
             </div>
           </div>
         </div>
@@ -269,7 +269,7 @@ export default async function HomePage() {
       {/* ───────────── Closing CTA */}
       <section className="px-4 pb-24 sm:px-6">
         <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[2rem] px-6 py-24 text-center text-white sm:px-12">
-          <Image src={P("family-dance")} alt="" fill sizes="100vw" className="object-cover" />
+          <Image src={P("reunion-hug")} alt="" fill sizes="100vw" className="object-cover" />
           <div className="absolute inset-0 bg-navy/75" />
           <div className="relative">
             <h2 className="text-4xl sm:text-6xl">Begin your story today</h2>
