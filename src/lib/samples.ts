@@ -19,8 +19,8 @@ const PHOTO_SETS: Record<OccasionKind, { hero: string; portraits: string[]; gall
     venues: ["venue-church", "venue-reception", "venue-pavilion", "venue-tables"],
   },
   anniversary: {
-    hero: "wed-beach",
-    portraits: ["wed-garden", "wed-hands"],
+    hero: "wed-garden",
+    portraits: ["wed-beach", "wed-hands"],
     gallery: ["wed-ring", "wed-wall-kiss", "wed-kiss", "flowers-table", "wed-tree", "wed-pose"],
     venues: ["venue-church", "venue-tables"],
   },

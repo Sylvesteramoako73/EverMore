@@ -1,7 +1,7 @@
 // Captures real screenshots of every theme's sample page for the marketing site
 // (public/samples/screens/<theme>-phone.webp and -desktop.webp). Needs the app running.
 //
-// Usage: npm run dev   (in another terminal), then: node scripts/capture-theme-screens.mjs [baseUrl]
+// Usage: npm run dev   (in another terminal), then: node scripts/capture-theme-screens.mjs [baseUrl] [theme,theme...]
 
 import { mkdirSync } from "node:fs";
 import path from "node:path";
@@ -26,7 +26,8 @@ const desktop = await browser.newContext({ viewport: { width: 1440, height: 900 
 const clean = async (page) =>
   page.addStyleTag({ content: '[role="status"].fixed, nextjs-portal { display: none !important; }' });
 
-for (const theme of THEMES) {
+const only = process.argv[3]?.split(",");
+for (const theme of only ?? THEMES) {
   for (const [kind, ctx] of [["phone", phone], ["desktop", desktop]]) {
     const page = await ctx.newPage();
     await page.goto(`${base}/samples/${theme}`, { waitUntil: "networkidle" });

@@ -2,7 +2,9 @@ import { ArrowRight, Camera, Check, Heart, MapPin, Palette, QrCode, Sparkles, Us
 import { cacheLife } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
+import { DesignRail } from "@/components/marketing/design-rail";
 import { Button } from "@/components/ui/button";
+import { getOccasion } from "@/lib/occasions";
 import { SAMPLE_THEMES } from "@/lib/samples";
 
 const P = (name: string) => `/samples/photos/${name}.webp`;
@@ -32,7 +34,8 @@ function Phone({ src, alt, className = "" }: { src: string; alt: string; classNa
   return (
     <div className={`rounded-[2.2rem] border-[7px] border-[#0b1426] bg-[#0b1426] shadow-[0_40px_80px_-30px_rgba(0,0,0,.6)] ${className}`}>
       <div className="relative aspect-[390/664] overflow-hidden rounded-[1.7rem] bg-white">
-        <Image src={src} alt={alt} fill sizes="260px" className="object-cover object-top" />
+        {/* Screenshots are already small WebP files and get replaced in place, so skip the optimiser cache. */}
+        <Image src={src} alt={alt} fill unoptimized className="object-cover object-top" />
       </div>
     </div>
   );
@@ -134,12 +137,14 @@ export default async function HomePage() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Intro eyebrow="Twelve complete designs" title="Not just colours. Completely different feels." text="Each design has its own layouts, type and details: a magazine spread, a boarding-pass itinerary, scattered polaroids, quiet remembrance. Here they are, exactly as guests see them." />
         </div>
-        <ul className="mt-14 flex snap-x gap-6 overflow-x-auto scroll-px-4 px-4 pb-6 sm:px-[max(1.5rem,calc(50vw_-_36rem))] sm:scroll-px-[max(1.5rem,calc(50vw_-_36rem))]" aria-label="Designs">
+        <div className="mt-10">
+        <DesignRail label="Designs">
           {SAMPLE_THEMES.map((t) => (
             <li key={t.id} className="w-[220px] shrink-0 snap-start sm:w-[250px]">
               <Link href={`/samples/${t.id}`} className="group block">
                 <Phone src={`/samples/screens/${t.id}-phone.webp`} alt={`${t.name} design`} className="transition-transform duration-500 group-hover:-translate-y-2" />
-                <div className="mt-4 flex items-start justify-between gap-2">
+                <p className="mt-4 text-[0.65rem] font-semibold tracking-[0.2em] text-champagne-deep uppercase">{getOccasion(t.occasion).label}</p>
+                <div className="mt-1 flex items-start justify-between gap-2">
                   <h3 className="text-xl text-navy">{t.name}</h3>
                   {t.premium && <span className="mt-1 shrink-0 rounded-full bg-navy px-2 py-0.5 text-[0.6rem] tracking-wider text-champagne uppercase">Premium</span>}
                 </div>
@@ -147,7 +152,8 @@ export default async function HomePage() {
               </Link>
             </li>
           ))}
-        </ul>
+        </DesignRail>
+        </div>
       </section>
 
       {/* ───────────── How it works */}
