@@ -163,7 +163,7 @@ export function Hero({ w, theme }: { w: CelebrationView; theme: Theme }) {
           <div className="w-hero-in relative mx-auto mt-8 aspect-[3/4] w-[min(78vw,420px)] overflow-hidden w-arch border-[6px] border-[var(--w-surface)] shadow-[0_30px_80px_-30px_rgba(0,0,0,.35)]">
             {img ? <Picture image={img} priority sizes="420px" className="h-full w-full object-cover" /> : <Fallback className="h-full w-full" />}
           </div>
-          <Headline w={w} theme={theme} stacked={false} className={`w-hero-in mt-10 italic ${fit(w, "text-5xl sm:text-7xl", "text-5xl sm:text-6xl", "text-4xl sm:text-5xl")}`} />
+          <Headline w={w} theme={theme} stacked={false} className={`w-hero-in mt-10 italic ${fit(w, "text-5xl sm:text-7xl", "text-4xl sm:text-6xl", "text-3xl sm:text-5xl")}`} />
           <div className="mt-5"><OrnamentDivider kind={theme.ornament} /></div>
           <div className="mt-5 space-y-3"><Invitation w={w} /><DateLine w={w} /></div>
           <div className="mt-8 flex justify-center"><Moment w={w} tone="dark" /></div>
@@ -181,7 +181,7 @@ export function Hero({ w, theme }: { w: CelebrationView; theme: Theme }) {
               {img ? <Picture image={img} priority sizes="340px" className="h-full w-full object-cover" /> : <Fallback className="h-full w-full" />}
             </div>
           </div>
-          <Headline w={w} theme={theme} stacked={false} className={`w-hero-in mx-auto mt-10 max-w-3xl ${fit(w, "text-5xl sm:text-6xl", "text-5xl sm:text-6xl", "text-4xl sm:text-5xl")}`} />
+          <Headline w={w} theme={theme} stacked={false} className={`w-hero-in mx-auto mt-10 max-w-3xl ${fit(w, "text-5xl sm:text-6xl", "text-4xl sm:text-6xl", "text-3xl sm:text-5xl")}`} />
           <div className="mt-6"><OrnamentDivider kind={theme.ornament} /></div>
           <div className="mx-auto mt-6 max-w-xl space-y-3"><Invitation w={w} /><DateLine w={w} /></div>
           <div className="mt-8 flex justify-center"><Moment w={w} tone="dark" /></div>
@@ -197,7 +197,7 @@ export function Hero({ w, theme }: { w: CelebrationView; theme: Theme }) {
           <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
             <div className="space-y-7 text-center lg:text-left">
               <p className="w-eyebrow w-hero-in"><Lead w={w} /></p>
-              <Headline w={w} theme={theme} stacked={false} className={`w-hero-in leading-[0.95] ${fit(w, "text-[clamp(3.2rem,9vw,6.5rem)]", "text-[clamp(2.8rem,7vw,5rem)]", "text-[clamp(2.2rem,5vw,4rem)]")}`} />
+              <Headline w={w} theme={theme} stacked={false} className={`w-hero-in leading-[0.95] ${fit(w, "text-[clamp(3.2rem,9vw,6.5rem)]", "text-[clamp(2.4rem,7vw,5rem)]", "text-[clamp(2rem,5vw,4rem)]")}`} />
               <OrnamentDivider kind={theme.ornament} className="lg:mx-0" />
               <div className="space-y-3"><Invitation w={w} /><DateLine w={w} /></div>
               <div className="flex justify-center lg:justify-start"><Moment w={w} tone="dark" /></div>
@@ -272,7 +272,7 @@ export function Hero({ w, theme }: { w: CelebrationView; theme: Theme }) {
           <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-14 sm:py-20 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
             <div className="order-2 space-y-7 lg:order-1">
               <p className="w-eyebrow w-hero-in"><Lead w={w} /></p>
-              <Headline w={w} theme={theme} stacked={false} className={`w-hero-in leading-[0.92] ${fit(w, "text-[clamp(3.2rem,9vw,6.5rem)]", "text-[clamp(2.8rem,7vw,5rem)]", "text-[clamp(2.2rem,5vw,4rem)]")}`} />
+              <Headline w={w} theme={theme} stacked={false} className={`w-hero-in leading-[0.92] ${fit(w, "text-[clamp(3.2rem,9vw,6.5rem)]", "text-[clamp(2.4rem,7vw,5rem)]", "text-[clamp(2rem,5vw,4rem)]")}`} />
               <div className="space-y-3"><Invitation w={w} /><DateLine w={w} /></div>
               <Moment w={w} tone="dark" />
               <Cta w={w} light={false} />

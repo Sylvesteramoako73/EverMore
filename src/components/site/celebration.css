@@ -2,6 +2,8 @@
    (see celebration-site.tsx), so one stylesheet serves every theme and occasion. */
 
 .w-page {
+  /* Tilted photos and the film strip may poke past the edge; the page itself never scrolls sideways. */
+  overflow-x: clip;
   background: var(--w-bg);
   color: var(--w-ink);
   font-family: var(--w-body);

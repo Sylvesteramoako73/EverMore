@@ -176,3 +176,7 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Marketing: slow scrolling ribbon (paused for reduced motion by the global rule above). */
+@keyframes evm-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.evm-marquee { width: max-content; animation: evm-marquee 40s linear infinite; }

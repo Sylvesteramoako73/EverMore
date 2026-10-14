@@ -1,235 +1,249 @@
-import {
-  CalendarHeart,
-  Camera,
-  Clock,
-  Gift,
-  Heart,
-  MapPin,
-  MessageSquareHeart,
-  QrCode,
-  Sparkles,
-  Users,
-} from "lucide-react";
+import { ArrowRight, Camera, Check, Heart, MapPin, Palette, QrCode, Sparkles, Users } from "lucide-react";
 import { cacheLife } from "next/cache";
+import Image from "next/image";
 import Link from "next/link";
-import { BrowserFrame, MiniPreview, PhoneFrame } from "@/components/marketing/mini-preview";
 import { Button } from "@/components/ui/button";
-import { currentTime } from "@/lib/clock";
 import { SAMPLE_THEMES } from "@/lib/samples";
 
-const FEATURES = [
-  { icon: Sparkles, title: "A website, designed for you", text: "Answer a few questions and get a complete, professionally designed page. No design skills needed." },
-  { icon: Clock, title: "Live countdown", text: "Guests see exactly how long until your big day, then a celebration message once it arrives." },
-  { icon: QrCode, title: "Invitations & QR codes", text: "A short link and a QR code for WhatsApp, social media, email and printed cards." },
-  { icon: Users, title: "RSVPs that add up", text: "Replies per event, guest limits per invitation, meal choices and dietary needs, all in one place." },
-  { icon: CalendarHeart, title: "Every part of the day", text: "Ceremonies, services, parties and trips: different dates and venues, one programme." },
-  { icon: MapPin, title: "Maps & directions", text: "Each venue with a map and one-tap directions. No app for guests to install." },
-  { icon: MessageSquareHeart, title: "Digital guestbook", text: "Warm wishes from your guests, with optional approval before they appear." },
-  { icon: Camera, title: "Everyone's photos", text: "Guests upload their photos and videos to a shared gallery; you approve what appears." },
-  { icon: Gift, title: "Gift notes", text: "Share registry links or a gentle note, without ever showing bank details publicly." },
-  { icon: Heart, title: "Memories, kept", text: "After the day your page becomes your story: guests' photos, milestones and yearly reminders." },
-];
+const P = (name: string) => `/samples/photos/${name}.webp`;
 
-const FEATURED_OCCASIONS = [
-  { kind: "wedding", theme: "earth-and-ivory", label: "Weddings", blurb: "Traditional, white wedding or both, with every ceremony, colour and RSVP in one place." },
-  { kind: "birthday", theme: "confetti", label: "Birthdays", blurb: "Milestones and parties: wishes wall, dress code and everyone's photos." },
-  { kind: "funeral", theme: "serene", label: "Celebrations of life", blurb: "Order of events, life story, tributes and donation details, with care." },
-  { kind: "outing", theme: "adventure", label: "Outings & trips", blurb: "Itinerary, meeting point, what to bring and who's coming." },
-  { kind: "naming", theme: "little-blessings", label: "Naming ceremonies", blurb: "Outdooring and dedication: the name, its meaning and blessings." },
+const OCCASIONS = [
+  { kind: "wedding", theme: "earth-and-ivory", label: "Weddings", blurb: "Traditional and white wedding, every ceremony, colour and RSVP.", photo: "wed-traditional", span: "md:col-span-2 md:row-span-2" },
+  { kind: "birthday", theme: "confetti", label: "Birthdays", blurb: "Wishes wall, dress code and everyone's photos.", photo: "bday-cake-group", span: "" },
+  { kind: "funeral", theme: "serene", label: "Celebrations of life", blurb: "Order of events, tributes and details, with care.", photo: "mem-candle-flowers", span: "" },
+  { kind: "outing", theme: "adventure", label: "Outings & trips", blurb: "Itinerary, meeting point and what to bring.", photo: "trip-sunset-group", span: "md:col-span-2" },
+  { kind: "naming", theme: "little-blessings", label: "Naming ceremonies", blurb: "The name, its meaning and blessings.", photo: "baby-fabric", span: "" },
+  { kind: "graduation", theme: "modern-minimalist", label: "Graduations", blurb: "Celebrate the graduate with everyone.", photo: "grad-flowers", span: "" },
+  { kind: "reunion", theme: "golden-hour", label: "Reunions", blurb: "Family and class reunions, before and after.", photo: "family-group", span: "md:col-span-2" },
 ] as const;
 
 const FAQ = [
-  ["How long does it take to create our website?", "Most couples finish in about ten minutes. You fill in a guided form; we design the page. You can preview it before anyone else sees it and keep editing after you publish."],
-  ["Do our guests need an account or an app?", "No. Guests open your link or scan the QR code in any browser to see the details, find the venues and RSVP."],
-  ["Can we have more than one event?", "Yes. Add a traditional ceremony, church or civil ceremony, reception and more, each with its own date, venue, dress code and RSVP."],
-  ["Who can see our page?", "You choose. Unlisted pages are visible to anyone with the link but kept out of search engines. Private pages only open through each guest's personal invitation link. Public pages can optionally appear in search results."],
-  ["Can we change details after sharing the link?", "Yes. Edits appear on your page as soon as you save. If you change your page address, the old link and printed QR codes keep working."],
+  ["How long does it take to make a page?", "Most people finish in about ten minutes. You fill in a guided form; we design the page. You can preview it before anyone else sees it and keep editing after you publish."],
   ["What occasions can I use EverMore for?", "Weddings, birthdays, funerals and memorials, naming ceremonies and outdoorings, outings and trips, reunions, anniversaries, showers, graduations, and anything else worth gathering for. Each gets wording, sections and designs that fit."],
-  ["What happens after the day?", "Your page changes from an invitation into a memory page: a thank-you note, the photos guests shared, a timeline of milestones and, for weddings, a counter of how long you've been married. You can get yearly reminders by email."],
-  ["Can guests share their own photos?", "Yes. Guests can upload photos and short videos to a shared gallery that everyone can browse and download. By default you approve each upload before it appears."],
-  ["How long will our page stay online?", "For as long as your account is active under our retention policy. You can export your guest list at any time, and you can delete everything whenever you like."],
+  ["Do guests need an account or an app?", "No. Guests open your link or scan the QR code in any browser to see the details, find the venues and RSVP."],
+  ["Can guests share their own photos?", "Yes. Guests upload photos and short videos to a shared gallery that everyone can browse and download. By default you approve each upload before it appears."],
+  ["Who can see our page?", "You choose. Unlisted pages are visible to anyone with the link but kept out of search engines. Private pages only open through each guest's personal invitation link. Public pages can optionally appear in search results."],
+  ["Can we change details after sharing the link?", "Yes. Edits appear as soon as you save. If you change your page address, the old link and printed QR codes keep working."],
+  ["What happens after the day?", "Your page becomes a memory page: a thank-you note, the photos guests shared, a timeline of milestones and, for couples, a count of every day you've been married."],
+  ["How long will our page stay online?", "For as long as your account is active under our retention policy. You can export your guest list at any time and delete everything whenever you like."],
 ];
+
+function Phone({ src, alt, className = "" }: { src: string; alt: string; className?: string }) {
+  return (
+    <div className={`rounded-[2.2rem] border-[7px] border-[#0b1426] bg-[#0b1426] shadow-[0_40px_80px_-30px_rgba(0,0,0,.6)] ${className}`}>
+      <div className="relative aspect-[390/664] overflow-hidden rounded-[1.7rem] bg-white">
+        <Image src={src} alt={alt} fill sizes="260px" className="object-cover object-top" />
+      </div>
+    </div>
+  );
+}
 
 export default async function HomePage() {
   "use cache";
   cacheLife("hours");
-  const now = currentTime();
 
   return (
     <>
       {/* ───────────── Hero */}
-      <section className="relative overflow-hidden">
-        <div aria-hidden className="pointer-events-none absolute -top-40 -right-40 h-[36rem] w-[36rem] rounded-full bg-blush blur-3xl" />
-        <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-4 pt-14 pb-20 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:pt-20 lg:pb-28">
+      <section className="relative overflow-hidden bg-navy text-ivory">
+        <div aria-hidden className="pointer-events-none absolute -top-40 left-1/3 h-[34rem] w-[34rem] rounded-full bg-champagne/20 blur-3xl" />
+        <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-4 pt-14 pb-24 sm:px-6 lg:grid-cols-[1fr_1.05fr] lg:pt-20 lg:pb-28">
           <div className="animate-rise">
-            <p className="eyebrow">Weddings · Birthdays · Memorials · Outings · and more</p>
-            <h1 className="mt-5 text-[clamp(2.6rem,6vw,4.4rem)] leading-[1.02] text-navy">
-              Every moment that matters deserves a <em className="text-champagne-deep">home</em>.
+            <p className="eyebrow !text-champagne">Weddings · Birthdays · Memorials · Trips · and more</p>
+            <h1 className="mt-5 text-[clamp(2.7rem,6vw,4.6rem)] leading-[1.02]">
+              Every moment that matters deserves a <em className="text-champagne">beautiful home</em>.
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
-              Beautiful pages for weddings, birthdays, celebrations of life, outings and every gathering in between. Invite your people, collect RSVPs, gather everyone&apos;s photos, and keep the memories.
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-ivory/80">
+              Create a stunning page for your celebration in minutes. Share it on WhatsApp, collect RSVPs, gather everyone&apos;s
+              photos, and keep the memories long after the day.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg"><Link href="/sign-up">Create your page</Link></Button>
-              <Button asChild size="lg" variant="outline"><Link href="#occasions">Explore samples</Link></Button>
+              <Button asChild size="lg" variant="gold"><Link href="/sign-up">Create your page, free</Link></Button>
+              <Button asChild size="lg" variant="outline" className="border-ivory/30 bg-transparent text-ivory hover:bg-ivory/10 hover:text-ivory">
+                <Link href="#designs">See the designs</Link>
+              </Button>
             </div>
-            <p className="mt-5 text-sm text-muted-foreground">Free to start · No design skills needed · Works beautifully on phones</p>
+            <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-ivory/70">
+              {["No design skills needed", "Guests need no app", "12 designs"].map((t) => (
+                <li key={t} className="flex items-center gap-1.5"><Check className="h-4 w-4 text-champagne" aria-hidden /> {t}</li>
+              ))}
+            </ul>
           </div>
-          <div className="relative mx-auto w-full max-w-xl" aria-label="Preview of sample celebration pages on a laptop and a phone" role="img">
-            <BrowserFrame className="w-[88%]">
-              <MiniPreview themeId="earth-and-ivory" variant="desktop" now={now} />
-            </BrowserFrame>
-            <PhoneFrame className="absolute -right-2 -bottom-10 w-[34%] sm:right-0">
-              <MiniPreview themeId="confetti" occasion="birthday" now={now} />
-            </PhoneFrame>
+
+          <div className="relative mx-auto h-[520px] w-full max-w-[560px]" aria-hidden>
+            <div className="absolute top-0 left-0 h-[260px] w-[46%] -rotate-3 overflow-hidden rounded-3xl shadow-2xl">
+              <Image src={P("wed-traditional")} alt="" fill priority sizes="260px" className="object-cover" />
+            </div>
+            <div className="absolute bottom-6 left-[6%] h-[210px] w-[40%] rotate-2 overflow-hidden rounded-3xl shadow-2xl">
+              <Image src={P("bday-cake-group")} alt="" fill sizes="220px" className="object-cover" />
+            </div>
+            <div className="absolute top-8 right-0 h-[180px] w-[34%] rotate-3 overflow-hidden rounded-3xl shadow-2xl">
+              <Image src={P("trip-sunset-group")} alt="" fill sizes="200px" className="object-cover" />
+            </div>
+            <Phone src="/samples/screens/earth-and-ivory-phone.webp" alt="" className="absolute top-14 left-1/2 w-[200px] -translate-x-[30%] sm:w-[230px]" />
+            <div className="absolute right-2 bottom-20 rounded-2xl bg-white px-4 py-3 text-navy shadow-xl">
+              <p className="text-xs text-muted-foreground">New RSVP</p>
+              <p className="text-sm font-semibold">Esi is coming (+1) ✓</p>
+            </div>
+            <div className="absolute top-[44%] -left-2 rounded-2xl bg-champagne px-4 py-3 text-navy shadow-xl">
+              <p className="flex items-center gap-1.5 text-sm font-semibold"><Camera className="h-4 w-4" /> 12 photos shared</p>
+            </div>
+          </div>
+        </div>
+        {/* Scrolling ribbon of occasions */}
+        <div className="border-t border-white/10 py-4">
+          <div className="evm-marquee flex gap-10 text-sm tracking-[0.25em] whitespace-nowrap text-ivory/60 uppercase">
+            {Array.from({ length: 2 }, (_, k) => (
+              <span key={k} className="flex shrink-0 gap-10" aria-hidden={k === 1}>
+                {["Weddings", "Birthdays", "Outdoorings", "Celebrations of life", "Road trips", "Reunions", "Anniversaries", "Graduations", "Baby showers", "Housewarmings"].map((o) => (
+                  <span key={o} className="flex items-center gap-10">{o}<span className="text-champagne">✦</span></span>
+                ))}
+              </span>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ───────────── Occasions */}
-      <section id="occasions" className="scroll-mt-20 py-20 sm:py-24">
+      {/* ───────────── Occasions bento */}
+      <section id="occasions" className="scroll-mt-20 py-20 sm:py-28">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <SectionIntro eyebrow="For every occasion" title="One home for all of life's gatherings" />
-          <ul className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
-            {FEATURED_OCCASIONS.map((o) => (
-              <li key={o.kind}>
-                <Link href={`/samples/${o.theme}?occasion=${o.kind}`} className="group block">
-                  <div className="aspect-[3/4] overflow-hidden rounded-2xl text-[9px] shadow-sm ring-1 ring-navy/10 transition group-hover:-translate-y-1 group-hover:shadow-lg">
-                    <MiniPreview themeId={o.theme} occasion={o.kind} variant="card" now={now} />
+          <Intro eyebrow="For every occasion" title="One home for all of life's gatherings" text="Each occasion gets its own words, sections and designs, from a joyful outdooring to a dignified celebration of life." />
+          <ul className="mt-14 grid auto-rows-[220px] gap-4 md:grid-cols-4 md:auto-rows-[240px]">
+            {OCCASIONS.map((o) => (
+              <li key={o.kind} className={o.span}>
+                <Link href={`/samples/${o.theme}?occasion=${o.kind}`} className="group relative block h-full overflow-hidden rounded-3xl">
+                  <Image src={P(o.photo)} alt="" fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 p-5 text-white sm:p-6">
+                    <h3 className="text-2xl sm:text-3xl">{o.label}</h3>
+                    <p className="mt-1 max-w-sm text-sm text-white/80">{o.blurb}</p>
+                    <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-champagne">
+                      See a sample <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden />
+                    </span>
                   </div>
-                  <h3 className="mt-4 text-xl text-navy">{o.label}</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{o.blurb}</p>
-                  <span className="mt-2 inline-block text-sm text-champagne-deep underline-offset-4 group-hover:underline">See a sample →</span>
                 </Link>
               </li>
             ))}
           </ul>
-          <p className="mt-10 text-center text-sm text-muted-foreground">
-            Also for anniversaries & vow renewals, reunions, baby & bridal showers, graduations, housewarmings, church and community events.
-          </p>
+          <p className="mt-6 text-center text-sm text-muted-foreground">Also anniversaries &amp; vow renewals, baby &amp; bridal showers, housewarmings, church and community events.</p>
         </div>
       </section>
 
-      {/* ───────────── How it works */}
-      <section id="how-it-works" className="scroll-mt-20 border-y border-navy/5 bg-white py-20 sm:py-24">
+      {/* ───────────── Designs: real screenshots */}
+      <section id="designs" className="scroll-mt-20 overflow-hidden bg-[#f3eee4] py-20 sm:py-28">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <SectionIntro eyebrow="How it works" title="Three steps to a page you'll love" />
-          <ol className="mt-14 grid gap-10 md:grid-cols-3">
+          <Intro eyebrow="Twelve complete designs" title="Not just colours. Completely different feels." text="Each design has its own layouts, type and details: a magazine spread, a boarding-pass itinerary, scattered polaroids, quiet remembrance. Here they are, exactly as guests see them." />
+        </div>
+        <ul className="mt-14 flex snap-x gap-6 overflow-x-auto scroll-px-4 px-4 pb-6 sm:px-[max(1.5rem,calc(50vw_-_36rem))] sm:scroll-px-[max(1.5rem,calc(50vw_-_36rem))]" aria-label="Designs">
+          {SAMPLE_THEMES.map((t) => (
+            <li key={t.id} className="w-[220px] shrink-0 snap-start sm:w-[250px]">
+              <Link href={`/samples/${t.id}`} className="group block">
+                <Phone src={`/samples/screens/${t.id}-phone.webp`} alt={`${t.name} design`} className="transition-transform duration-500 group-hover:-translate-y-2" />
+                <div className="mt-4 flex items-start justify-between gap-2">
+                  <h3 className="text-xl text-navy">{t.name}</h3>
+                  {t.premium && <span className="mt-1 shrink-0 rounded-full bg-navy px-2 py-0.5 text-[0.6rem] tracking-wider text-champagne uppercase">Premium</span>}
+                </div>
+                <p className="mt-1 text-sm leading-snug text-muted-foreground">{t.tagline}</p>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* ───────────── How it works */}
+      <section id="how-it-works" className="scroll-mt-20 py-20 sm:py-28">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <Intro eyebrow="How it works" title="Ready to share in three steps" />
+          <ol className="mt-14 grid gap-6 md:grid-cols-3">
             {[
-              ["Tell us what you're celebrating", "Choose the occasion, then add names, dates, the programme and a few photos in a short guided form."],
-              ["Your page comes to life", "EverMore designs it for you, with a short link and a QR code ready to share."],
-              ["Share, celebrate & remember", "Invite everyone, collect RSVPs and the photos guests take, and keep it all afterwards."],
-            ].map(([title, text], i) => (
-              <li key={title} className="relative">
-                <span className="font-display text-6xl text-champagne/70">{String(i + 1).padStart(2, "0")}</span>
-                <h3 className="mt-3 text-2xl text-navy">{title}</h3>
-                <p className="mt-2 leading-relaxed text-muted-foreground">{text}</p>
+              { icon: Sparkles, title: "Tell us what you're celebrating", text: "Pick the occasion, then add names, dates, the programme and a few photos in a short guided form." },
+              { icon: Palette, title: "Choose a design you love", text: "Twelve designs, each with its own feel. Preview your own page live, and add your colours of the day." },
+              { icon: QrCode, title: "Share with everyone", text: "A short link and a QR code for WhatsApp, social media and printed cards. Replies and photos roll in." },
+            ].map((s, i) => (
+              <li key={s.title} className="relative rounded-3xl bg-white p-8 shadow-sm ring-1 ring-navy/5">
+                <span className="font-display text-7xl text-champagne/30" aria-hidden>{i + 1}</span>
+                <s.icon className="mt-2 h-7 w-7 text-champagne-deep" aria-hidden />
+                <h3 className="mt-4 text-2xl text-navy">{s.title}</h3>
+                <p className="mt-2 leading-relaxed text-muted-foreground">{s.text}</p>
               </li>
             ))}
           </ol>
         </div>
       </section>
 
-      {/* ───────────── Features */}
-      <section className="py-20 sm:py-28">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <SectionIntro eyebrow="Everything in one place" title="Thoughtful details, for you and your guests" />
-          <ul className="mt-14 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map(({ icon: Icon, title, text }) => (
-              <li key={title} className="flex gap-4">
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-blush text-navy">
-                  <Icon className="h-5 w-5" aria-hidden />
-                </span>
-                <div>
-                  <h3 className="font-sans text-base font-semibold text-navy">{title}</h3>
-                  <p className="mt-1 text-[0.95rem] leading-relaxed text-muted-foreground">{text}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      {/* ───────────── Themes */}
-      <section id="themes" className="scroll-mt-20 bg-navy py-20 text-ivory sm:py-28">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <SectionIntro eyebrow="Twelve complete designs" title="Find the one that feels like you" inverted />
-          <ul className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {SAMPLE_THEMES.map((t) => (
-              <li key={t.id}>
-                <Link href={`/samples/${t.id}`} className="group block rounded-2xl bg-white/5 p-3 ring-1 ring-white/10 transition hover:bg-white/10 hover:ring-champagne/50">
-                  <div className="aspect-[4/5] overflow-hidden rounded-xl text-[13px] transition-transform duration-500 group-hover:scale-[1.01]">
-                    <MiniPreview themeId={t.id} occasion={t.occasion} variant="card" now={now} />
-                  </div>
-                  <div className="flex items-start justify-between gap-3 px-1 pt-4 pb-1">
-                    <div>
-                      <h3 className="text-xl">{t.name}</h3>
-                      <p className="mt-1 text-sm text-ivory/70">{t.tagline}</p>
-                    </div>
-                    {t.premium && <span className="shrink-0 rounded-full border border-champagne/50 px-2 py-0.5 text-[0.65rem] tracking-wider text-champagne uppercase">Premium</span>}
-                  </div>
-                  <span className="sr-only">View the {t.name} sample</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-8 text-center text-sm text-ivory/60">Sample pages use illustrations and invented names. Your page shows your own photographs.</p>
+      {/* ───────────── Feature stories */}
+      <section className="bg-navy py-20 text-ivory sm:py-28">
+        <div className="mx-auto max-w-6xl space-y-24 px-4 sm:px-6">
+          <Feature
+            eyebrow="Share the love"
+            title="Everyone's photos, in one place"
+            text="Guests upload the photos and videos they take, straight from their phones. Everyone can browse and download them, and you approve what appears."
+            points={["No app, no sign-up for guests", "Photos and short videos", "You approve before they appear"]}
+            photos={["bday-women", "bday-friends", "wed-kiss"]}
+          />
+          <Feature
+            reverse
+            eyebrow="RSVPs that add up"
+            title="Know exactly who's coming"
+            text="Guests answer for each part of the day. Personal invitation links keep numbers right, and phone contacts are there for those who'd rather call."
+            points={["Replies per event", "Guest limits per invitation", "Meal choices and dietary needs"]}
+            photos={["wed-group", "venue-reception", "wed-ring"]}
+          />
+          <Feature
+            eyebrow="All the details"
+            title="Colours of the day, programme and directions"
+            text="Show the colours guests can wear, a programme with every moment, venue photos, maps and one-tap directions."
+            points={["Colours with names and swatches", "Programme with icons and times", "Maps, directions and calendar links"]}
+            photos={["venue-church", "flowers-table", "trip-road"]}
+          />
         </div>
       </section>
 
       {/* ───────────── After the day */}
       <section id="after" className="scroll-mt-20 py-20 sm:py-28">
         <div className="mx-auto grid max-w-6xl items-center gap-14 px-4 sm:px-6 lg:grid-cols-2">
+          <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem]">
+            <Image src={P("wed-beach")} alt="A couple holding hands on a beach" fill sizes="(min-width: 1024px) 560px, 100vw" className="object-cover" />
+            <div className="absolute inset-x-6 bottom-6 rounded-2xl bg-white/95 p-5 shadow-xl backdrop-blur">
+              <p className="eyebrow">Example</p>
+              <p className="mt-1 font-display text-2xl text-navy">Married for 1 year, 4 months and 12 days</p>
+            </div>
+          </div>
           <div>
             <p className="eyebrow">More than an invitation</p>
             <h2 className="mt-4 text-4xl leading-tight text-navy sm:text-5xl">The day ends. Your story doesn&apos;t.</h2>
             <p className="mt-5 text-lg leading-relaxed text-muted-foreground">
-              When the day has passed, your page gently becomes a home for your memories: a thank-you note to your guests,
-              the photos your guests shared, a timeline of milestones, and, for couples, a count of every day you&apos;ve been married.
+              Afterwards your page becomes a home for the memories: a thank-you note, the photos everyone shared, a timeline of milestones,
+              and gentle yearly reminders.
             </p>
+            <ul className="mt-8 space-y-4">
+              {[
+                [Heart, "Thank your guests with a note on the page"],
+                [Camera, "Keep every photo your guests shared"],
+                [MapPin, "Look back at where it all happened"],
+                [Users, "Celebrate anniversaries and milestones together"],
+              ].map(([Icon, t]) => {
+                const I = Icon as typeof Heart;
+                return (
+                  <li key={t as string} className="flex items-center gap-3 text-navy">
+                    <span className="grid h-10 w-10 place-items-center rounded-full bg-blush"><I className="h-4 w-4" aria-hidden /></span>
+                    {t as string}
+                  </li>
+                );
+              })}
+            </ul>
             <Button asChild variant="outline" className="mt-8"><Link href="/samples/earth-and-ivory?after=1">See a page after the day</Link></Button>
           </div>
-          <ol className="relative space-y-8 border-l border-champagne/40 pl-8">
-            {[
-              ["Before", "Announce the day, share every event, collect RSVPs and count down together."],
-              ["On the day", "Guests find venues, schedules and directions in seconds, and leave their wishes."],
-              ["After", "Thank your guests, add official photos and memories, and celebrate each anniversary."],
-            ].map(([title, text]) => (
-              <li key={title} className="relative">
-                <span aria-hidden className="absolute top-1.5 -left-[2.4rem] h-3.5 w-3.5 rounded-full border-2 border-champagne bg-ivory" />
-                <h3 className="text-2xl text-navy">{title}</h3>
-                <p className="mt-1 text-muted-foreground">{text}</p>
-              </li>
-            ))}
-            <li className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-navy/5">
-              <p className="eyebrow">Example</p>
-              <p className="mt-2 font-display text-2xl text-navy">Married for 1 year, 4 months and 12 days</p>
-              <p className="mt-1 text-sm text-muted-foreground">Calculated live from the date, so it&apos;s always right.</p>
-            </li>
-          </ol>
         </div>
       </section>
 
       {/* ───────────── Pricing */}
-      <section id="pricing" className="scroll-mt-20 border-y border-navy/5 bg-white py-20 sm:py-28">
+      <section id="pricing" className="scroll-mt-20 bg-[#f3eee4] py-20 sm:py-28">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
-          <SectionIntro eyebrow="Pricing" title="Start free. Upgrade if you'd like more." />
-          <p className="mx-auto mt-4 max-w-2xl text-center text-muted-foreground">
-            EverMore is in early access: every couple gets all features while we finalise our plans. We&apos;ll announce prices before
-            anything changes, and we&apos;ll never charge you without your agreement.
-          </p>
+          <Intro eyebrow="Pricing" title="Start free. Upgrade if you'd like more." text="EverMore is in early access: everyone gets all features while we finalise plans. We'll announce prices before anything changes and never charge you without your agreement." />
           <div className="mt-12 grid gap-6 md:grid-cols-2">
-            <Plan
-              name="Free"
-              note="Everything you need to invite and welcome your guests."
-              items={["A complete celebration page", "8 standard designs", "Up to 3 events", "RSVP collection & guest list", "QR code & sharing", "Guestbook"]}
-            />
-            <Plan
-              name="Premium"
-              highlight
-              note="For bigger celebrations and lasting memories."
-              items={["Every theme, including premium designs", "Up to 20 events", "Larger galleries & guest lists", "Partner & planner collaboration", "Extended memory features", "Custom domain (planned)"]}
-            />
+            <Plan name="Free" note="Everything you need to invite and welcome your guests." items={["A complete celebration page", "8 standard designs", "Up to 3 events", "RSVPs, guest list & QR code", "Guest photo sharing", "Guestbook"]} />
+            <Plan name="Premium" highlight note="For bigger celebrations and lasting memories." items={["Every design, including premium", "Up to 20 events", "Larger galleries & guest lists", "Co-host & planner access", "Extended memory features", "Custom domain (planned)"]} />
           </div>
         </div>
       </section>
@@ -237,7 +251,7 @@ export default async function HomePage() {
       {/* ───────────── FAQ */}
       <section id="faq" className="scroll-mt-20 py-20 sm:py-28">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
-          <SectionIntro eyebrow="Questions" title="Frequently asked" />
+          <Intro eyebrow="Questions" title="Frequently asked" />
           <div className="mt-12 divide-y divide-navy/10 border-y border-navy/10">
             {FAQ.map(([q, a]) => (
               <details key={q} className="group py-5">
@@ -254,42 +268,65 @@ export default async function HomePage() {
 
       {/* ───────────── Closing CTA */}
       <section className="px-4 pb-24 sm:px-6">
-        <div className="mx-auto max-w-5xl rounded-3xl bg-navy px-6 py-16 text-center text-ivory sm:px-12">
-          <h2 className="text-4xl sm:text-5xl">Begin your story today</h2>
-          <p className="mx-auto mt-4 max-w-xl text-ivory/75">Your page can be ready to share in minutes.</p>
-          <Button asChild size="lg" variant="gold" className="mt-8"><Link href="/sign-up">Create your page</Link></Button>
+        <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[2rem] px-6 py-24 text-center text-white sm:px-12">
+          <Image src={P("family-dance")} alt="" fill sizes="100vw" className="object-cover" />
+          <div className="absolute inset-0 bg-navy/75" />
+          <div className="relative">
+            <h2 className="text-4xl sm:text-6xl">Begin your story today</h2>
+            <p className="mx-auto mt-4 max-w-xl text-white/80">Your page can be ready to share in minutes.</p>
+            <Button asChild size="lg" variant="gold" className="mt-8"><Link href="/sign-up">Create your page, free</Link></Button>
+          </div>
         </div>
       </section>
     </>
   );
 }
 
-function SectionIntro({ eyebrow, title, inverted = false }: { eyebrow: string; title: string; inverted?: boolean }) {
+function Intro({ eyebrow, title, text }: { eyebrow: string; title: string; text?: string }) {
   return (
     <div className="mx-auto max-w-2xl text-center">
-      <p className={inverted ? "eyebrow !text-champagne" : "eyebrow"}>{eyebrow}</p>
-      <h2 className={`mt-4 text-4xl leading-tight sm:text-5xl ${inverted ? "text-ivory" : "text-navy"}`}>{title}</h2>
-      <div className="hairline mx-auto mt-6 justify-center" aria-hidden>◆</div>
+      <p className="eyebrow">{eyebrow}</p>
+      <h2 className="mt-4 text-4xl leading-tight text-navy sm:text-5xl">{title}</h2>
+      {text && <p className="mt-5 text-lg leading-relaxed text-muted-foreground">{text}</p>}
+    </div>
+  );
+}
+
+function Feature({ eyebrow, title, text, points, photos, reverse = false }: { eyebrow: string; title: string; text: string; points: string[]; photos: string[]; reverse?: boolean }) {
+  return (
+    <div className="grid items-center gap-12 lg:grid-cols-2">
+      <div className={reverse ? "lg:order-2" : ""}>
+        <p className="eyebrow !text-champagne">{eyebrow}</p>
+        <h2 className="mt-4 text-4xl leading-tight sm:text-5xl">{title}</h2>
+        <p className="mt-5 text-lg leading-relaxed text-ivory/75">{text}</p>
+        <ul className="mt-6 space-y-2.5">
+          {points.map((p) => (
+            <li key={p} className="flex items-center gap-2.5"><Check className="h-4 w-4 text-champagne" aria-hidden /> {p}</li>
+          ))}
+        </ul>
+      </div>
+      <div className="grid h-[360px] grid-cols-2 grid-rows-2 gap-3 sm:h-[460px]" aria-hidden>
+        {photos.slice(0, 3).map((ph, i) => (
+          <div key={ph} className={`relative overflow-hidden rounded-2xl ${i === 0 ? "row-span-2" : ""}`}>
+            <Image src={P(ph)} alt="" fill sizes="(min-width: 1024px) 280px, 45vw" className="object-cover" />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
 function Plan({ name, note, items, highlight = false }: { name: string; note: string; items: string[]; highlight?: boolean }) {
   return (
-    <div className={`rounded-2xl p-8 ${highlight ? "bg-navy text-ivory" : "bg-ivory ring-1 ring-navy/10"}`}>
+    <div className={`rounded-3xl p-8 ${highlight ? "bg-navy text-ivory" : "bg-white ring-1 ring-navy/10"}`}>
       <h3 className="text-3xl">{name}</h3>
       <p className={`mt-2 ${highlight ? "text-ivory/75" : "text-muted-foreground"}`}>{note}</p>
       <ul className="mt-6 space-y-2.5">
         {items.map((i) => (
-          <li key={i} className="flex gap-2.5">
-            <span aria-hidden className="text-champagne">✓</span>
-            {i}
-          </li>
+          <li key={i} className="flex gap-2.5"><Check className="mt-1 h-4 w-4 shrink-0 text-champagne" aria-hidden /> {i}</li>
         ))}
       </ul>
-      <Button asChild variant={highlight ? "gold" : "default"} className="mt-8 w-full">
-        <Link href="/sign-up">Get started</Link>
-      </Button>
+      <Button asChild variant={highlight ? "gold" : "default"} className="mt-8 w-full"><Link href="/sign-up">Get started</Link></Button>
     </div>
   );
 }

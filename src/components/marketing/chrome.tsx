@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 const NAV = [
   { href: "/#occasions", label: "Occasions" },
   { href: "/#how-it-works", label: "How it works" },
-  { href: "/#themes", label: "Themes" },
+  { href: "/#designs", label: "Designs" },
   { href: "/#after", label: "After the day" },
   { href: "/#pricing", label: "Pricing" },
   { href: "/#faq", label: "FAQ" },
@@ -46,9 +46,9 @@ export function MarketingFooter() {
           <Logo inverted />
           <p className="max-w-xs text-sm leading-relaxed">Your Story. Forever Connected. Pages for life&apos;s moments that welcome your guests and keep your memories.</p>
         </div>
-        <FooterCol title="Product" links={[["/#how-it-works", "How it works"], ["/#themes", "Themes"], ["/#pricing", "Pricing"], ["/samples/timeless-elegance", "See a sample"]]} />
+        <FooterCol title="Product" links={[["/#how-it-works", "How it works"], ["/#designs", "Designs"], ["/#pricing", "Pricing"], ["/samples/timeless-elegance", "See a sample"]]} />
         <FooterCol title="Hosts" links={[["/sign-up", "Create your page"], ["/sign-in", "Sign in"], ["/#faq", "FAQ"]]} />
-        <FooterCol title="Trust" links={[["/policies#privacy", "Privacy"], ["/policies#retention", "Data retention"], ["/policies#terms", "Terms"]]} />
+        <FooterCol title="Trust" links={[["/policies#privacy", "Privacy"], ["/policies#retention", "Data retention"], ["/policies#terms", "Terms"], ["/policies#credits", "Photo credits"]]} />
       </div>
       <div className="border-t border-white/10">
         <p className="mx-auto max-w-6xl px-4 py-6 text-xs text-ivory/60 sm:px-6">© EverMore. Made for the moments that matter.</p>

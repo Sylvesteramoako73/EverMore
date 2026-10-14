@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PHOTO_CREDITS } from "@/lib/samples";
 
 export const metadata: Metadata = { title: "Privacy, retention & terms" };
 
@@ -29,6 +30,11 @@ export default function PoliciesPage() {
       <section id="terms" className="mt-12 scroll-mt-24 space-y-4 leading-relaxed text-navy/90">
         <h2 className="text-3xl text-navy">Terms (summary)</h2>
         <p>Only upload photographs and content you have the right to share. Don&apos;t use EverMore to harass, deceive or impersonate others. We may remove content that breaks these rules, and we keep a record of such actions.</p>
+      </section>
+      <section id="credits" className="mt-12 scroll-mt-24 space-y-4 leading-relaxed text-navy/90">
+        <h2 className="text-3xl text-navy">Photo credits</h2>
+        <p>Sample pages and this website use photographs from <a className="underline" href="https://unsplash.com" rel="noopener noreferrer">Unsplash</a>, used under the Unsplash licence. Names and events on sample pages are fictional. Thank you to:</p>
+        <p className="text-sm text-muted-foreground">{[...new Set(PHOTO_CREDITS.map((c) => c.by))].join(", ")}.</p>
       </section>
     </article>
   );
