@@ -8,7 +8,7 @@ import { SAMPLE_THEMES } from "@/lib/samples";
 const P = (name: string) => `/samples/photos/${name}.webp`;
 
 const OCCASIONS = [
-  { kind: "wedding", theme: "earth-and-ivory", label: "Weddings", blurb: "Traditional and white wedding, every ceremony, colour and RSVP.", photo: "wed-traditional", span: "md:col-span-2 md:row-span-2" },
+  { kind: "wedding", theme: "earth-and-ivory", label: "Weddings", blurb: "Traditional and white wedding, every ceremony, colour and RSVP.", photo: "wed-kente-couple", span: "md:col-span-2 md:row-span-2" },
   { kind: "birthday", theme: "confetti", label: "Birthdays", blurb: "Wishes wall, dress code and everyone's photos.", photo: "bday-cake-group", span: "" },
   { kind: "funeral", theme: "serene", label: "Celebrations of life", blurb: "Order of events, tributes and details, with care.", photo: "mem-candle-flowers", span: "" },
   { kind: "outing", theme: "adventure", label: "Outings & trips", blurb: "Itinerary, meeting point and what to bring.", photo: "trip-sunset-group", span: "md:col-span-2" },
@@ -72,7 +72,7 @@ export default async function HomePage() {
 
           <div className="relative mx-auto h-[520px] w-full max-w-[560px]" aria-hidden>
             <div className="absolute top-0 left-0 h-[260px] w-[46%] -rotate-3 overflow-hidden rounded-3xl shadow-2xl">
-              <Image src={P("wed-traditional")} alt="" fill priority sizes="260px" className="object-cover" />
+              <Image src={P("wed-white-tux")} alt="" fill priority sizes="260px" className="object-cover" />
             </div>
             <div className="absolute bottom-6 left-[6%] h-[210px] w-[40%] rotate-2 overflow-hidden rounded-3xl shadow-2xl">
               <Image src={P("bday-cake-group")} alt="" fill sizes="220px" className="object-cover" />
@@ -179,7 +179,7 @@ export default async function HomePage() {
             title="Everyone's photos, in one place"
             text="Guests upload the photos and videos they take, straight from their phones. Everyone can browse and download them, and you approve what appears."
             points={["No app, no sign-up for guests", "Photos and short videos", "You approve before they appear"]}
-            photos={["bday-women", "bday-friends", "wed-kiss"]}
+            photos={["bday-women", "wed-kente-embrace", "bday-friends"]}
           />
           <Feature
             reverse
@@ -187,7 +187,7 @@ export default async function HomePage() {
             title="Know exactly who's coming"
             text="Guests answer for each part of the day. Personal invitation links keep numbers right, and phone contacts are there for those who'd rather call."
             points={["Replies per event", "Guest limits per invitation", "Meal choices and dietary needs"]}
-            photos={["wed-group", "venue-reception", "wed-ring"]}
+            photos={["wed-kente-dancer", "wed-arch", "wed-vows"]}
           />
           <Feature
             eyebrow="All the details"
@@ -203,7 +203,7 @@ export default async function HomePage() {
       <section id="after" className="scroll-mt-20 py-20 sm:py-28">
         <div className="mx-auto grid max-w-6xl items-center gap-14 px-4 sm:px-6 lg:grid-cols-2">
           <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem]">
-            <Image src={P("wed-beach")} alt="A couple holding hands on a beach" fill sizes="(min-width: 1024px) 560px, 100vw" className="object-cover" />
+            <Image src={P("wed-lace")} alt="A groom smiling at his bride" fill sizes="(min-width: 1024px) 560px, 100vw" className="object-cover" />
             <div className="absolute inset-x-6 bottom-6 rounded-2xl bg-white/95 p-5 shadow-xl backdrop-blur">
               <p className="eyebrow">Example</p>
               <p className="mt-1 font-display text-2xl text-navy">Married for 1 year, 4 months and 12 days</p>

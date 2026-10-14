@@ -89,6 +89,186 @@
     "width": 1067,
     "height": 1600
   },
+  "wed-kente-couple": {
+    "id": "1648328168368-3a25f2152802",
+    "by": "Patrick Amofah",
+    "alt": "Couple in matching green traditional attire",
+    "src": "/samples/photos/wed-kente-couple.webp",
+    "thumb": "/samples/photos/wed-kente-couple-sm.webp",
+    "width": 1161,
+    "height": 1600
+  },
+  "wed-kente-embrace": {
+    "id": "1648329933601-01d1875f0b7e",
+    "by": "Patrick Amofah",
+    "alt": "Couple in traditional attire embracing",
+    "src": "/samples/photos/wed-kente-embrace.webp",
+    "thumb": "/samples/photos/wed-kente-embrace-sm.webp",
+    "width": 1600,
+    "height": 1108
+  },
+  "wed-kente-pose": {
+    "id": "1648328414427-fc902f51808c",
+    "by": "Patrick Amofah",
+    "alt": "Couple in traditional attire posing",
+    "src": "/samples/photos/wed-kente-pose.webp",
+    "thumb": "/samples/photos/wed-kente-pose-sm.webp",
+    "width": 1166,
+    "height": 1600
+  },
+  "wed-ankara-couple": {
+    "id": "1665258918932-9e358bcfba0f",
+    "by": "King Lamar Fotografia",
+    "alt": "Couple in green traditional outfits on a staircase",
+    "src": "/samples/photos/wed-ankara-couple.webp",
+    "thumb": "/samples/photos/wed-ankara-couple-sm.webp",
+    "width": 1067,
+    "height": 1600
+  },
+  "wed-kente-beads": {
+    "id": "1634074967416-dd24d702c93c",
+    "by": "Emmanuel Offei",
+    "alt": "Kente cloth and gold beads",
+    "src": "/samples/photos/wed-kente-beads.webp",
+    "thumb": "/samples/photos/wed-kente-beads-sm.webp",
+    "width": 1600,
+    "height": 908
+  },
+  "wed-kente-dancer": {
+    "id": "1660675133223-c293889b9fb8",
+    "by": "Emmanuel Yeboah Okine",
+    "alt": "Dancer in kente at a celebration",
+    "src": "/samples/photos/wed-kente-dancer.webp",
+    "thumb": "/samples/photos/wed-kente-dancer-sm.webp",
+    "width": 1600,
+    "height": 1067
+  },
+  "wed-kente-wrap": {
+    "id": "1667655966125-abae0f5823f7",
+    "by": "Ato Aikins",
+    "alt": "Woman in a kente head wrap",
+    "src": "/samples/photos/wed-kente-wrap.webp",
+    "thumb": "/samples/photos/wed-kente-wrap-sm.webp",
+    "width": 1600,
+    "height": 1600
+  },
+  "wed-crown": {
+    "id": "1590670796065-5c2469672e18",
+    "by": "Ato Aikins",
+    "alt": "Bride in a green head wrap and gold crown",
+    "src": "/samples/photos/wed-crown.webp",
+    "thumb": "/samples/photos/wed-crown-sm.webp",
+    "width": 1067,
+    "height": 1600
+  },
+  "wed-coral-bride": {
+    "id": "1618998584360-10a0c28eec0f",
+    "by": "Dennis Irorere",
+    "alt": "Bride in coral beads and crown",
+    "src": "/samples/photos/wed-coral-bride.webp",
+    "thumb": "/samples/photos/wed-coral-bride-sm.webp",
+    "width": 1067,
+    "height": 1600
+  },
+  "wed-white-tux": {
+    "id": "1664646449735-69bc987a49da",
+    "by": "Christophe Dusabe",
+    "alt": "Groom in a white tuxedo kneeling beside his bride",
+    "src": "/samples/photos/wed-white-tux.webp",
+    "thumb": "/samples/photos/wed-white-tux-sm.webp",
+    "width": 1067,
+    "height": 1600
+  },
+  "wed-garden": {
+    "id": "1664645833817-7581189209a2",
+    "by": "Christophe Dusabe",
+    "alt": "Bride and groom in a garden",
+    "src": "/samples/photos/wed-garden.webp",
+    "thumb": "/samples/photos/wed-garden-sm.webp",
+    "width": 1067,
+    "height": 1600
+  },
+  "wed-veil": {
+    "id": "1664646198366-68e76f707f48",
+    "by": "Christophe Dusabe",
+    "alt": "Bride in a veil with a bouquet",
+    "src": "/samples/photos/wed-veil.webp",
+    "thumb": "/samples/photos/wed-veil-sm.webp",
+    "width": 1067,
+    "height": 1600
+  },
+  "wed-arch": {
+    "id": "1718997534125-052b2ff48cd0",
+    "by": "Stacey Vandas",
+    "alt": "Bride and groom in front of a floral arch",
+    "src": "/samples/photos/wed-arch.webp",
+    "thumb": "/samples/photos/wed-arch-sm.webp",
+    "width": 1200,
+    "height": 1600
+  },
+  "wed-wall-kiss": {
+    "id": "1719499683843-721331f2495f",
+    "by": "Stacey Vandas",
+    "alt": "Bride and groom kissing by a white wall",
+    "src": "/samples/photos/wed-wall-kiss.webp",
+    "thumb": "/samples/photos/wed-wall-kiss-sm.webp",
+    "width": 1067,
+    "height": 1600
+  },
+  "wed-bouquet": {
+    "id": "1645827042168-4fb0cdd0bf7e",
+    "by": "Oyemike Princewill",
+    "alt": "Smiling bride holding a bouquet",
+    "src": "/samples/photos/wed-bouquet.webp",
+    "thumb": "/samples/photos/wed-bouquet-sm.webp",
+    "width": 1060,
+    "height": 1600
+  },
+  "wed-bride-portrait": {
+    "id": "1501175635532-bdd01562edb2",
+    "by": "cindy baffour",
+    "alt": "Bride in a veil",
+    "src": "/samples/photos/wed-bride-portrait.webp",
+    "thumb": "/samples/photos/wed-bride-portrait-sm.webp",
+    "width": 1065,
+    "height": 1600
+  },
+  "wed-lace": {
+    "id": "1739526169655-0378b9aae5ab",
+    "by": "Chidy Young",
+    "alt": "Groom smiling at his bride in a lace gown",
+    "src": "/samples/photos/wed-lace.webp",
+    "thumb": "/samples/photos/wed-lace-sm.webp",
+    "width": 1600,
+    "height": 1168
+  },
+  "wed-blue-suit": {
+    "id": "1651851961498-bff60fecc10c",
+    "by": "Barnabas Lartey-Odoi Tetteh",
+    "alt": "Groom in a blue suit with his bride",
+    "src": "/samples/photos/wed-blue-suit.webp",
+    "thumb": "/samples/photos/wed-blue-suit-sm.webp",
+    "width": 1068,
+    "height": 1600
+  },
+  "wed-vows": {
+    "id": "1730321885391-74a0c04ef211",
+    "by": "Andrew Itaga",
+    "alt": "Bride and groom holding hands during the ceremony",
+    "src": "/samples/photos/wed-vows.webp",
+    "thumb": "/samples/photos/wed-vows-sm.webp",
+    "width": 1600,
+    "height": 1068
+  },
+  "wed-tux-detail": {
+    "id": "1766416143517-ee39c8db4f99",
+    "by": "Kevin Hernandez Reyes",
+    "alt": "Groom in a white tuxedo",
+    "src": "/samples/photos/wed-tux-detail.webp",
+    "thumb": "/samples/photos/wed-tux-detail-sm.webp",
+    "width": 1067,
+    "height": 1600
+  },
   "flowers-table": {
     "id": "1617813437449-c4f8f233dcd6",
     "by": "Antoine Demare",

@@ -4,8 +4,8 @@ import { getOccasion, type ColourSwatch, type OccasionKind } from "./occasions";
 import photos from "./sample-photos.json";
 import { getTheme, THEMES } from "./themes";
 
-// Sample celebrations for the marketing site. Names, dates and places are fictional; images are
-// abstract illustrations (inline SVG), clearly not photos of real people.
+// Sample celebrations for the marketing site. Names, dates and places are fictional; photos are
+// Unsplash stock (see scripts/fetch-sample-photos.mjs), credited on the policies page.
 
 type Photo = { id: string; by: string; alt: string; src: string; thumb: string; width?: number; height?: number };
 const PHOTOS = photos as Record<string, Photo>;
@@ -13,15 +13,15 @@ const PHOTOS = photos as Record<string, Photo>;
 /** Which stock photos each occasion's sample uses. */
 const PHOTO_SETS: Record<OccasionKind, { hero: string; portraits: string[]; gallery: string[]; venues: string[] }> = {
   wedding: {
-    hero: "wed-couple-suit",
-    portraits: ["wed-pose", "wed-kiss"],
-    gallery: ["wed-hands", "wed-traditional", "wed-palm", "wed-beach", "wed-ring", "wed-group", "flowers-table", "wed-tree"],
+    hero: "wed-white-tux",
+    portraits: ["wed-bouquet", "wed-blue-suit"],
+    gallery: ["wed-kente-couple", "wed-arch", "wed-kente-beads", "wed-lace", "wed-vows", "wed-kente-dancer", "wed-veil", "wed-kente-embrace", "wed-garden"],
     venues: ["venue-church", "venue-reception", "venue-pavilion", "venue-tables"],
   },
   anniversary: {
     hero: "wed-beach",
-    portraits: ["wed-palm", "wed-hands"],
-    gallery: ["wed-ring", "wed-kiss", "flowers-table", "venue-tables", "wed-tree", "wed-pose"],
+    portraits: ["wed-garden", "wed-hands"],
+    gallery: ["wed-ring", "wed-wall-kiss", "wed-kiss", "flowers-table", "wed-tree", "wed-pose"],
     venues: ["venue-church", "venue-tables"],
   },
   birthday: {
@@ -218,6 +218,28 @@ function image(name: string, caption = ""): ImageView {
   return { id: `sample-${name}`, src: p.src, thumb: p.thumb, alt: p.alt, caption, width: p.width ?? null, height: p.height ?? null, placeholder: null };
 }
 
+/** Wedding designs each get their own look: kente and beads for the traditional designs, gowns and tuxedos for the editorial one. */
+const WEDDING_BY_THEME: Record<string, (typeof PHOTO_SETS)["wedding"]> = {
+  "traditional-celebration": {
+    hero: "wed-kente-couple",
+    portraits: ["wed-crown", "wed-kente-wrap"],
+    gallery: ["wed-kente-embrace", "wed-kente-beads", "wed-kente-dancer", "wed-coral-bride", "wed-ankara-couple", "wed-kente-pose", "wed-traditional", "wed-group"],
+    venues: ["venue-pavilion", "venue-church", "venue-reception", "venue-tables"],
+  },
+  "contemporary-african-romance": {
+    hero: "wed-kente-embrace",
+    portraits: ["wed-coral-bride", "wed-kente-wrap"],
+    gallery: ["wed-kente-pose", "wed-ankara-couple", "wed-kente-beads", "wed-crown", "wed-kente-dancer", "wed-white-tux", "wed-traditional"],
+    venues: ["venue-pavilion", "venue-church", "venue-reception", "venue-tables"],
+  },
+  "luxury-editorial": {
+    hero: "wed-arch",
+    portraits: ["wed-bride-portrait", "wed-tux-detail"],
+    gallery: ["wed-white-tux", "wed-lace", "wed-garden", "wed-wall-kiss", "wed-veil", "wed-vows", "wed-bouquet", "flowers-table"],
+    venues: ["venue-church", "venue-reception", "venue-pavilion", "venue-tables"],
+  },
+};
+
 /** A complete sample page for an occasion in a theme, `daysAhead` from today (negative = already happened). */
 export function sampleCelebration(
   themeId: string,
@@ -225,7 +247,7 @@ export function sampleCelebration(
 ): CelebrationView {
   const theme = getTheme(themeId);
   const spec = SPECS[occasion];
-  const set = PHOTO_SETS[occasion];
+  const set = (occasion === "wedding" && WEDDING_BY_THEME[theme.id]) || PHOTO_SETS[occasion];
   const tz = "Africa/Accra";
   const day = addDays(plainDateInZone(new Date(now), tz), daysAhead);
   const at = (d: string, time: string) => zonedLocalToUtc(`${d}T${time}`, tz).toISOString();
