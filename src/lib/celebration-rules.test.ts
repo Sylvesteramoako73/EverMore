@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { answerableEvents, marriageDate, primaryEvent, visibleEvents, weddingPhase } from "./wedding-rules";
+import { answerableEvents, yearlyDate, primaryEvent, visibleEvents, celebrationPhase } from "./celebration-rules";
 
 const ev = (id: string, iso: string, extra: Partial<{ rsvpRequired: boolean; inviteOnly: boolean; timezone: string }> = {}) => ({
   id,
@@ -26,19 +26,19 @@ describe("primary event and phase", () => {
   });
 
   it("moves from upcoming to today to married in the venue's timezone", () => {
-    expect(weddingPhase(null)).toBe("planning");
-    expect(weddingPhase(church, Date.parse("2030-06-12T13:59:00Z"))).toBe("upcoming");
-    expect(weddingPhase(church, Date.parse("2030-06-12T23:59:00Z"))).toBe("today");
-    expect(weddingPhase(church, Date.parse("2030-06-13T00:00:00Z"))).toBe("married");
-    // In Los Angeles it is still the wedding day at 06:00Z the next morning.
+    expect(celebrationPhase(null)).toBe("planning");
+    expect(celebrationPhase(church, Date.parse("2030-06-12T13:59:00Z"))).toBe("upcoming");
+    expect(celebrationPhase(church, Date.parse("2030-06-12T23:59:00Z"))).toBe("today");
+    expect(celebrationPhase(church, Date.parse("2030-06-13T00:00:00Z"))).toBe("after");
+    // In Los Angeles it is still the celebration day at 06:00Z the next morning.
     const la = ev("la", "2030-06-12T21:00:00Z", { timezone: "America/Los_Angeles" });
-    expect(weddingPhase(la, Date.parse("2030-06-13T06:00:00Z"))).toBe("today");
+    expect(celebrationPhase(la, Date.parse("2030-06-13T06:00:00Z"))).toBe("today");
   });
 
-  it("counts marriage from the chosen date, else the primary event's local date", () => {
-    expect(marriageDate("2030-06-01", church)).toBe("2030-06-01");
-    expect(marriageDate(null, ev("tokyo", "2030-06-12T20:00:00Z", { timezone: "Asia/Tokyo" }))).toBe("2030-06-13");
-    expect(marriageDate(null, null)).toBeNull();
+  it("counts the yearly date from the chosen date, else the primary event's local date", () => {
+    expect(yearlyDate("2030-06-01", church)).toBe("2030-06-01");
+    expect(yearlyDate(null, ev("tokyo", "2030-06-12T20:00:00Z", { timezone: "Asia/Tokyo" }))).toBe("2030-06-13");
+    expect(yearlyDate(null, null)).toBeNull();
   });
 });
 
@@ -56,7 +56,7 @@ describe("which events a guest may answer", () => {
     expect(visibleEvents(all).map((e) => e.id)).not.toContain("vip");
   });
 
-  it("closes at the end of the deadline day in the wedding's timezone", () => {
+  it("closes at the end of the deadline day in the celebration's timezone", () => {
     const withDeadline = { ...settings, rsvpDeadline: "2030-05-20", timezone: "America/New_York" };
     expect(answerableEvents(withDeadline, all, { now: Date.parse("2030-05-21T03:58:00Z") }).map((e) => e.id)).toEqual(["church", "trad"]);
     expect(answerableEvents(withDeadline, all, { now: Date.parse("2030-05-21T04:00:00Z") })).toHaveLength(0);

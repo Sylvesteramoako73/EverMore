@@ -10,26 +10,26 @@ import { LimitError } from "./events";
 /** 24 random bytes, URL-safe: the bearer secret in a guest's personal invitation link. */
 export const newInviteToken = () => randomBytes(24).toString("base64url");
 
-/** Keep only event ids that belong to this wedding. */
-async function ownEventIds(weddingId: string, ids: string[]) {
+/** Keep only event ids that belong to this celebration. */
+async function ownEventIds(celebrationId: string, ids: string[]) {
   if (!ids.length) return [];
   const rows = await db
     .select({ id: event.id })
     .from(event)
-    .where(and(eq(event.weddingId, weddingId), inArray(event.id, ids)));
+    .where(and(eq(event.celebrationId, celebrationId), inArray(event.id, ids)));
   return rows.map((r) => r.id);
 }
 
-export async function createGuest(weddingId: string, plan: string, input: GuestInput) {
-  const [{ n }] = await db.select({ n: count() }).from(guest).where(eq(guest.weddingId, weddingId));
+export async function createGuest(celebrationId: string, plan: string, input: GuestInput) {
+  const [{ n }] = await db.select({ n: count() }).from(guest).where(eq(guest.celebrationId, celebrationId));
   const max = entitlements(plan).maxGuests;
   if (n >= max) throw new LimitError(`Your plan includes up to ${max} invitations.`);
-  const eventIds = await ownEventIds(weddingId, input.eventIds);
+  const eventIds = await ownEventIds(celebrationId, input.eventIds);
   return db.transaction(async (tx) => {
     const [row] = await tx
       .insert(guest)
       .values({
-        weddingId,
+        celebrationId,
         name: input.name,
         email: input.email,
         phone: input.phone,
@@ -43,13 +43,13 @@ export async function createGuest(weddingId: string, plan: string, input: GuestI
   });
 }
 
-export async function updateGuest(weddingId: string, guestId: string, input: GuestInput) {
-  const eventIds = await ownEventIds(weddingId, input.eventIds);
+export async function updateGuest(celebrationId: string, guestId: string, input: GuestInput) {
+  const eventIds = await ownEventIds(celebrationId, input.eventIds);
   return db.transaction(async (tx) => {
     const updated = await tx
       .update(guest)
       .set({ name: input.name, email: input.email, phone: input.phone, maxPartySize: input.maxPartySize, notes: input.notes })
-      .where(and(eq(guest.id, guestId), eq(guest.weddingId, weddingId)))
+      .where(and(eq(guest.id, guestId), eq(guest.celebrationId, celebrationId)))
       .returning({ id: guest.id });
     if (!updated.length) return false;
     await tx.delete(guestEvent).where(eq(guestEvent.guestId, guestId));
@@ -58,37 +58,37 @@ export async function updateGuest(weddingId: string, guestId: string, input: Gue
   });
 }
 
-export async function deleteGuest(weddingId: string, guestId: string) {
-  const rows = await db.delete(guest).where(and(eq(guest.id, guestId), eq(guest.weddingId, weddingId))).returning({ id: guest.id });
+export async function deleteGuest(celebrationId: string, guestId: string) {
+  const rows = await db.delete(guest).where(and(eq(guest.id, guestId), eq(guest.celebrationId, celebrationId))).returning({ id: guest.id });
   return rows.length > 0;
 }
 
 /** Invalidate a leaked link: the guest gets a new one and the old one stops working. */
-export async function regenerateInviteToken(weddingId: string, guestId: string) {
+export async function regenerateInviteToken(celebrationId: string, guestId: string) {
   const rows = await db
     .update(guest)
     .set({ inviteToken: newInviteToken() })
-    .where(and(eq(guest.id, guestId), eq(guest.weddingId, weddingId)))
+    .where(and(eq(guest.id, guestId), eq(guest.celebrationId, celebrationId)))
     .returning({ id: guest.id });
   return rows.length > 0;
 }
 
 /** The couple marks an invitation as sent. We never claim delivery or opening; only what they told us. */
-export async function markInvitationSent(weddingId: string, guestId: string, sent: boolean) {
+export async function markInvitationSent(celebrationId: string, guestId: string, sent: boolean) {
   await db
     .update(guest)
     .set({ invitationSentAt: sent ? new Date() : null })
-    .where(and(eq(guest.id, guestId), eq(guest.weddingId, weddingId)));
+    .where(and(eq(guest.id, guestId), eq(guest.celebrationId, celebrationId)));
 }
 
 export type GuestRow = typeof guest.$inferSelect & { eventIds: string[]; rsvpId: string | null };
 
-export async function listGuests(weddingId: string): Promise<GuestRow[]> {
+export async function listGuests(celebrationId: string): Promise<GuestRow[]> {
   const rows = await db
     .select({ g: guest, rsvpId: rsvp.id })
     .from(guest)
     .leftJoin(rsvp, eq(rsvp.guestId, guest.id))
-    .where(eq(guest.weddingId, weddingId))
+    .where(eq(guest.celebrationId, celebrationId))
     .orderBy(asc(guest.name));
   const links = rows.length
     ? await db
@@ -160,11 +160,11 @@ export function parseGuestCsv(text: string): { rows: ImportRow[]; problems: stri
   return { rows, problems };
 }
 
-export async function importGuests(weddingId: string, plan: string, rows: ImportRow[]) {
-  const [{ n }] = await db.select({ n: count() }).from(guest).where(eq(guest.weddingId, weddingId));
+export async function importGuests(celebrationId: string, plan: string, rows: ImportRow[]) {
+  const [{ n }] = await db.select({ n: count() }).from(guest).where(eq(guest.celebrationId, celebrationId));
   const max = entitlements(plan).maxGuests;
   if (n + rows.length > max) throw new LimitError(`This would take you past your plan's ${max} invitations.`);
   if (!rows.length) return 0;
-  await db.insert(guest).values(rows.map((r) => ({ weddingId, ...r, notes: "", inviteToken: newInviteToken() })));
+  await db.insert(guest).values(rows.map((r) => ({ celebrationId, ...r, notes: "", inviteToken: newInviteToken() })));
   return rows.length;
 }

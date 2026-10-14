@@ -1,9 +1,9 @@
 import "server-only";
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { and, asc, count, eq, inArray, max } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, max } from "drizzle-orm";
 import sharp from "sharp";
 import { db } from "@/db";
-import { media, wedding } from "@/db/schema";
+import { celebration, media, mediaCollection } from "@/db/schema";
 import { env } from "@/lib/env";
 import { entitlements } from "@/lib/plans";
 import { LimitError } from "./events";
@@ -14,7 +14,7 @@ const MAX_PIXELS = 60_000_000;
 // HEIC needs a codec sharp does not ship; browsers on iPhone convert to JPEG on upload.
 const ACCEPTED = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
 
-export type Collection = "portrait" | "engagement" | "gallery" | "wedding" | "memory";
+export type Collection = (typeof mediaCollection.enumValues)[number];
 export type Media = typeof media.$inferSelect;
 
 export class UploadError extends Error {}
@@ -53,18 +53,18 @@ export async function processImage(file: File) {
 }
 
 export async function addPhoto(
-  weddingId: string,
+  celebrationId: string,
   plan: string,
   file: File,
   { collection, isPublic = true, uploadedBy }: { collection: Collection; isPublic?: boolean; uploadedBy: string },
 ) {
-  const [{ n }] = await db.select({ n: count() }).from(media).where(eq(media.weddingId, weddingId));
+  const [{ n }] = await db.select({ n: count() }).from(media).where(eq(media.celebrationId, celebrationId));
   const limit = entitlements(plan).maxPhotos;
   if (n >= limit) throw new LimitError(`Your plan includes up to ${limit} photos.`);
 
   const image = await processImage(file);
   const id = crypto.randomUUID();
-  const keys = mediaKeys(weddingId, id);
+  const keys = mediaKeys(celebrationId, id);
   await Promise.all([
     storage().put(keys.full, image.full, "image/webp"),
     storage().put(keys.thumb, image.thumb, "image/webp"),
@@ -72,11 +72,11 @@ export async function addPhoto(
   const [{ next }] = await db
     .select({ next: max(media.sortOrder) })
     .from(media)
-    .where(and(eq(media.weddingId, weddingId), eq(media.collection, collection)));
+    .where(and(eq(media.celebrationId, celebrationId), eq(media.collection, collection)));
   try {
     await db.insert(media).values({
       id,
-      weddingId,
+      celebrationId,
       collection,
       storageKey: keys.full,
       mimeType: "image/webp",
@@ -95,11 +95,18 @@ export async function addPhoto(
   return id;
 }
 
-export function listMedia(weddingId: string, collections?: Collection[]) {
+/** The hosts' own photos (guest uploads are listed separately with `listShared`). */
+export function listMedia(celebrationId: string, collections?: Collection[]) {
   return db
     .select()
     .from(media)
-    .where(and(eq(media.weddingId, weddingId), collections ? inArray(media.collection, collections) : undefined))
+    .where(
+      and(
+        eq(media.celebrationId, celebrationId),
+        eq(media.source, "host"),
+        collections ? inArray(media.collection, collections) : undefined,
+      ),
+    )
     .orderBy(asc(media.collection), asc(media.sortOrder), asc(media.createdAt));
 }
 
@@ -109,37 +116,37 @@ export async function getMedia(mediaId: string) {
 }
 
 export async function updateMedia(
-  weddingId: string,
+  celebrationId: string,
   mediaId: string,
   patch: Partial<Pick<Media, "caption" | "altText" | "isPublic" | "collection">>,
 ) {
   const rows = await db
     .update(media)
     .set(patch)
-    .where(and(eq(media.id, mediaId), eq(media.weddingId, weddingId)))
+    .where(and(eq(media.id, mediaId), eq(media.celebrationId, celebrationId)))
     .returning({ id: media.id });
   return rows.length > 0;
 }
 
-export async function deleteMedia(weddingId: string, mediaId: string) {
+export async function deleteMedia(celebrationId: string, mediaId: string) {
   const rows = await db
     .delete(media)
-    .where(and(eq(media.id, mediaId), eq(media.weddingId, weddingId)))
+    .where(and(eq(media.id, mediaId), eq(media.celebrationId, celebrationId)))
     .returning({ id: media.id });
   if (!rows.length) return false;
-  await storage().deletePrefix(mediaKeys(weddingId, mediaId).prefix);
+  await storage().deletePrefix(mediaKeys(celebrationId, mediaId).prefix);
   return true;
 }
 
 /** Move a photo one place earlier or later within its collection. */
-export async function moveMedia(weddingId: string, mediaId: string, direction: -1 | 1) {
+export async function moveMedia(celebrationId: string, mediaId: string, direction: -1 | 1) {
   return db.transaction(async (tx) => {
-    const [item] = await tx.select().from(media).where(and(eq(media.id, mediaId), eq(media.weddingId, weddingId)));
+    const [item] = await tx.select().from(media).where(and(eq(media.id, mediaId), eq(media.celebrationId, celebrationId)));
     if (!item) return false;
     const siblings = await tx
       .select({ id: media.id })
       .from(media)
-      .where(and(eq(media.weddingId, weddingId), eq(media.collection, item.collection)))
+      .where(and(eq(media.celebrationId, celebrationId), eq(media.collection, item.collection)))
       .orderBy(asc(media.sortOrder), asc(media.createdAt));
     const index = siblings.findIndex((s) => s.id === mediaId);
     const target = index + direction;
@@ -150,18 +157,18 @@ export async function moveMedia(weddingId: string, mediaId: string, direction: -
   });
 }
 
-export async function setHeroMedia(weddingId: string, mediaId: string | null) {
+export async function setHeroMedia(celebrationId: string, mediaId: string | null) {
   if (mediaId) {
     const item = await getMedia(mediaId);
-    if (!item || item.weddingId !== weddingId) return false;
+    if (!item || item.celebrationId !== celebrationId) return false;
   }
-  await db.update(wedding).set({ heroMediaId: mediaId }).where(eq(wedding.id, weddingId));
+  await db.update(celebration).set({ heroMediaId: mediaId }).where(eq(celebration.id, celebrationId));
   return true;
 }
 
-/** Remove every stored file of a wedding (used when deleting a wedding or an account). */
-export async function deleteWeddingFiles(weddingId: string) {
-  await storage().deletePrefix(weddingId);
+/** Remove every stored file of a celebration (used when deleting a celebration or an account). */
+export async function deleteCelebrationFiles(celebrationId: string) {
+  await storage().deletePrefix(celebrationId);
 }
 
 // ───────────────────────────── Signed URLs for private media
@@ -188,4 +195,83 @@ export function verifyMediaSignature(mediaId: string, variant: Variant, expires:
   const expected = Buffer.from(signature(mediaId, variant, e));
   const given = Buffer.from(sig);
   return expected.length === given.length && timingSafeEqual(expected, given);
+}
+
+// ───────────────────────────── Guest uploads ("Share the love")
+
+export const MAX_VIDEO_BYTES = 50 * 1024 * 1024;
+const VIDEO_TYPES: Record<string, string> = { "video/mp4": "mp4", "video/webm": "webm", "video/quicktime": "mov" };
+
+/**
+ * A guest adds a photo or video to the shared gallery. Photos are processed like host photos;
+ * videos are stored as uploaded (size and type checked, no transcoding). Moderated pages hold
+ * uploads as "pending" until a host approves them.
+ */
+export async function addGuestUpload(
+  celebrationId: string,
+  plan: string,
+  file: File,
+  { guestName, moderated }: { guestName: string; moderated: boolean },
+) {
+  const [{ n }] = await db.select({ n: count() }).from(media).where(eq(media.celebrationId, celebrationId));
+  // Guests share the page's media allowance, with headroom so a busy day isn't cut short.
+  const limit = entitlements(plan).maxPhotos * 3;
+  if (n >= limit) throw new LimitError("This page has reached its upload limit. Please send your photos to the hosts directly.");
+
+  const id = crypto.randomUUID();
+  const keys = mediaKeys(celebrationId, id);
+  const status = moderated ? "pending" : "approved";
+  const ext = VIDEO_TYPES[file.type];
+
+  if (ext) {
+    if (file.size === 0) throw new UploadError("That file is empty.");
+    if (file.size > MAX_VIDEO_BYTES) throw new UploadError("Videos must be 50 MB or smaller. Try a shorter clip.");
+    const key = `${keys.prefix}/video.${ext}`;
+    await storage().put(key, Buffer.from(await file.arrayBuffer()), file.type);
+    await db.insert(media).values({
+      id, celebrationId, kind: "video", collection: "shared", source: "guest", status, guestName,
+      storageKey: key, mimeType: file.type, bytes: file.size,
+    });
+    return { id, status };
+  }
+
+  const image = await processImage(file);
+  await Promise.all([storage().put(keys.full, image.full, "image/webp"), storage().put(keys.thumb, image.thumb, "image/webp")]);
+  try {
+    await db.insert(media).values({
+      id, celebrationId, kind: "photo", collection: "shared", source: "guest", status, guestName,
+      storageKey: keys.full, mimeType: "image/webp", bytes: image.full.length,
+      width: image.width, height: image.height, placeholder: image.placeholder,
+    });
+  } catch (err) {
+    await storage().deletePrefix(keys.prefix);
+    throw err;
+  }
+  return { id, status };
+}
+
+/** The shared gallery, newest first. */
+export async function listShared(
+  celebrationId: string,
+  { onlyApproved, limit = 12, offset = 0, status }: { onlyApproved: boolean; limit?: number; offset?: number; status?: "approved" | "pending" | "hidden" },
+) {
+  const where = and(
+    eq(media.celebrationId, celebrationId),
+    eq(media.source, "guest"),
+    onlyApproved ? eq(media.status, "approved") : status ? eq(media.status, status) : undefined,
+  );
+  const [items, [{ total }]] = await Promise.all([
+    db.select().from(media).where(where).orderBy(desc(media.createdAt)).limit(limit).offset(offset),
+    db.select({ total: count() }).from(media).where(where),
+  ]);
+  return { items, total };
+}
+
+export async function setMediaStatus(celebrationId: string, mediaId: string, status: "approved" | "hidden" | "pending") {
+  const rows = await db
+    .update(media)
+    .set({ status })
+    .where(and(eq(media.id, mediaId), eq(media.celebrationId, celebrationId)))
+    .returning({ id: media.id });
+  return rows.length > 0;
 }

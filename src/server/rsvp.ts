@@ -3,7 +3,7 @@ import { and, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { event, guest, guestEvent, rsvp, rsvpResponse } from "@/db/schema";
 import { fieldErrors, rsvpBaseSchema, type FieldErrors } from "@/lib/validation";
-import { rsvpField } from "@/lib/wedding-rules";
+import { rsvpField } from "@/lib/celebration-rules";
 
 type Offered = { id: string; name: string };
 type Limits = { maxPartySize: number; mealOptions: string[]; askDietary: boolean };
@@ -66,10 +66,10 @@ export function parseRsvp(raw: Record<string, unknown>, offered: Offered[], limi
  * Create or update a reply. Through an invitation link there is one reply per invitation; on the open
  * form there is one reply per email address. Repeat submissions replace earlier answers.
  */
-export async function saveRsvp(weddingId: string, guestId: string | null, r: ParsedRsvp) {
+export async function saveRsvp(celebrationId: string, guestId: string | null, r: ParsedRsvp) {
   return db.transaction(async (tx) => {
     const values = {
-      weddingId,
+      celebrationId,
       guestId,
       name: r.name,
       email: r.email,
@@ -88,7 +88,7 @@ export async function saveRsvp(weddingId: string, guestId: string | null, r: Par
       : await tx
           .insert(rsvp)
           .values(values)
-          .onConflictDoUpdate({ target: [rsvp.weddingId, rsvp.email], targetWhere: sql`${rsvp.guestId} IS NULL`, set: update })
+          .onConflictDoUpdate({ target: [rsvp.celebrationId, rsvp.email], targetWhere: sql`${rsvp.guestId} IS NULL`, set: update })
           .returning({ id: rsvp.id, inserted: sql<boolean>`(xmax = 0)` });
 
     for (const a of r.answers) {
@@ -104,12 +104,12 @@ export async function saveRsvp(weddingId: string, guestId: string | null, r: Par
 }
 
 /** The invitation behind a personal link, with the events it covers (empty = all public events). */
-export async function findInvitation(weddingId: string, token: string) {
+export async function findInvitation(celebrationId: string, token: string) {
   if (!/^[A-Za-z0-9_-]{20,64}$/.test(token)) return null;
   const [g] = await db
     .select()
     .from(guest)
-    .where(and(eq(guest.weddingId, weddingId), eq(guest.inviteToken, token)))
+    .where(and(eq(guest.celebrationId, celebrationId), eq(guest.inviteToken, token)))
     .limit(1);
   if (!g) return null;
   const events = await db.select({ eventId: guestEvent.eventId }).from(guestEvent).where(eq(guestEvent.guestId, g.id));
@@ -132,7 +132,7 @@ export type RsvpRow = {
   answers: { eventId: string; attending: boolean; partySize: number }[];
 };
 
-export async function listRsvps(weddingId: string): Promise<RsvpRow[]> {
+export async function listRsvps(celebrationId: string): Promise<RsvpRow[]> {
   const rows = await db
     .select({
       id: rsvp.id,
@@ -150,7 +150,7 @@ export async function listRsvps(weddingId: string): Promise<RsvpRow[]> {
         FROM rsvp_response rr WHERE rr.rsvp_id = "rsvp"."id"), '[]'::json)`,
     })
     .from(rsvp)
-    .where(eq(rsvp.weddingId, weddingId))
+    .where(eq(rsvp.celebrationId, celebrationId))
     .orderBy(desc(rsvp.updatedAt));
   return rows;
 }
@@ -158,7 +158,7 @@ export async function listRsvps(weddingId: string): Promise<RsvpRow[]> {
 export type EventTotals = { eventId: string; name: string; startsAt: Date; yes: number; no: number; guests: number };
 
 /** Per event: replies saying yes/no and expected guests (sum of party sizes). */
-export async function eventTotals(weddingId: string): Promise<EventTotals[]> {
+export async function eventTotals(celebrationId: string): Promise<EventTotals[]> {
   const rows = await db
     .select({
       eventId: event.id,
@@ -170,14 +170,14 @@ export async function eventTotals(weddingId: string): Promise<EventTotals[]> {
     })
     .from(event)
     .leftJoin(rsvpResponse, eq(rsvpResponse.eventId, event.id))
-    .where(eq(event.weddingId, weddingId))
+    .where(eq(event.celebrationId, celebrationId))
     .groupBy(event.id)
     .orderBy(event.startsAt);
   return rows;
 }
 
 /** Headline numbers: replies, households attending something, and the largest expected headcount. */
-export async function rsvpSummary(weddingId: string) {
+export async function rsvpSummary(celebrationId: string) {
   const [row] = await db
     .select({
       replies: sql<number>`count(*)`.mapWith(Number),
@@ -185,14 +185,14 @@ export async function rsvpSummary(weddingId: string) {
       people: sql<number>`coalesce(sum((SELECT max(rr.party_size) FROM rsvp_response rr WHERE rr.rsvp_id = "rsvp"."id" AND rr.attending)), 0)`.mapWith(Number),
     })
     .from(rsvp)
-    .where(eq(rsvp.weddingId, weddingId));
+    .where(eq(rsvp.celebrationId, celebrationId));
   const [invites] = await db
     .select({
       invited: sql<number>`count(*)`.mapWith(Number),
       pending: sql<number>`count(*) FILTER (WHERE NOT EXISTS (SELECT 1 FROM rsvp r WHERE r.guest_id = "guest"."id"))`.mapWith(Number),
     })
     .from(guest)
-    .where(eq(guest.weddingId, weddingId));
+    .where(eq(guest.celebrationId, celebrationId));
   return {
     replies: row?.replies ?? 0,
     attending: row?.attending ?? 0,
@@ -203,8 +203,8 @@ export async function rsvpSummary(weddingId: string) {
   };
 }
 
-export async function deleteRsvp(weddingId: string, rsvpId: string) {
-  const rows = await db.delete(rsvp).where(and(eq(rsvp.id, rsvpId), eq(rsvp.weddingId, weddingId))).returning({ id: rsvp.id });
+export async function deleteRsvp(celebrationId: string, rsvpId: string) {
+  const rows = await db.delete(rsvp).where(and(eq(rsvp.id, rsvpId), eq(rsvp.celebrationId, celebrationId))).returning({ id: rsvp.id });
   return rows.length > 0;
 }
 

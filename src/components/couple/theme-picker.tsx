@@ -3,7 +3,7 @@
 import { Check, Monitor, Smartphone } from "lucide-react";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { chooseTheme } from "@/app/actions/wedding";
+import { chooseTheme } from "@/app/actions/celebration";
 import { Button } from "@/components/ui/button";
 import type { Theme } from "@/lib/themes";
 
@@ -78,16 +78,16 @@ export function ThemePicker({ themes, current, slug, premiumAllowed }: { themes:
         <div className={`mx-auto overflow-hidden rounded-[1.5rem] border-[8px] border-navy bg-navy ${device === "mobile" ? "w-[330px]" : "w-full"}`}>
           <div className={device === "mobile" ? "h-[620px]" : "h-[520px]"}>
             {device === "mobile" ? (
-              <iframe key={`${version}-m`} src={`/w/${slug}`} title="Preview of your wedding page" className="h-full w-full bg-white" />
+              <iframe key={`${version}-m`} src={`/${slug}`} title="Preview of your celebration page" className="h-full w-full bg-white" />
             ) : (
               // Render at desktop width and scale down to fit.
               <div className="relative h-full w-full overflow-hidden bg-white">
-                <iframe key={`${version}-d`} src={`/w/${slug}`} title="Desktop preview of your wedding page" className="absolute top-0 left-0 h-[1040px] w-[1280px] origin-top-left scale-[0.5] border-0" />
+                <iframe key={`${version}-d`} src={`/${slug}`} title="Desktop preview of your celebration page" className="absolute top-0 left-0 h-[1040px] w-[1280px] origin-top-left scale-[0.5] border-0" />
               </div>
             )}
           </div>
         </div>
-        <a href={`/w/${slug}`} target="_blank" rel="noopener noreferrer" className="mt-3 block text-center text-sm text-navy underline underline-offset-4">
+        <a href={`/${slug}`} target="_blank" rel="noopener noreferrer" className="mt-3 block text-center text-sm text-navy underline underline-offset-4">
           Open full preview in a new tab
         </a>
       </div>

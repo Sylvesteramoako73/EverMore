@@ -13,7 +13,7 @@ export interface StorageDriver {
   deletePrefix(prefix: string): Promise<void>;
 }
 
-const KEY_PATTERN = /^[a-z0-9-]+(\/[a-z0-9-]+)*\.(webp|jpg|png|mp4|webm)$/;
+const KEY_PATTERN = /^[a-z0-9-]+(\/[a-z0-9-]+)*\.(webp|jpg|png|mp4|webm|mov)$/;
 const PREFIX_PATTERN = /^[a-z0-9-]+(\/[a-z0-9-]+)*$/;
 
 function localDriver(root: string): StorageDriver {
@@ -49,8 +49,8 @@ export function storage(): StorageDriver {
   return driver;
 }
 
-export const mediaKeys = (weddingId: string, mediaId: string) => ({
-  prefix: `${weddingId}/${mediaId}`,
-  full: `${weddingId}/${mediaId}/full.webp`,
-  thumb: `${weddingId}/${mediaId}/thumb.webp`,
+export const mediaKeys = (celebrationId: string, mediaId: string) => ({
+  prefix: `${celebrationId}/${mediaId}`,
+  full: `${celebrationId}/${mediaId}/full.webp`,
+  thumb: `${celebrationId}/${mediaId}/thumb.webp`,
 });

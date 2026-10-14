@@ -34,11 +34,11 @@ export async function clientIp(): Promise<string | null> {
 }
 
 /**
- * Limit public submissions per IP when known, and always per wedding as a backstop, so a flood
+ * Limit public submissions per IP when known, and always per celebration as a backstop, so a flood
  * can't fill a couple's RSVPs or guestbook even when the client IP is unknown.
  */
-export async function limitPublicAction(action: string, weddingId: string, perIp: number, perWedding: number, windowMs: number) {
+export async function limitPublicAction(action: string, celebrationId: string, perIp: number, perCelebration: number, windowMs: number) {
   const ip = await clientIp();
-  if (ip && !rateLimit(`${action}:${weddingId}:${ip}`, perIp, windowMs)) return false;
-  return rateLimit(`${action}:${weddingId}:all`, perWedding, windowMs);
+  if (ip && !rateLimit(`${action}:${celebrationId}:${ip}`, perIp, windowMs)) return false;
+  return rateLimit(`${action}:${celebrationId}:all`, perCelebration, windowMs);
 }

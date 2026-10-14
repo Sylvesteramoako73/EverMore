@@ -101,11 +101,11 @@ export function calendarDuration(startDate: string, endDate: string): Duration {
 }
 
 /**
- * The next anniversary on or after `today`. Weddings on 29 February are celebrated on 28 February
+ * The next anniversary on or after `today`. Celebrations on 29 February are celebrated on 28 February
  * in non-leap years.
  */
-export function nextAnniversary(weddingDate: string, today: string): { date: string; years: number } {
-  const w = parsePlainDate(weddingDate);
+export function nextAnniversary(keyDate: string, today: string): { date: string; years: number } {
+  const w = parsePlainDate(keyDate);
   const t = parsePlainDate(today);
   for (let year = Math.max(t.y, w.y + 1); ; year++) {
     const candidate = { y: year, m: w.m, d: Math.min(w.d, daysInMonth(year, w.m)) };

@@ -40,8 +40,8 @@ export const emails = {
     ], { label: "Choose a new password", url }),
 
   partnerInvite: (to: string, inviterName: string, couple: string, url: string) =>
-    message(to, `${inviterName} invited you to your wedding website on EverMore`, `Join ${couple} on EverMore`, [
-      `${inviterName} has invited you to help manage your wedding website.`,
+    message(to, `${inviterName} invited you to your celebration website on EverMore`, `Join ${couple} on EverMore`, [
+      `${inviterName} has invited you to help manage your celebration website.`,
       "Accept the invitation to edit details, see RSVPs and add memories together. This link expires in 7 days.",
     ], { label: "Accept invitation", url }),
 
@@ -53,7 +53,7 @@ export const emails = {
       [
         daysBefore === 0
           ? `Today marks ${years} ${years === 1 ? "year" : "years"} of marriage. Congratulations!`
-          : `Your ${ordinal(years)} wedding anniversary is coming up in ${daysBefore} days.`,
+          : `Your ${ordinal(years)} celebration anniversary is coming up in ${daysBefore} days.`,
         "Why not add a memory from this year to your EverMore page?",
       ],
       { label: "Add a memory", url },

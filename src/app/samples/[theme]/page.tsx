@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
-import { WeddingSite } from "@/components/wedding/wedding-site";
+import { CelebrationSite } from "@/components/site/celebration-site";
 import { currentTime } from "@/lib/clock";
-import { sampleWedding } from "@/lib/samples";
+import { OCCASION_KINDS } from "@/lib/occasions";
+import { SAMPLE_THEMES, sampleCelebration } from "@/lib/samples";
 import { getTheme, THEMES } from "@/lib/themes";
 
 export function generateStaticParams() {
@@ -29,8 +30,11 @@ async function Sample({ params, searchParams }: PageProps<"/samples/[theme]">) {
   await connection();
   const { theme } = await params;
   if (!THEMES.some((t) => t.id === theme)) notFound();
-  // ?after=1 shows the same sample after the wedding: thank-you note and marriage counter.
-  const married = (await searchParams).after === "1";
+  const sp = await searchParams;
+  // ?occasion=birthday shows another occasion in this theme; ?after=1 shows the page after the day.
+  const requested = typeof sp.occasion === "string" ? sp.occasion : null;
+  const occasion = OCCASION_KINDS.find((k) => k === requested) ?? SAMPLE_THEMES.find((t) => t.id === theme)!.occasion;
+  const after = sp.after === "1";
   const now = currentTime();
-  return <WeddingSite w={sampleWedding(getTheme(theme).id, { daysAhead: married ? -400 : 96, now })} now={now} />;
+  return <CelebrationSite w={sampleCelebration(getTheme(theme).id, { occasion, daysAhead: after ? -400 : 96, now })} now={now} />;
 }

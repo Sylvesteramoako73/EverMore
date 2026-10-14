@@ -1,9 +1,11 @@
-// Public wedding addresses: /w/<slug>.
+// Public celebration addresses: /<slug>.
 
+// Addresses live at the root (evermore.app/<slug>), so every top-level app path must be reserved.
 export const RESERVED_SLUGS = new Set([
-  "admin", "api", "app", "auth", "dashboard", "help", "login", "logout", "new", "onboarding", "pricing",
-  "privacy", "settings", "sign-in", "sign-up", "signin", "signup", "support", "terms", "w", "www", "evermore",
-  "sample", "samples", "invite", "invitations",
+  "about", "account", "admin", "api", "app", "auth", "blog", "c", "check-email", "contact", "dashboard", "e", "evermore",
+  "faq", "forgot-password", "help", "invitations", "invite", "login", "logout", "media", "new", "onboarding", "policies",
+  "pricing", "privacy", "reset-password", "sample", "samples", "settings", "sign-in", "sign-up", "signin", "signup",
+  "static", "support", "terms", "w", "www",
 ]);
 
 export const SLUG_PATTERN = /^[a-z0-9](?:[a-z0-9-]{1,58}[a-z0-9])$/;
@@ -20,10 +22,10 @@ export function slugify(value: string) {
     .replace(/-+$/, "");
 }
 
-/** "ama-and-kofi" style base for a couple, falling back when names don't produce a usable slug. */
-export function coupleSlugBase(partnerOne: string, partnerTwo: string) {
-  const base = slugify(`${partnerOne} and ${partnerTwo}`);
-  return base.length >= 3 && !RESERVED_SLUGS.has(base) ? base : "our-wedding";
+/** A readable base from the headline ("Ama & Kofi" -> "ama-and-kofi"), with a fallback when unusable. */
+export function titleSlugBase(title: string) {
+  const base = slugify(title);
+  return base.length >= 3 && !RESERVED_SLUGS.has(base) ? base : "our-celebration";
 }
 
 export function slugProblem(slug: string): string | null {

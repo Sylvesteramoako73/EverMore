@@ -1,17 +1,17 @@
 import { connection } from "next/server";
 import { appUrl } from "@/lib/env";
-import { loadPublicWedding } from "@/server/public-wedding";
+import { loadPublicCelebration } from "@/server/public-celebration";
 import { memberCheck } from "@/server/viewer";
 
 const icsDate = (iso: string) => iso.replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 const escape = (v: string) => v.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
 
 /** Calendar file with the events this visitor can see; `?event=<id>` for one event. */
-export async function GET(request: Request, { params }: RouteContext<"/w/[slug]/calendar.ics">) {
+export async function GET(request: Request, { params }: RouteContext<"/[slug]/calendar.ics">) {
   await connection();
   const { slug } = await params;
   const url = new URL(request.url);
-  const result = await loadPublicWedding(slug, { inviteToken: url.searchParams.get("invite"), isMember: memberCheck() });
+  const result = await loadPublicCelebration(slug, { inviteToken: url.searchParams.get("invite"), isMember: memberCheck() });
   if (result.kind !== "ok") return new Response("Not found", { status: 404 });
 
   const w = result.view;
@@ -19,12 +19,12 @@ export async function GET(request: Request, { params }: RouteContext<"/w/[slug]/
   const events = w.events.filter((e) => !only || e.id === only);
   if (!events.length) return new Response("Not found", { status: 404 });
 
-  const page = appUrl(`/w/${w.slug}`);
+  const page = appUrl(`/${w.slug}`);
   const stamp = icsDate(new Date().toISOString());
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//EverMore//Wedding//EN",
+    "PRODID:-//EverMore//Celebration//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     ...events.flatMap((e) => [
@@ -33,7 +33,7 @@ export async function GET(request: Request, { params }: RouteContext<"/w/[slug]/
       `DTSTAMP:${stamp}`,
       `DTSTART:${icsDate(e.startsAt)}`,
       `DTEND:${icsDate(e.endsAt ?? new Date(Date.parse(e.startsAt) + 4 * 3600_000).toISOString())}`,
-      `SUMMARY:${escape(`${w.partnerOne} & ${w.partnerTwo}: ${e.name}`)}`,
+      `SUMMARY:${escape(`${w.title}: ${e.name}`)}`,
       `LOCATION:${escape([e.venueName, e.venueAddress].filter(Boolean).join(", "))}`,
       `DESCRIPTION:${escape([e.dressCode && `Dress code: ${e.dressCode}`, page].filter(Boolean).join("\n"))}`,
       `URL:${page}`,

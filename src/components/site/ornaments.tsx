@@ -33,6 +33,21 @@ export function OrnamentDivider({ kind, className = "" }: { kind: Ornament; clas
           ))}
         </svg>
       );
+    case "confetti":
+      return (
+        <svg viewBox="0 0 160 24" {...common} aria-hidden>
+          {[["#E4572E", 10, 8, 0], ["#2EC4B6", 34, 16, 30], ["#FFB627", 58, 6, -20], ["var(--w-accent)", 80, 12, 45], ["#7B61FF", 102, 5, 10], ["#2EC4B6", 126, 15, -35], ["#FFB627", 150, 9, 20]].map(([c, x, y, r], i) => (
+            <rect key={i} x={Number(x) - 4} y={Number(y)} width="8" height="4" rx="1" fill={String(c)} transform={`rotate(${r} ${x} ${Number(y) + 2})`} />
+          ))}
+        </svg>
+      );
+    case "dove":
+      return (
+        <svg viewBox="0 0 160 24" {...common} fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M8 12h52M100 12h52" opacity=".5" />
+          <path d="M70 14c4-1 7-4 9-8 1 3 0 6-2 8 3 0 6 1 9 4-5 1-10 0-14-2-1 1-2 1-3 1z" fill="currentColor" opacity=".85" />
+        </svg>
+      );
     case "fine-lines":
     default:
       return (

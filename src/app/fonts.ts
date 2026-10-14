@@ -1,18 +1,20 @@
-import { Bodoni_Moda, Cormorant_Garamond, DM_Sans, Fraunces, Jost, Manrope, Marcellus, Playfair_Display } from "next/font/google";
+import { Bodoni_Moda, Cormorant_Garamond, DM_Sans, Fraunces, Instrument_Sans, Jost, Manrope, Marcellus, Newsreader, Playfair_Display } from "next/font/google";
 
 // Brand pair (preloaded everywhere): Fraunces for headings, Manrope for interface text.
 export const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap", axes: ["SOFT", "opsz"] });
 export const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope", display: "swap" });
 
-// Theme fonts. Not preloaded: the browser only downloads the ones a wedding's theme actually uses.
+// Theme fonts. Not preloaded: the browser only downloads the ones a page's theme actually uses.
 export const cormorant = Cormorant_Garamond({ subsets: ["latin"], weight: ["300", "400", "500"], style: ["normal", "italic"], variable: "--font-cormorant", display: "swap", preload: false });
 export const bodoni = Bodoni_Moda({ subsets: ["latin"], style: ["normal", "italic"], variable: "--font-bodoni", display: "swap", preload: false });
 export const playfair = Playfair_Display({ subsets: ["latin"], style: ["normal", "italic"], variable: "--font-playfair", display: "swap", preload: false });
 export const marcellus = Marcellus({ subsets: ["latin"], weight: "400", variable: "--font-marcellus", display: "swap", preload: false });
 export const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans", display: "swap", preload: false });
+export const newsreader = Newsreader({ subsets: ["latin"], style: ["normal", "italic"], variable: "--font-newsreader", display: "swap", preload: false });
+export const instrumentSans = Instrument_Sans({ subsets: ["latin"], variable: "--font-instrument-sans", display: "swap", preload: false });
 export const jost = Jost({ subsets: ["latin"], variable: "--font-jost", display: "swap", preload: false });
 
-export const fontVariables = [fraunces, manrope, cormorant, bodoni, playfair, marcellus, dmSans, jost]
+export const fontVariables = [fraunces, manrope, cormorant, bodoni, playfair, marcellus, newsreader, dmSans, jost, instrumentSans]
   .map((f) => f.variable)
   .join(" ");
 
@@ -26,4 +28,6 @@ export const FONT_STACKS: Record<string, string> = {
   marcellus: "var(--font-marcellus), Georgia, serif",
   dmSans: "var(--font-dm-sans), system-ui, sans-serif",
   jost: "var(--font-jost), system-ui, sans-serif",
+  newsreader: "var(--font-newsreader), Georgia, serif",
+  instrumentSans: "var(--font-instrument-sans), system-ui, sans-serif",
 };

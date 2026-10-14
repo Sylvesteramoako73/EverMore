@@ -6,13 +6,13 @@ import { FONT_STACKS } from "@/app/fonts";
 import { PrintButton } from "@/components/print-button";
 import { formatLongDate } from "@/lib/dates";
 import { getTheme } from "@/lib/themes";
-import { loadPublicWedding } from "@/server/public-wedding";
+import { loadPublicCelebration } from "@/server/public-celebration";
 import { memberCheck } from "@/server/viewer";
 
 export const metadata: Metadata = { title: "Printable invitation", robots: { index: false } };
 
 /** A printable A5 invitation card with the QR code, styled in the couple's theme. */
-export default function CardPage(props: PageProps<"/w/[slug]/card">) {
+export default function CardPage(props: PageProps<"/[slug]/card">) {
   return (
     <Suspense>
       <Card {...props} />
@@ -20,10 +20,10 @@ export default function CardPage(props: PageProps<"/w/[slug]/card">) {
   );
 }
 
-async function Card({ params }: PageProps<"/w/[slug]/card">) {
+async function Card({ params }: PageProps<"/[slug]/card">) {
   await connection();
   const { slug } = await params;
-  const result = await loadPublicWedding(slug, { inviteToken: null, isMember: memberCheck() });
+  const result = await loadPublicCelebration(slug, { inviteToken: null, isMember: memberCheck() });
   if (result.kind !== "ok") notFound();
   const w = result.view;
   const theme = getTheme(w.themeId);
@@ -37,15 +37,13 @@ async function Card({ params }: PageProps<"/w/[slug]/card">) {
         style={{ background: theme.colors.bg === "#0E0E0F" ? "#FFFFFF" : theme.colors.bg, color: theme.colors.ink === "#F3EEE4" ? "#111" : theme.colors.ink, fontFamily: FONT_STACKS[theme.fonts.body], borderColor: theme.colors.accent }}
       >
         <p className="text-[0.65rem] font-semibold tracking-[0.3em] uppercase" style={{ color: theme.colors.accent }}>
-          Together with their families
+          {w.occasion.copy.hostLine}
         </p>
         <div>
           <h1 className="text-5xl leading-tight" style={{ fontFamily: FONT_STACKS[theme.fonts.display] }}>
-            {w.partnerOne}
-            <span className="block text-2xl italic" style={{ color: theme.colors.accent }}>&amp;</span>
-            {w.partnerTwo}
+            {w.title}
           </h1>
-          <p className="mt-4 text-sm">request the pleasure of your company to celebrate their wedding</p>
+          <p className="mt-4 text-sm">{w.occasion.copy.invitation}</p>
           {primary && (
             <p className="mt-4 text-xs font-semibold tracking-[0.2em] uppercase">
               {formatLongDate(new Date(primary.startsAt), primary.timezone)}
@@ -56,7 +54,7 @@ async function Card({ params }: PageProps<"/w/[slug]/card">) {
         <div className="flex flex-col items-center gap-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={`${w.links.qr}?format=svg`} alt="" className="h-28 w-28" />
-          <p className="text-[0.65rem]">Scan for details &amp; RSVP</p>
+          <p className="text-[0.65rem]">Scan for details{w.rsvp.open ? " & RSVP" : ""}</p>
           <p className="font-mono text-[0.6rem] break-all opacity-80">{w.shareUrl.replace(/^https?:\/\//, "")}</p>
         </div>
       </article>

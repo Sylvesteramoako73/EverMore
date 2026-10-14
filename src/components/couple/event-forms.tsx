@@ -3,7 +3,7 @@
 import { MapPin, Pencil, Star, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useActionState, useTransition } from "react";
-import { makePrimaryEvent, removeEvent, saveEvent } from "@/app/actions/wedding";
+import { makePrimaryEvent, removeEvent, saveEvent } from "@/app/actions/celebration";
 import { Field, FormAlert, SubmitButton } from "@/components/forms";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,13 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { formatLongDate, formatTimeRange } from "@/lib/dates";
+import { PROGRAMME_ICONS } from "@/lib/occasions";
 import type { FormState } from "@/lib/validation";
 
-// Suggestions only: couples name events however their traditions do.
-const NAME_SUGGESTIONS = [
-  "Traditional engagement", "Traditional wedding", "Civil ceremony", "Church ceremony", "Religious ceremony",
-  "Wedding ceremony", "Reception", "Rehearsal dinner", "Thanksgiving service", "After-party",
-];
+const ICON_LABELS: Record<string, string> = {
+  rings: "Rings", church: "Church", camera: "Photos", dinner: "Meal", music: "Music", cake: "Cake", gift: "Gift", glass: "Toast",
+  bus: "Travel", map: "Explore", sun: "Morning", flower: "Flowers", dove: "Dove", candle: "Candle", star: "Star", heart: "Heart",
+};
 
 export type EventValues = {
   id: string;
@@ -33,6 +33,9 @@ export type EventValues = {
   venueLng: number | null;
   description: string;
   dressCode: string;
+  icon: string;
+  /** Thumbnail of the venue photo, if one is set. */
+  venueImage: string | null;
   rsvpRequired: boolean;
   inviteOnly: boolean;
 };
@@ -55,12 +58,15 @@ export function EventForm({
   defaultTimezone,
   returnTo,
   cancelHref,
+  suggestions,
 }: {
   event?: EventValues;
   zones: string[];
   defaultTimezone: string;
   returnTo: string;
   cancelHref: string;
+  /** Event name ideas for this occasion (e.g. "Wake-keeping", "Meet-up & departure"). */
+  suggestions: string[];
 }) {
   const [state, action] = useActionState<FormState, FormData>(saveEvent.bind(null, event?.id ?? null, returnTo), undefined);
   const e = state?.errors ?? {};
@@ -71,11 +77,11 @@ export function EventForm({
   return (
     <form action={action} className="space-y-6" noValidate>
       <FormAlert state={state} />
-      <Field label="Event name" hint="For example: Traditional wedding, Church ceremony, Reception." errors={e.name}>
+      <Field label="Event name" hint="For example: Traditional celebration, Church ceremony, Reception." errors={e.name}>
         <Input name="name" list="event-names" defaultValue={v("name")} required />
       </Field>
       <datalist id="event-names">
-        {NAME_SUGGESTIONS.map((n) => <option key={n} value={n} />)}
+        {suggestions.map((n) => <option key={n} value={n} />)}
       </datalist>
 
       <div className="grid gap-5 sm:grid-cols-2">
@@ -114,6 +120,27 @@ export function EventForm({
           </Field>
         </div>
       </details>
+
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Field label="Programme icon" optional hint="Shown on your timeline. Leave on automatic to pick one from the name." errors={e.icon}>
+          <select name="icon" defaultValue={v("icon")} className="h-11 w-full rounded-lg border border-input bg-white px-3.5 text-base">
+            <option value="">Automatic</option>
+            {PROGRAMME_ICONS.map((i) => <option key={i} value={i}>{ICON_LABELS[i] ?? i}</option>)}
+          </select>
+        </Field>
+        <div className="space-y-2">
+          <Field label="Venue photo" optional hint="Shown on the venue card. JPEG, PNG or WebP, up to 15 MB.">
+            <Input type="file" name="venuePhoto" accept="image/jpeg,image/png,image/webp,image/avif" className="py-2" />
+          </Field>
+          {event?.venueImage && (
+            <label className="flex items-center gap-2 text-sm">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={event.venueImage} alt="" className="h-10 w-16 rounded object-cover" />
+              <input type="checkbox" name="removeVenuePhoto" className="h-4 w-4 accent-[var(--navy)]" /> Remove current photo
+            </label>
+          )}
+        </div>
+      </div>
 
       <Field label="Dress code" optional errors={e.dressCode}>
         <Input name="dressCode" defaultValue={v("dressCode")} placeholder="Kente & traditional attire" />

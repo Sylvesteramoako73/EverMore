@@ -1,20 +1,21 @@
 "use client";
 
 import { useCallback, useTransition } from "react";
-import { goToStep } from "@/app/actions/wedding";
+import { goToStep } from "@/app/actions/celebration";
 import { Button } from "@/components/ui/button";
-import { CoupleForm, WeddingInfoForm, type CoupleValues, type WeddingInfoValues } from "./detail-forms";
+import { BasicsForm, DetailsForm, type BasicsValues, type CelebrationInfoValues } from "./detail-forms";
+import type { OccasionKind } from "@/lib/occasions";
 
 // Client wrappers that move the wizard forward once a step's form has saved successfully.
 
-export function CoupleStep({ values }: { values?: CoupleValues }) {
+export function BasicsStep({ values }: { values?: BasicsValues }) {
   const next = useCallback(() => void goToStep(2), []);
-  return <CoupleForm values={values} autosave={Boolean(values)} submitLabel="Save & continue" onSaved={next} />;
+  return <BasicsForm values={values} autosave={Boolean(values)} submitLabel="Save & continue" onSaved={next} />;
 }
 
-export function WeddingInfoStep({ values, zones }: { values: WeddingInfoValues; zones: string[] }) {
+export function DetailsStep({ kind, values, zones }: { kind: OccasionKind; values: CelebrationInfoValues; zones: string[] }) {
   const next = useCallback(() => void goToStep(3), []);
-  return <WeddingInfoForm values={values} zones={zones} submitLabel="Save & continue" onSaved={next} />;
+  return <DetailsForm kind={kind} values={values} zones={zones} submitLabel="Save & continue" onSaved={next} />;
 }
 
 export function ContinueButton({ step, disabled, label = "Continue", hint }: { step: number; disabled?: boolean; label?: string; hint?: string }) {

@@ -51,7 +51,7 @@ export function Countdown({ to, after, tone = "light" }: { to: string; after: Re
       ? "border-white/30 bg-white/10 text-white backdrop-blur-sm"
       : "border-[var(--w-line)] bg-[var(--w-surface)] text-[var(--w-ink)]";
   return (
-    <div role="timer" aria-label="Time until the wedding" className="grid grid-cols-4 gap-2 sm:gap-3">
+    <div role="timer" aria-label="Time until the celebration" className="grid grid-cols-4 gap-2 sm:gap-3">
       {units.map(([label, value]) => (
         <div key={label} className={`min-w-[4.2rem] rounded-[max(var(--w-radius),4px)] border px-2 py-3 text-center sm:min-w-[5.5rem] ${box}`}>
           <span className="w-display block text-3xl tabular-nums sm:text-4xl">{value}</span>

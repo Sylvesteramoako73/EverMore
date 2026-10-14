@@ -18,7 +18,7 @@ const PLANS: Record<PlanId, Entitlements> = {
 };
 
 /**
- * Billing is not implemented yet. Until BILLING_ENABLED=true, every wedding gets premium entitlements
+ * Billing is not implemented yet. Until BILLING_ENABLED=true, every celebration gets premium entitlements
  * (a launch period), so no feature is blocked behind a payment flow that doesn't exist.
  */
 export const billingEnabled = () => process.env.BILLING_ENABLED === "true";

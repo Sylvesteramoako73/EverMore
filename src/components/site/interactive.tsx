@@ -6,8 +6,8 @@ import { useFormStatus } from "react-dom";
 import { reportMessage, signGuestbook, submitRsvp } from "@/app/actions/public";
 import { formatLongDate, formatPlainDate } from "@/lib/dates";
 import type { FormState } from "@/lib/validation";
-import { rsvpField } from "@/lib/wedding-rules";
-import type { ImageView, WeddingView } from "./types";
+import { rsvpField } from "@/lib/celebration-rules";
+import type { ImageView, CelebrationView } from "./types";
 
 /* eslint-disable @next/next/no-img-element -- images come from our own media route */
 
@@ -67,7 +67,7 @@ function TextField({
 
 // ───────────────────────────── RSVP
 
-export function RsvpForm({ w }: { w: WeddingView }) {
+export function RsvpForm({ w }: { w: CelebrationView }) {
   const { rsvp } = w;
   const token = rsvp.invitation?.token ?? null;
   const sample = w.mode === "sample";
@@ -213,7 +213,7 @@ export function RsvpForm({ w }: { w: WeddingView }) {
 
 // ───────────────────────────── Guestbook
 
-export function GuestbookPanel({ w, inviteToken }: { w: WeddingView; inviteToken: string | null }) {
+export function GuestbookPanel({ w, inviteToken }: { w: CelebrationView; inviteToken: string | null }) {
   const sample = w.mode === "sample";
   const [state, action] = useActionState<FormState, FormData>(
     sample ? async () => ({ ok: true, message: "This is a sample page, so the message wasn't saved." }) : signGuestbook.bind(null, w.slug, inviteToken),
@@ -226,7 +226,7 @@ export function GuestbookPanel({ w, inviteToken }: { w: WeddingView; inviteToken
     <div className="grid gap-10 lg:grid-cols-[minmax(0,380px)_1fr]">
       <form action={action} key={state?.ok ? "sent" : "form"} className="w-surface relative h-fit space-y-5 p-6 sm:p-8 lg:sticky lg:top-24" noValidate>
         <Honeypot />
-        <p className="w-muted">Share a wish, a memory or a little advice for the happy couple.</p>
+        <p className="w-muted">{w.occasion.copy.guestbookPrompt}</p>
         <TextField name="name" label="Your name" autoComplete="name" required errors={errors.name} defaultValue={state?.ok ? "" : state?.values?.name} />
         <div>
           <label htmlFor="gb-message" className="w-label">Your message</label>
@@ -243,7 +243,7 @@ export function GuestbookPanel({ w, inviteToken }: { w: WeddingView; inviteToken
           />
           <FieldError id="gb-message-error" errors={errors.message} />
         </div>
-        <Submit pending="Signing…">Sign the guestbook</Submit>
+        <Submit pending="Sending…">{w.occasion.kind === "funeral" ? "Share tribute" : "Leave a message"}</Submit>
         {state?.message && (
           <p role={state.ok ? "status" : "alert"} className={state.ok ? "w-accent text-sm" : "text-sm text-[#B42318]"}>
             {state.message}
@@ -322,7 +322,7 @@ export function Gallery({ images }: { images: ImageView[] }) {
           <li key={img.id} className="mb-3 break-inside-avoid sm:mb-4">
             <button
               type="button"
-              className="group block w-full overflow-hidden rounded-[var(--w-radius)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--w-accent)]"
+              className="w-photo group block w-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--w-accent)]"
               onClick={(e) => {
                 triggerRef.current = e.currentTarget;
                 setOpen(i);
@@ -382,25 +382,28 @@ export function Gallery({ images }: { images: ImageView[] }) {
 
 const noopSubscribe = () => () => {};
 
-export function ShareSection({ w }: { w: WeddingView }) {
+export function ShareSection({ w }: { w: CelebrationView }) {
   const [copied, setCopied] = useState(false);
   // The native share sheet exists only in some browsers; false during server rendering.
   const canShare = useSyncExternalStore(noopSubscribe, () => "share" in navigator, () => false);
-  const title = `${w.partnerOne} & ${w.partnerTwo}`;
+  const title = w.title;
   const primary = w.events.find((e) => e.id === w.primaryEventId) ?? w.events[0];
-  const when = primary ? ` on ${formatLongDate(new Date(primary.startsAt), primary.timezone)}` : w.marriageDate ? ` · ${formatPlainDate(w.marriageDate)}` : "";
-  const message = `${title} would love for you to celebrate with them${when}. Details and RSVP: ${w.shareUrl}`;
+  const when = primary ? ` on ${formatLongDate(new Date(primary.startsAt), primary.timezone)}` : w.keyDate ? ` · ${formatPlainDate(w.keyDate)}` : "";
+  const message =
+    w.occasion.after === "remembrance"
+      ? `${title}${when}. Details: ${w.shareUrl}`
+      : `You're invited: ${title}${when}. Details and RSVP: ${w.shareUrl}`;
   const qr = w.links.qr;
 
   return (
-    <div className="mx-auto grid max-w-4xl items-center gap-10 md:grid-cols-[auto_1fr]">
+    <div className="mx-auto grid max-w-4xl items-center gap-10 md:grid-cols-[auto_minmax(0,1fr)]">
       <div className="mx-auto text-center">
         <img src={`${qr}?format=svg`} alt={`QR code that opens ${w.shareUrl}`} width={180} height={180} className="w-surface h-44 w-44 bg-white p-3" loading="lazy" />
         <a href={`${qr}?format=png&download=1`} className="w-muted mt-3 inline-flex items-center gap-1.5 text-sm underline-offset-4 hover:underline">
           <Download className="h-4 w-4" aria-hidden /> Download QR code
         </a>
       </div>
-      <div className="space-y-4 text-center md:text-left">
+      <div className="min-w-0 space-y-4 text-center md:text-left">
         <p className="w-muted">Scan or share this page so everyone has the details in one place.</p>
         <p className="w-surface truncate px-4 py-3 font-mono text-sm">{w.shareUrl}</p>
         <div className="flex flex-wrap justify-center gap-2 md:justify-start">
@@ -440,7 +443,8 @@ export function ShareSection({ w }: { w: WeddingView }) {
 
 // ───────────────────────────── Navigation
 
-export function SiteNav({ monogram, items }: { monogram: string; items: { id: string; label: string }[] }) {
+/** `darkHero`: the hero has a photo behind the menu, so the unscrolled menu is white. */
+export function SiteNav({ monogram, items, darkHero = true }: { monogram: string; items: { id: string; label: string }[]; darkHero?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   useEffect(() => {
@@ -452,9 +456,13 @@ export function SiteNav({ monogram, items }: { monogram: string; items: { id: st
   const solid = scrolled || open;
   return (
     <nav
-      aria-label="Wedding page"
+      aria-label="Celebration page"
       className={`fixed inset-x-0 top-0 z-40 transition-colors duration-300 ${
-        solid ? "border-b border-[var(--w-line)] bg-[var(--w-bg)]/95 text-[var(--w-ink)] backdrop-blur" : "text-white mix-blend-normal [text-shadow:0_1px_8px_rgba(0,0,0,.35)]"
+        solid
+          ? "border-b border-[var(--w-line)] bg-[var(--w-bg)]/95 text-[var(--w-ink)] backdrop-blur"
+          : darkHero
+            ? "text-white [text-shadow:0_1px_8px_rgba(0,0,0,.35)]"
+            : "text-[var(--w-ink)]"
       }`}
     >
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">

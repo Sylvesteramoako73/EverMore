@@ -17,28 +17,28 @@ export function primaryEvent<E extends EventLike>(events: E[], primaryEventId: s
 }
 
 /**
- * The date the couple's marriage is counted from: their chosen wedding date, else the primary event's
- * calendar date in its own timezone.
+ * The yearly date of a celebration (wedding day, birthday, date of passing): the host's chosen date,
+ * else the primary event's calendar date in its own timezone.
  */
-export function marriageDate(weddingDate: string | null, primary: EventLike | null): string | null {
-  if (weddingDate) return weddingDate;
+export function yearlyDate(keyDate: string | null, primary: EventLike | null): string | null {
+  if (keyDate) return keyDate;
   return primary ? plainDateInZone(primary.startsAt, primary.timezone) : null;
 }
 
-export type Phase = "planning" | "upcoming" | "today" | "married";
+export type Phase = "planning" | "upcoming" | "today" | "after";
 
 /**
- * Where the couple is in their story, which decides what the public page leads with:
+ * Where the celebration is in time, which decides what the public page leads with:
  * - planning: no events yet
  * - upcoming: countdown to the primary event
  * - today: the primary event has started and it's still that day at the venue
- * - married: afterwards; the page becomes a memory page
+ * - after: afterwards; the page becomes a memory page
  */
-export function weddingPhase(primary: EventLike | null, now = Date.now()): Phase {
+export function celebrationPhase(primary: EventLike | null, now = Date.now()): Phase {
   if (!primary) return "planning";
   if (now < primary.startsAt.getTime()) return "upcoming";
   const today = plainDateInZone(new Date(now), primary.timezone);
-  return today === plainDateInZone(primary.startsAt, primary.timezone) ? "today" : "married";
+  return today === plainDateInZone(primary.startsAt, primary.timezone) ? "today" : "after";
 }
 
 export type RsvpSettings = { rsvpEnabled: boolean; rsvpDeadline: string | null; timezone: string };

@@ -7,7 +7,7 @@ export type AuditEntry = {
   action: string;
   targetType: string;
   targetId: string;
-  weddingId?: string | null;
+  celebrationId?: string | null;
   reason?: string;
   metadata?: Record<string, unknown>;
 };
@@ -19,7 +19,7 @@ export async function audit(entry: AuditEntry) {
     action: entry.action,
     targetType: entry.targetType,
     targetId: entry.targetId,
-    weddingId: entry.weddingId ?? null,
+    celebrationId: entry.celebrationId ?? null,
     reason: entry.reason ?? "",
     metadata: entry.metadata ?? {},
   });

@@ -4,14 +4,14 @@ import { headers } from "next/headers";
 import { forbidden, notFound, redirect, unauthorized } from "next/navigation";
 import { cache } from "react";
 import { db } from "@/db";
-import { wedding, weddingMember } from "@/db/schema";
+import { celebration, celebrationMember } from "@/db/schema";
 import { auth } from "@/lib/auth";
 
 // Data Access Layer: the only place that turns a request into "who is this and what may they touch".
 // Every page, route handler and server action that reads private data goes through these helpers.
 
 export type CurrentUser = { id: string; name: string; email: string; role: string; emailVerified: boolean };
-export type MemberRole = "owner" | "partner" | "planner";
+export type MemberRole = "owner" | "cohost" | "planner";
 
 /** The signed-in user, or null. Memoised per request. */
 export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
@@ -42,46 +42,46 @@ export async function requireAdmin(): Promise<CurrentUser> {
   return user;
 }
 
-/** The weddings a user belongs to, most recent first. */
-export async function listMyWeddings(userId: string) {
+/** The celebrations a user belongs to, most recent first. */
+export async function listMyCelebrations(userId: string) {
   return db
-    .select({ id: wedding.id, slug: wedding.slug, role: weddingMember.role, status: wedding.status,
-      partnerOne: wedding.partnerOneDisplayName, partnerTwo: wedding.partnerTwoDisplayName })
-    .from(weddingMember)
-    .innerJoin(wedding, eq(wedding.id, weddingMember.weddingId))
-    .where(eq(weddingMember.userId, userId))
-    .orderBy(wedding.createdAt);
+    .select({ id: celebration.id, slug: celebration.slug, role: celebrationMember.role, status: celebration.status,
+      title: celebration.title, kind: celebration.kind })
+    .from(celebrationMember)
+    .innerJoin(celebration, eq(celebration.id, celebrationMember.celebrationId))
+    .where(eq(celebrationMember.userId, userId))
+    .orderBy(celebration.createdAt);
 }
 
-/** The user's role in a wedding, or null if they are not a member. */
-export async function membershipRole(userId: string, weddingId: string): Promise<MemberRole | null> {
+/** The user's role in a celebration, or null if they are not a member. */
+export async function membershipRole(userId: string, celebrationId: string): Promise<MemberRole | null> {
   const [row] = await db
-    .select({ role: weddingMember.role })
-    .from(weddingMember)
-    .where(and(eq(weddingMember.userId, userId), eq(weddingMember.weddingId, weddingId)))
+    .select({ role: celebrationMember.role })
+    .from(celebrationMember)
+    .where(and(eq(celebrationMember.userId, userId), eq(celebrationMember.celebrationId, celebrationId)))
     .limit(1);
   return row?.role ?? null;
 }
 
 /**
- * Authorise access to one wedding. Non-members get a 404 (not 403), so wedding ids can't be probed.
- * `roles` restricts sensitive operations, e.g. only the owner may delete the wedding.
+ * Authorise access to one celebration. Non-members get a 404 (not 403), so celebration ids can't be probed.
+ * `roles` restricts sensitive operations, e.g. only the owner may delete the celebration.
  */
-export async function requireWeddingAccess(
-  weddingId: string,
-  { roles = ["owner", "partner", "planner"] as MemberRole[], forAction = false } = {},
+export async function requireCelebrationAccess(
+  celebrationId: string,
+  { roles = ["owner", "cohost", "planner"] as MemberRole[], forAction = false } = {},
 ) {
   const user = forAction ? await requireUserForAction() : await requireUser();
-  const role = await membershipRole(user.id, weddingId);
+  const role = await membershipRole(user.id, celebrationId);
   if (!role || !roles.includes(role)) notFound();
   return { user, role };
 }
 
-/** The wedding the dashboard is working on: the user's first wedding, or onboarding if they have none. */
-export async function requireCurrentWedding() {
+/** The celebration the dashboard is working on: the user's first celebration, or onboarding if they have none. */
+export async function requireCurrentCelebration() {
   const user = await requireUser();
-  const [first] = await listMyWeddings(user.id);
+  const [first] = await listMyCelebrations(user.id);
   if (!first) redirect("/onboarding");
   const role = first.role;
-  return { user, weddingId: first.id, role };
+  return { user, celebrationId: first.id, role };
 }

@@ -3,9 +3,10 @@ import { Logo } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 
 const NAV = [
+  { href: "/#occasions", label: "Occasions" },
   { href: "/#how-it-works", label: "How it works" },
   { href: "/#themes", label: "Themes" },
-  { href: "/#after", label: "After the wedding" },
+  { href: "/#after", label: "After the day" },
   { href: "/#pricing", label: "Pricing" },
   { href: "/#faq", label: "FAQ" },
 ];
@@ -29,7 +30,7 @@ export function MarketingHeader() {
             <Link href="/sign-in">Sign in</Link>
           </Button>
           <Button asChild size="sm">
-            <Link href="/sign-up">Create your website</Link>
+            <Link href="/sign-up">Create your page</Link>
           </Button>
         </div>
       </div>
@@ -43,10 +44,10 @@ export function MarketingFooter() {
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div className="space-y-4">
           <Logo inverted />
-          <p className="max-w-xs text-sm leading-relaxed">Your Story. Forever Connected. Wedding websites that welcome your guests and keep your memories.</p>
+          <p className="max-w-xs text-sm leading-relaxed">Your Story. Forever Connected. Pages for life&apos;s moments that welcome your guests and keep your memories.</p>
         </div>
         <FooterCol title="Product" links={[["/#how-it-works", "How it works"], ["/#themes", "Themes"], ["/#pricing", "Pricing"], ["/samples/timeless-elegance", "See a sample"]]} />
-        <FooterCol title="Couples" links={[["/sign-up", "Create your website"], ["/sign-in", "Sign in"], ["/#faq", "FAQ"]]} />
+        <FooterCol title="Hosts" links={[["/sign-up", "Create your page"], ["/sign-in", "Sign in"], ["/#faq", "FAQ"]]} />
         <FooterCol title="Trust" links={[["/policies#privacy", "Privacy"], ["/policies#retention", "Data retention"], ["/policies#terms", "Terms"]]} />
       </div>
       <div className="border-t border-white/10">

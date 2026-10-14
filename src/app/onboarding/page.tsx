@@ -7,26 +7,28 @@ import { EventForm, EventList } from "@/components/couple/event-forms";
 import { PhotoManager } from "@/components/couple/photo-manager";
 import { PublishControls, PublishSettingsForm } from "@/components/couple/publish-panel";
 import { ThemePicker } from "@/components/couple/theme-picker";
-import { ContinueButton, CoupleStep, WeddingInfoStep } from "@/components/couple/wizard-steps";
+import { ColoursEditor } from "@/components/couple/detail-forms";
+import { BasicsStep, ContinueButton, DetailsStep } from "@/components/couple/wizard-steps";
 import { Skeleton } from "@/components/ui/skeleton";
-import { listMyWeddings, requireUser } from "@/lib/dal";
+import { listMyCelebrations, requireUser } from "@/lib/dal";
 import { appUrl } from "@/lib/env";
 import { entitlements } from "@/lib/plans";
-import { THEMES } from "@/lib/themes";
+import { getOccasion, type OccasionKind } from "@/lib/occasions";
+import { THEMES, themesFor } from "@/lib/themes";
 import { timeZones } from "@/lib/timezones";
 import { listEvents } from "@/server/events";
 import { listMedia } from "@/server/media";
 import { eventValues, photoItem } from "@/server/views";
-import { getWedding, publishProblems } from "@/server/weddings";
+import { getCelebration, publishProblems } from "@/server/celebrations";
 
-export const metadata: Metadata = { title: "Create your wedding website", robots: { index: false } };
+export const metadata: Metadata = { title: "Create your celebration website", robots: { index: false } };
 
 const STEPS = [
-  { n: 1, title: "The two of you", short: "Couple" },
-  { n: 2, title: "Your wedding", short: "Wedding" },
-  { n: 3, title: "Events & venues", short: "Events" },
+  { n: 1, title: "What are you celebrating?", short: "Occasion" },
+  { n: 2, title: "The details", short: "Details" },
+  { n: 3, title: "Programme & venues", short: "Programme" },
   { n: 4, title: "Photographs", short: "Photos" },
-  { n: 5, title: "Choose a design", short: "Design" },
+  { n: 5, title: "Design & colours", short: "Design" },
   { n: 6, title: "Review & publish", short: "Publish" },
 ];
 
@@ -61,12 +63,12 @@ function WizardSkeleton() {
 async function Wizard({ searchParams }: PageProps<"/onboarding">) {
   const user = await requireUser();
   const sp = await searchParams;
-  const [mine] = await listMyWeddings(user.id);
-  const wedding = mine ? await getWedding(mine.id) : null;
+  const [mine] = await listMyCelebrations(user.id);
+  const celebration = mine ? await getCelebration(mine.id) : null;
 
   // You can revisit any step you've reached, but not skip ahead of it.
-  const reached = wedding ? Math.max(wedding.onboardingStep, 1) + 1 : 1;
-  const requested = Number(sp.step ?? (wedding ? Math.min(reached, 6) : 1));
+  const reached = celebration ? Math.max(celebration.onboardingStep, 1) + 1 : 1;
+  const requested = Number(sp.step ?? (celebration ? Math.min(reached, 6) : 1));
   const step = Number.isInteger(requested) ? Math.min(Math.max(requested, 1), Math.min(reached, 6)) : 1;
   const current = STEPS[step - 1];
 
@@ -77,7 +79,7 @@ async function Wizard({ searchParams }: PageProps<"/onboarding">) {
           {STEPS.map((s) => {
             const done = s.n < step;
             const active = s.n === step;
-            const reachable = s.n <= reached && wedding;
+            const reachable = s.n <= reached && celebration;
             const label = (
               <>
                 <span className={`block h-1.5 rounded-full ${done || active ? "bg-navy" : "bg-border"}`} />
@@ -105,72 +107,74 @@ async function Wizard({ searchParams }: PageProps<"/onboarding">) {
 
       {step === 1 && (
         <div className="max-w-3xl">
-          <CoupleStep
-            values={
-              wedding
-                ? {
-                    partnerOneFullName: wedding.partnerOneFullName,
-                    partnerOneDisplayName: wedding.partnerOneDisplayName,
-                    partnerTwoFullName: wedding.partnerTwoFullName,
-                    partnerTwoDisplayName: wedding.partnerTwoDisplayName,
-                    monogram: wedding.monogram,
-                    story: wedding.story,
-                    guestMessage: wedding.guestMessage,
-                    relationshipStartDate: wedding.relationshipStartDate,
-                    engagementDate: wedding.engagementDate,
-                  }
-                : undefined
-            }
+          <BasicsStep
+            values={celebration ? { kind: celebration.kind, title: celebration.title, honorees: celebration.honorees, monogram: celebration.monogram } : undefined}
           />
         </div>
       )}
 
-      {wedding && step === 2 && (
+      {celebration && step === 2 && (
         <div className="max-w-3xl">
-          <WeddingInfoStep
+          <DetailsStep
+            kind={celebration.kind}
             zones={timeZones()}
             values={{
-              weddingDate: wedding.weddingDate,
-              timezone: wedding.timezone,
-              weddingType: wedding.weddingType,
-              rsvpDeadline: wedding.rsvpDeadline,
-              dressCode: wedding.dressCode,
-              announcement: wedding.announcement,
-              hashtag: wedding.hashtag,
-              contactName: wedding.contactName,
-              contactEmail: wedding.contactEmail,
-              contactPhone: wedding.contactPhone,
+              story: celebration.story,
+              guestMessage: celebration.guestMessage,
+              details: celebration.details,
+              keyDate: celebration.keyDate,
+              timezone: celebration.timezone,
+              subtype: celebration.subtype,
+              rsvpDeadline: celebration.rsvpDeadline,
+              dressCode: celebration.dressCode,
+              announcement: celebration.announcement,
+              hashtag: celebration.hashtag,
+              contactName: celebration.contactName,
+              contactEmail: celebration.contactEmail,
+              contactPhone: celebration.contactPhone,
             }}
           />
         </div>
       )}
 
-      {wedding && step === 3 && <EventsStep weddingId={wedding.id} primaryEventId={wedding.primaryEventId} timezone={wedding.timezone} editing={typeof sp.event === "string" ? sp.event : null} />}
+      {celebration && step === 3 && <EventsStep celebrationId={celebration.id} primaryEventId={celebration.primaryEventId} timezone={celebration.timezone} editing={typeof sp.event === "string" ? sp.event : null} kind={celebration.kind} />}
 
-      {wedding && step === 4 && <PhotosStep weddingId={wedding.id} heroId={wedding.heroMediaId} />}
+      {celebration && step === 4 && <PhotosStep celebrationId={celebration.id} heroId={celebration.heroMediaId} />}
 
-      {wedding && step === 5 && (
+      {celebration && step === 5 && (
         <div className="space-y-10">
-          <p className="max-w-2xl text-muted-foreground">Every design is complete and works beautifully on phones. Pick one now; you can change it any time.</p>
-          <ThemePicker themes={THEMES} current={wedding.themeId} slug={wedding.slug} premiumAllowed={entitlements(wedding.plan).premiumThemes} />
+          <p className="max-w-2xl text-muted-foreground">Every design is complete and works beautifully on phones. Those that suit your occasion best come first. You can change it any time.</p>
+          <ThemePicker
+            themes={themesFor(celebration.kind, getOccasion(celebration.kind).recommendedThemes)}
+            current={celebration.themeId}
+            slug={celebration.slug}
+            premiumAllowed={entitlements(celebration.plan).premiumThemes}
+          />
+          <section className="max-w-3xl space-y-4 border-t border-border pt-10">
+            <div>
+              <h2 className="text-2xl text-navy">Colours of the day</h2>
+              <p className="mt-1 text-sm text-muted-foreground">Optional. Shown as swatches so guests can dress to match.</p>
+            </div>
+            <ColoursEditor colours={celebration.colours} />
+          </section>
           <div className="flex justify-end border-t border-border pt-6"><ContinueButton step={6} label="Continue to review" /></div>
         </div>
       )}
 
-      {wedding && step === 6 && <PublishStep weddingId={wedding.id} />}
+      {celebration && step === 6 && <PublishStep celebrationId={celebration.id} />}
     </div>
   );
 }
 
-async function EventsStep({ weddingId, primaryEventId, timezone, editing }: { weddingId: string; primaryEventId: string | null; timezone: string; editing: string | null }) {
-  const events = (await listEvents(weddingId)).map(eventValues);
+async function EventsStep({ celebrationId, primaryEventId, timezone, editing, kind }: { celebrationId: string; primaryEventId: string | null; timezone: string; editing: string | null; kind: OccasionKind }) {
+  const events = (await listEvents(celebrationId)).map(eventValues);
   const target = editing === "new" ? null : events.find((e) => e.id === editing);
   const showForm = editing === "new" || Boolean(target) || events.length === 0;
   return (
     <div className="grid gap-10 lg:grid-cols-[1fr_1fr]">
       <div className="space-y-5">
         <p className="text-muted-foreground">
-          Add each celebration separately: a traditional ceremony, a church or civil ceremony, the reception… each with its own date, venue and RSVP.
+          Add each part of the occasion separately, each with its own time, venue and RSVP. Together they make your programme.
         </p>
         <EventList events={events} primaryEventId={primaryEventId} editHrefPrefix="/onboarding?step=3&event=" />
         {!showForm && (
@@ -183,7 +187,7 @@ async function EventsStep({ weddingId, primaryEventId, timezone, editing }: { we
         {showForm ? (
           <div className="rounded-2xl border border-border bg-white/60 p-5 sm:p-7">
             <h2 className="mb-6 text-2xl text-navy">{target ? `Edit ${target.name}` : events.length ? "Add an event" : "Add your first event"}</h2>
-            <EventForm key={target?.id ?? "new"} event={target ?? undefined} zones={timeZones()} defaultTimezone={timezone} returnTo="/onboarding?step=3" cancelHref="/onboarding?step=3" />
+            <EventForm key={target?.id ?? "new"} event={target ?? undefined} zones={timeZones()} defaultTimezone={timezone} returnTo="/onboarding?step=3" cancelHref="/onboarding?step=3" suggestions={getOccasion(kind).eventSuggestions} />
           </div>
         ) : (
           <div className="flex h-full items-end justify-end">
@@ -198,12 +202,12 @@ async function EventsStep({ weddingId, primaryEventId, timezone, editing }: { we
   );
 }
 
-async function PhotosStep({ weddingId, heroId }: { weddingId: string; heroId: string | null }) {
-  const photos = (await listMedia(weddingId)).map(photoItem);
+async function PhotosStep({ celebrationId, heroId }: { celebrationId: string; heroId: string | null }) {
+  const photos = (await listMedia(celebrationId)).map(photoItem);
   return (
     <div className="space-y-10">
       <p className="max-w-2xl text-muted-foreground">
-        Photos make your page feel like you. Add a main photo now, and a few favourites for your gallery. You can always add more later, including your wedding photos afterwards.
+        Photos make your page feel like you. Add a main photo now, and a few favourites for your gallery. You can always add more later, including your celebration photos afterwards.
       </p>
       <PhotoManager photos={photos} heroId={heroId} sections={["portrait", "engagement", "gallery"]} />
       <div className="flex justify-end border-t border-border pt-6">
@@ -213,28 +217,28 @@ async function PhotosStep({ weddingId, heroId }: { weddingId: string; heroId: st
   );
 }
 
-async function PublishStep({ weddingId }: { weddingId: string }) {
-  const wedding = await getWedding(weddingId);
-  if (!wedding) redirect("/onboarding");
-  const [problems, events] = await Promise.all([publishProblems(weddingId), listEvents(weddingId)]);
-  const url = appUrl(`/w/${wedding.slug}`);
+async function PublishStep({ celebrationId }: { celebrationId: string }) {
+  const celebration = await getCelebration(celebrationId);
+  if (!celebration) redirect("/onboarding");
+  const [problems, events] = await Promise.all([publishProblems(celebrationId), listEvents(celebrationId)]);
+  const url = appUrl(`/${celebration.slug}`);
   return (
     <div className="grid gap-10 lg:grid-cols-2">
       <section className="space-y-6 rounded-2xl border border-border bg-white p-6 sm:p-8">
         <h2 className="text-2xl text-navy">Your page</h2>
         <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 text-sm">
-          <dt className="text-muted-foreground">Couple</dt>
-          <dd className="font-medium">{wedding.partnerOneDisplayName} &amp; {wedding.partnerTwoDisplayName}</dd>
+          <dt className="text-muted-foreground">{getOccasion(celebration.kind).label}</dt>
+          <dd className="font-medium">{celebration.title}</dd>
           <dt className="text-muted-foreground">Events</dt>
           <dd>{events.length ? events.map((e) => e.name).join(", ") : "None yet"}</dd>
           <dt className="text-muted-foreground">Design</dt>
-          <dd>{THEMES.find((t) => t.id === wedding.themeId)?.name}</dd>
+          <dd>{THEMES.find((t) => t.id === celebration.themeId)?.name}</dd>
         </dl>
-        <PublishControls status={wedding.status} url={url} problems={problems} />
+        <PublishControls status={celebration.status} url={url} problems={problems} />
       </section>
       <section className="space-y-4">
         <h2 className="text-2xl text-navy">Address & privacy</h2>
-        <PublishSettingsForm slug={wedding.slug} visibility={wedding.visibility} allowIndexing={wedding.allowIndexing} origin={appUrl()} />
+        <PublishSettingsForm slug={celebration.slug} visibility={celebration.visibility} allowIndexing={celebration.allowIndexing} origin={appUrl()} />
       </section>
     </div>
   );

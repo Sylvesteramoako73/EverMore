@@ -28,7 +28,7 @@ describe("marriage duration", () => {
     expect(describeDuration(calendarDuration("2025-06-12", "2026-10-24"))).toBe("1 year, 4 months and 12 days");
   });
 
-  it("handles month-end weddings", () => {
+  it("handles month-end celebrations", () => {
     // The 31st falls back to the last day of shorter months, so Jan 31 -> Feb 28 is one month.
     expect(calendarDuration("2025-01-31", "2025-02-28")).toMatchObject({ years: 0, months: 1, days: 0 });
     expect(calendarDuration("2025-01-31", "2025-02-27")).toMatchObject({ years: 0, months: 0, days: 27 });
@@ -42,7 +42,7 @@ describe("marriage duration", () => {
     expect(calendarDuration("2024-02-01", "2024-03-01").totalDays).toBe(29);
   });
 
-  it("is zero on the wedding day and before it", () => {
+  it("is zero on the celebration day and before it", () => {
     expect(describeDuration(calendarDuration("2026-06-12", "2026-06-12"))).toBe("0 days");
     expect(calendarDuration("2026-06-12", "2026-06-01")).toMatchObject({ years: 0, months: 0, days: 0 });
   });
@@ -55,11 +55,11 @@ describe("anniversaries", () => {
     expect(nextAnniversary("2025-06-12", "2026-06-13")).toEqual({ date: "2027-06-12", years: 2 });
   });
 
-  it("never returns the wedding day itself as an anniversary", () => {
+  it("never returns the celebration day itself as an anniversary", () => {
     expect(nextAnniversary("2026-06-12", "2026-06-01")).toEqual({ date: "2027-06-12", years: 1 });
   });
 
-  it("celebrates 29 February weddings on 28 February in common years", () => {
+  it("celebrates 29 February celebrations on 28 February in common years", () => {
     expect(nextAnniversary("2024-02-29", "2025-01-10")).toEqual({ date: "2025-02-28", years: 1 });
     expect(nextAnniversary("2024-02-29", "2028-02-01")).toEqual({ date: "2028-02-29", years: 4 });
   });

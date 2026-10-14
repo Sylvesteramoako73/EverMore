@@ -2,7 +2,7 @@
 
 import { ArrowLeft, ArrowRight, Eye, EyeOff, ImagePlus, Loader2, Star, Trash2 } from "lucide-react";
 import { useRef, useState, useTransition } from "react";
-import { choosePhotoAsHero, removePhoto, reorderPhoto, updatePhotoDetails, uploadPhoto } from "@/app/actions/wedding";
+import { choosePhotoAsHero, removePhoto, reorderPhoto, updatePhotoDetails, uploadPhoto } from "@/app/actions/celebration";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 export type PhotoItem = {
   id: string;
   thumb: string;
-  collection: "portrait" | "engagement" | "gallery" | "wedding" | "memory";
+  collection: "portrait" | "engagement" | "gallery" | "event" | "memory" | "venue" | "shared";
   caption: string;
   altText: string;
   isPublic: boolean;
@@ -23,7 +23,7 @@ const SECTIONS: { id: PhotoItem["collection"]; title: string; description: strin
   { id: "portrait", title: "Couple portraits", description: "One or two portraits shown beside your story." },
   { id: "engagement", title: "Engagement photos", description: "Shown in your gallery." },
   { id: "gallery", title: "Gallery", description: "Moments you'd love guests to see." },
-  { id: "wedding", title: "Wedding day", description: "Add your official photos after the wedding." },
+  { id: "event", title: "On the day", description: "Add your official photos after the celebration." },
 ];
 
 type UploadState = { name: string; status: "uploading" | "done" | "error"; error?: string };

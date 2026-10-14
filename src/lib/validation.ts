@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { isValidTimeZone } from "./dates";
 import { slugProblem } from "./slug";
+import { getOccasion, OCCASION_KINDS, PROGRAMME_ICONS } from "./occasions";
 import { THEME_IDS } from "./themes";
 
 // Shared schemas: the same rules run in forms (for instant feedback) and on the server (authoritative).
@@ -30,55 +31,116 @@ const optionalCoord = (min: number, max: number) =>
     .transform((v) => (v === "" ? null : Number(v)))
     .refine((v) => v === null || (Number.isFinite(v) && v >= min && v <= max), "Enter a valid coordinate.");
 
-// ───────────────────────────── Onboarding / wedding details
+// ───────────────────────────── Onboarding / celebration details
 
-export const coupleSchema = z
+/**
+ * Step 1: what is being celebrated and who it's about. Honorees arrive as honoree0/honoree0Display…
+ * and are checked against the occasion (two partners for a wedding, one for a birthday, none for an outing).
+ */
+export const basicsSchema = z.preprocess(
+  (v) => ({ title: "", honoree0: "", honoree0Display: "", honoree1: "", honoree1Display: "", monogram: "", ...(v as object) }),
+  z
   .object({
-    partnerOneFullName: required(80, "Your full name"),
-    partnerOneDisplayName: text(40),
-    partnerTwoFullName: required(80, "Your partner's full name"),
-    partnerTwoDisplayName: text(40),
+    kind: z.enum(OCCASION_KINDS, { message: "Choose what you're celebrating." }),
+    title: text(120),
+    honoree0: text(80),
+    honoree0Display: text(40),
+    honoree1: text(80),
+    honoree1Display: text(40),
     monogram: text(8),
-    story: text(8000),
-    guestMessage: text(2000),
-    relationshipStartDate: optionalPlainDate,
-    engagementDate: optionalPlainDate,
   })
-  // Display names default to the first name.
-  .transform((d) => ({
-    ...d,
-    partnerOneDisplayName: d.partnerOneDisplayName || d.partnerOneFullName.split(/\s+/)[0],
-    partnerTwoDisplayName: d.partnerTwoDisplayName || d.partnerTwoFullName.split(/\s+/)[0],
-  }));
-export type CoupleInput = z.infer<typeof coupleSchema>;
+  .superRefine((d, ctx) => {
+    const occasion = getOccasion(d.kind);
+    const names = [d.honoree0, d.honoree1];
+    for (let i = 0; i < occasion.honorees.min; i++) {
+      if (!names[i]) ctx.addIssue({ code: "custom", path: [`honoree${i}`], message: `${occasion.honorees.labels[i] ?? "Name"} is required.` });
+    }
+    if (occasion.honorees.min === 0 && !d.title) ctx.addIssue({ code: "custom", path: ["title"], message: "Give your celebration a name." });
+  })
+  .transform((d) => {
+    const occasion = getOccasion(d.kind);
+    const honorees = [
+      { fullName: d.honoree0, displayName: d.honoree0Display },
+      { fullName: d.honoree1, displayName: d.honoree1Display },
+    ]
+      .slice(0, occasion.honorees.max)
+      .filter((h) => h.fullName)
+      // Display names default to the first name.
+      .map((h) => ({ fullName: h.fullName, displayName: h.displayName || h.fullName.split(/\s+/)[0] }));
+    return {
+      kind: d.kind,
+      honorees,
+      title: d.title || occasion.defaultTitle(honorees.map((h) => h.displayName)),
+      monogram: d.monogram,
+    };
+  }),
+);
+export type BasicsInput = z.infer<typeof basicsSchema>;
 
-export const WEDDING_TYPES = [
-  "Traditional",
-  "Religious",
-  "Civil",
-  "Traditional & religious",
-  "Destination",
-  "Elopement",
-  "Other",
+const optionalAge = z
+  .string()
+  .trim()
+  .transform((v) => (v === "" ? null : Number(v)))
+  .refine((v) => v === null || (Number.isInteger(v) && v >= 0 && v <= 130), "Enter an age between 0 and 130.");
+
+/** Step 2: the details. Occasion-specific fields are optional and stored together in `details`. */
+const INFO_FIELDS = [
+  "keyDate", "timezone", "subtype", "story", "guestMessage", "rsvpDeadline", "dressCode", "announcement", "hashtag",
+  "contactName", "contactEmail", "contactPhone", "relationshipStartDate", "engagementDate", "dateOfBirth", "turningAge",
+  "dateOfPassing", "nameMeaning", "parents", "meetingPoint", "packingList", "costNote", "institution",
 ] as const;
 
-export const weddingInfoSchema = z.object({
-  weddingDate: optionalPlainDate,
-  timezone,
-  weddingType: text(60),
-  rsvpDeadline: optionalPlainDate,
-  dressCode: text(200),
-  announcement: text(2000),
-  hashtag: z
-    .string()
-    .trim()
-    .transform((v) => v.replace(/^#/, ""))
-    .refine((v) => v === "" || /^[\p{L}\p{N}_]{2,40}$/u.test(v), "Use letters, numbers or underscores (no spaces)."),
-  contactName: text(80),
-  contactEmail: optionalEmail,
-  contactPhone: text(40),
-});
-export type WeddingInfoInput = z.infer<typeof weddingInfoSchema>;
+export const celebrationInfoSchema = z.preprocess(
+  // The form only shows fields relevant to the occasion; anything absent counts as empty.
+  (v) => ({ ...Object.fromEntries(INFO_FIELDS.map((k) => [k, ""])), ...(v as object) }),
+  z
+  .object({
+    keyDate: optionalPlainDate,
+    timezone,
+    subtype: text(60),
+    story: text(8000),
+    guestMessage: text(2000),
+    rsvpDeadline: optionalPlainDate,
+    dressCode: text(200),
+    announcement: text(2000),
+    hashtag: z
+      .string()
+      .trim()
+      .transform((v) => v.replace(/^#/, ""))
+      .refine((v) => v === "" || /^[\p{L}\p{N}_]{2,40}$/u.test(v), "Use letters, numbers or underscores (no spaces)."),
+    contactName: text(80),
+    contactEmail: optionalEmail,
+    contactPhone: text(40),
+    // Occasion-specific
+    relationshipStartDate: optionalPlainDate,
+    engagementDate: optionalPlainDate,
+    dateOfBirth: optionalPlainDate,
+    turningAge: optionalAge,
+    dateOfPassing: optionalPlainDate,
+    nameMeaning: text(500),
+    parents: text(200),
+    meetingPoint: text(300),
+    packingList: z.string().transform((v) => v.split(/\r?\n/).map((s) => s.trim()).filter(Boolean).slice(0, 30)),
+    costNote: text(500),
+    institution: text(160),
+  })
+  .transform(({ relationshipStartDate, engagementDate, dateOfBirth, turningAge, dateOfPassing, nameMeaning, parents, meetingPoint, packingList, costNote, institution, ...rest }) => ({
+    ...rest,
+    details: { relationshipStartDate, engagementDate, dateOfBirth, turningAge, dateOfPassing, nameMeaning, parents, meetingPoint, packingList, costNote, institution },
+  })),
+);
+export type CelebrationInfoInput = z.infer<typeof celebrationInfoSchema>;
+
+const hexColour = z.string().trim().regex(/^#[0-9a-fA-F]{6}$/, "Use a colour like #A09081.");
+
+/** Colours of the day: up to 5 named swatches. */
+export const coloursSchema = z
+  .array(z.object({ name: required(30, "Colour name"), hex: hexColour, note: text(120) }))
+  .max(5, "Add up to 5 colours.");
+
+export const rsvpContactsSchema = z
+  .array(z.object({ name: required(60, "Name"), phone: z.string().trim().regex(/^[+0-9 ()-]{6,20}$/, "Enter a phone number.") }))
+  .max(6, "Add up to 6 contacts.");
 
 export const eventSchema = z
   .object({
@@ -96,9 +158,11 @@ export const eventSchema = z
     venueLng: optionalCoord(-180, 180),
     description: text(2000),
     dressCode: text(200),
+    icon: z.string().refine((v) => v === "" || (PROGRAMME_ICONS as readonly string[]).includes(v), "Choose an icon.").default(""),
     rsvpRequired: checkbox,
     inviteOnly: checkbox,
   })
+  .transform((e) => ({ ...e, venueMediaId: undefined as string | null | undefined }))
   // Same format and timezone, so a string comparison orders them correctly.
   .refine((e) => e.endsLocal === null || e.endsLocal > e.startsLocal, {
     path: ["endsLocal"],
@@ -118,7 +182,7 @@ const httpsUrl = z
   .url("Enter a full link starting with https://")
   .refine((v) => v.startsWith("https://"), "Links must start with https://");
 
-export const SECTION_IDS = ["story", "schedule", "gallery", "rsvp", "guestbook", "gifts", "memories"] as const;
+export const SECTION_IDS = ["story", "schedule", "colours", "gallery", "rsvp", "shared", "guestbook", "gifts", "memories"] as const;
 
 export const guestFeaturesSchema = z.object({
   rsvpEnabled: checkbox,
@@ -132,6 +196,8 @@ export const guestFeaturesSchema = z.object({
   askDietary: checkbox,
   guestbookEnabled: checkbox,
   guestbookModeration: checkbox,
+  guestUploadsEnabled: checkbox,
+  guestUploadsModeration: checkbox,
   giftMessage: text(2000),
   giftLinks: z
     .array(z.object({ label: required(60, "Label"), url: httpsUrl }))

@@ -3,7 +3,7 @@
 import { AlertTriangle, Check, Copy, ExternalLink, Globe, Link2, Lock } from "lucide-react";
 import Link from "next/link";
 import { useActionState, useState, useTransition } from "react";
-import { publish, savePublishSettings, unpublish } from "@/app/actions/wedding";
+import { publish, savePublishSettings, unpublish } from "@/app/actions/celebration";
 import { Field, FormAlert, SubmitButton } from "@/components/forms";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,7 +40,7 @@ export function PublishSettingsForm({
         errors={e.slug}
       >
         <div className="flex items-stretch overflow-hidden rounded-lg border border-input bg-white focus-within:ring-3 focus-within:ring-ring/50">
-          <span className="hidden items-center bg-muted px-3 text-sm text-muted-foreground sm:flex">{origin.replace(/^https?:\/\//, "")}/w/</span>
+          <span className="hidden items-center bg-muted px-3 text-sm text-muted-foreground sm:flex">{origin.replace(/^https?:\/\//, "")}/</span>
           <Input name="slug" defaultValue={state?.values?.slug ?? slug} className="rounded-none border-0 focus-visible:ring-0" />
         </div>
       </Field>

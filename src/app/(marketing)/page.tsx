@@ -22,13 +22,21 @@ const FEATURES = [
   { icon: Clock, title: "Live countdown", text: "Guests see exactly how long until your big day, then a celebration message once it arrives." },
   { icon: QrCode, title: "Invitations & QR codes", text: "A short link and a QR code for WhatsApp, social media, email and printed cards." },
   { icon: Users, title: "RSVPs that add up", text: "Replies per event, guest limits per invitation, meal choices and dietary needs, all in one place." },
-  { icon: CalendarHeart, title: "Every celebration", text: "Traditional, civil, religious, reception: different dates and venues, one page." },
+  { icon: CalendarHeart, title: "Every part of the day", text: "Ceremonies, services, parties and trips: different dates and venues, one programme." },
   { icon: MapPin, title: "Maps & directions", text: "Each venue with a map and one-tap directions. No app for guests to install." },
   { icon: MessageSquareHeart, title: "Digital guestbook", text: "Warm wishes from your guests, with optional approval before they appear." },
-  { icon: Camera, title: "Photo gallery", text: "A beautiful, fast gallery that looks great on any phone." },
+  { icon: Camera, title: "Everyone's photos", text: "Guests upload their photos and videos to a shared gallery; you approve what appears." },
   { icon: Gift, title: "Gift notes", text: "Share registry links or a gentle note, without ever showing bank details publicly." },
-  { icon: Heart, title: "Memories, kept", text: "After the wedding your page becomes your story: photos, milestones and anniversaries." },
+  { icon: Heart, title: "Memories, kept", text: "After the day your page becomes your story: guests' photos, milestones and yearly reminders." },
 ];
+
+const FEATURED_OCCASIONS = [
+  { kind: "wedding", theme: "earth-and-ivory", label: "Weddings", blurb: "Traditional, white wedding or both, with every ceremony, colour and RSVP in one place." },
+  { kind: "birthday", theme: "confetti", label: "Birthdays", blurb: "Milestones and parties: wishes wall, dress code and everyone's photos." },
+  { kind: "funeral", theme: "serene", label: "Celebrations of life", blurb: "Order of events, life story, tributes and donation details, with care." },
+  { kind: "outing", theme: "adventure", label: "Outings & trips", blurb: "Itinerary, meeting point, what to bring and who's coming." },
+  { kind: "naming", theme: "little-blessings", label: "Naming ceremonies", blurb: "Outdooring and dedication: the name, its meaning and blessings." },
+] as const;
 
 const FAQ = [
   ["How long does it take to create our website?", "Most couples finish in about ten minutes. You fill in a guided form; we design the page. You can preview it before anyone else sees it and keep editing after you publish."],
@@ -36,7 +44,9 @@ const FAQ = [
   ["Can we have more than one event?", "Yes. Add a traditional ceremony, church or civil ceremony, reception and more, each with its own date, venue, dress code and RSVP."],
   ["Who can see our page?", "You choose. Unlisted pages are visible to anyone with the link but kept out of search engines. Private pages only open through each guest's personal invitation link. Public pages can optionally appear in search results."],
   ["Can we change details after sharing the link?", "Yes. Edits appear on your page as soon as you save. If you change your page address, the old link and printed QR codes keep working."],
-  ["What happens after the wedding?", "Your page changes from an invitation into a memory page: a thank-you note, your wedding photos, a timeline of milestones and a counter of how long you've been married. You can get anniversary reminders by email."],
+  ["What occasions can I use EverMore for?", "Weddings, birthdays, funerals and memorials, naming ceremonies and outdoorings, outings and trips, reunions, anniversaries, showers, graduations, and anything else worth gathering for. Each gets wording, sections and designs that fit."],
+  ["What happens after the day?", "Your page changes from an invitation into a memory page: a thank-you note, the photos guests shared, a timeline of milestones and, for weddings, a counter of how long you've been married. You can get yearly reminders by email."],
+  ["Can guests share their own photos?", "Yes. Guests can upload photos and short videos to a shared gallery that everyone can browse and download. By default you approve each upload before it appears."],
   ["How long will our page stay online?", "For as long as your account is active under our retention policy. You can export your guest list at any time, and you can delete everything whenever you like."],
 ];
 
@@ -52,40 +62,63 @@ export default async function HomePage() {
         <div aria-hidden className="pointer-events-none absolute -top-40 -right-40 h-[36rem] w-[36rem] rounded-full bg-blush blur-3xl" />
         <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-4 pt-14 pb-20 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:pt-20 lg:pb-28">
           <div className="animate-rise">
-            <p className="eyebrow">Wedding websites · Invitations · Memories</p>
+            <p className="eyebrow">Weddings · Birthdays · Memorials · Outings · and more</p>
             <h1 className="mt-5 text-[clamp(2.6rem,6vw,4.4rem)] leading-[1.02] text-navy">
-              Your love story deserves more than an <em className="text-champagne-deep">invitation</em>.
+              Every moment that matters deserves a <em className="text-champagne-deep">home</em>.
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
-              Create a beautiful wedding website, invite your loved ones, collect RSVPs and preserve your memories in one place.
-              Your story starts here, and stays with you.
+              Beautiful pages for weddings, birthdays, celebrations of life, outings and every gathering in between. Invite your people, collect RSVPs, gather everyone&apos;s photos, and keep the memories.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg"><Link href="/sign-up">Create your wedding website</Link></Button>
-              <Button asChild size="lg" variant="outline"><Link href="/samples/timeless-elegance">Explore a sample wedding</Link></Button>
+              <Button asChild size="lg"><Link href="/sign-up">Create your page</Link></Button>
+              <Button asChild size="lg" variant="outline"><Link href="#occasions">Explore samples</Link></Button>
             </div>
             <p className="mt-5 text-sm text-muted-foreground">Free to start · No design skills needed · Works beautifully on phones</p>
           </div>
-          <div className="relative mx-auto w-full max-w-xl" aria-label="Preview of a sample wedding website on a laptop and a phone" role="img">
+          <div className="relative mx-auto w-full max-w-xl" aria-label="Preview of sample celebration pages on a laptop and a phone" role="img">
             <BrowserFrame className="w-[88%]">
-              <MiniPreview themeId="timeless-elegance" variant="desktop" now={now} />
+              <MiniPreview themeId="earth-and-ivory" variant="desktop" now={now} />
             </BrowserFrame>
             <PhoneFrame className="absolute -right-2 -bottom-10 w-[34%] sm:right-0">
-              <MiniPreview themeId="romantic-garden" now={now} />
+              <MiniPreview themeId="confetti" occasion="birthday" now={now} />
             </PhoneFrame>
           </div>
+        </div>
+      </section>
+
+      {/* ───────────── Occasions */}
+      <section id="occasions" className="scroll-mt-20 py-20 sm:py-24">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <SectionIntro eyebrow="For every occasion" title="One home for all of life's gatherings" />
+          <ul className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+            {FEATURED_OCCASIONS.map((o) => (
+              <li key={o.kind}>
+                <Link href={`/samples/${o.theme}?occasion=${o.kind}`} className="group block">
+                  <div className="aspect-[3/4] overflow-hidden rounded-2xl text-[9px] shadow-sm ring-1 ring-navy/10 transition group-hover:-translate-y-1 group-hover:shadow-lg">
+                    <MiniPreview themeId={o.theme} occasion={o.kind} variant="card" now={now} />
+                  </div>
+                  <h3 className="mt-4 text-xl text-navy">{o.label}</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{o.blurb}</p>
+                  <span className="mt-2 inline-block text-sm text-champagne-deep underline-offset-4 group-hover:underline">See a sample →</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-10 text-center text-sm text-muted-foreground">
+            Also for anniversaries & vow renewals, reunions, baby & bridal showers, graduations, housewarmings, church and community events.
+          </p>
         </div>
       </section>
 
       {/* ───────────── How it works */}
       <section id="how-it-works" className="scroll-mt-20 border-y border-navy/5 bg-white py-20 sm:py-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <SectionIntro eyebrow="How it works" title="Three steps to your wedding website" />
+          <SectionIntro eyebrow="How it works" title="Three steps to a page you'll love" />
           <ol className="mt-14 grid gap-10 md:grid-cols-3">
             {[
-              ["Tell us your story", "Enter your names, wedding date, events and photographs in a short guided form."],
-              ["Your website comes to life", "EverMore designs your personalised wedding website and QR code automatically."],
-              ["Share, celebrate & remember", "Invite your guests, manage RSVPs and keep your memories after the wedding."],
+              ["Tell us what you're celebrating", "Choose the occasion, then add names, dates, the programme and a few photos in a short guided form."],
+              ["Your page comes to life", "EverMore designs it for you, with a short link and a QR code ready to share."],
+              ["Share, celebrate & remember", "Invite everyone, collect RSVPs and the photos guests take, and keep it all afterwards."],
             ].map(([title, text], i) => (
               <li key={title} className="relative">
                 <span className="font-display text-6xl text-champagne/70">{String(i + 1).padStart(2, "0")}</span>
@@ -120,13 +153,13 @@ export default async function HomePage() {
       {/* ───────────── Themes */}
       <section id="themes" className="scroll-mt-20 bg-navy py-20 text-ivory sm:py-28">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <SectionIntro eyebrow="Six complete designs" title="Find the one that feels like you" inverted />
+          <SectionIntro eyebrow="Twelve complete designs" title="Find the one that feels like you" inverted />
           <ul className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {SAMPLE_THEMES.map((t) => (
               <li key={t.id}>
                 <Link href={`/samples/${t.id}`} className="group block rounded-2xl bg-white/5 p-3 ring-1 ring-white/10 transition hover:bg-white/10 hover:ring-champagne/50">
                   <div className="aspect-[4/5] overflow-hidden rounded-xl text-[13px] transition-transform duration-500 group-hover:scale-[1.01]">
-                    <MiniPreview themeId={t.id} variant="card" now={now} />
+                    <MiniPreview themeId={t.id} occasion={t.occasion} variant="card" now={now} />
                   </div>
                   <div className="flex items-start justify-between gap-3 px-1 pt-4 pb-1">
                     <div>
@@ -135,7 +168,7 @@ export default async function HomePage() {
                     </div>
                     {t.premium && <span className="shrink-0 rounded-full border border-champagne/50 px-2 py-0.5 text-[0.65rem] tracking-wider text-champagne uppercase">Premium</span>}
                   </div>
-                  <span className="sr-only">View the {t.name} sample wedding</span>
+                  <span className="sr-only">View the {t.name} sample</span>
                 </Link>
               </li>
             ))}
@@ -144,17 +177,17 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ───────────── After the wedding */}
+      {/* ───────────── After the day */}
       <section id="after" className="scroll-mt-20 py-20 sm:py-28">
         <div className="mx-auto grid max-w-6xl items-center gap-14 px-4 sm:px-6 lg:grid-cols-2">
           <div>
             <p className="eyebrow">More than an invitation</p>
-            <h2 className="mt-4 text-4xl leading-tight text-navy sm:text-5xl">The wedding ends. Your story doesn&apos;t.</h2>
+            <h2 className="mt-4 text-4xl leading-tight text-navy sm:text-5xl">The day ends. Your story doesn&apos;t.</h2>
             <p className="mt-5 text-lg leading-relaxed text-muted-foreground">
               When the day has passed, your page gently becomes a home for your memories: a thank-you note to your guests,
-              your wedding photographs, a timeline of milestones and a count of every day you&apos;ve been married.
+              the photos your guests shared, a timeline of milestones, and, for couples, a count of every day you&apos;ve been married.
             </p>
-            <Button asChild variant="outline" className="mt-8"><Link href="/samples/timeless-elegance?after=1">See a page after the wedding</Link></Button>
+            <Button asChild variant="outline" className="mt-8"><Link href="/samples/earth-and-ivory?after=1">See a page after the day</Link></Button>
           </div>
           <ol className="relative space-y-8 border-l border-champagne/40 pl-8">
             {[
@@ -171,7 +204,7 @@ export default async function HomePage() {
             <li className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-navy/5">
               <p className="eyebrow">Example</p>
               <p className="mt-2 font-display text-2xl text-navy">Married for 1 year, 4 months and 12 days</p>
-              <p className="mt-1 text-sm text-muted-foreground">Calculated live from your wedding date, so it&apos;s always right.</p>
+              <p className="mt-1 text-sm text-muted-foreground">Calculated live from the date, so it&apos;s always right.</p>
             </li>
           </ol>
         </div>
@@ -189,7 +222,7 @@ export default async function HomePage() {
             <Plan
               name="Free"
               note="Everything you need to invite and welcome your guests."
-              items={["A complete wedding website", "3 standard themes", "Up to 3 events", "RSVP collection & guest list", "QR code & sharing", "Guestbook"]}
+              items={["A complete celebration page", "8 standard designs", "Up to 3 events", "RSVP collection & guest list", "QR code & sharing", "Guestbook"]}
             />
             <Plan
               name="Premium"
@@ -223,8 +256,8 @@ export default async function HomePage() {
       <section className="px-4 pb-24 sm:px-6">
         <div className="mx-auto max-w-5xl rounded-3xl bg-navy px-6 py-16 text-center text-ivory sm:px-12">
           <h2 className="text-4xl sm:text-5xl">Begin your story today</h2>
-          <p className="mx-auto mt-4 max-w-xl text-ivory/75">Your wedding website can be ready to share in minutes.</p>
-          <Button asChild size="lg" variant="gold" className="mt-8"><Link href="/sign-up">Create your wedding website</Link></Button>
+          <p className="mx-auto mt-4 max-w-xl text-ivory/75">Your page can be ready to share in minutes.</p>
+          <Button asChild size="lg" variant="gold" className="mt-8"><Link href="/sign-up">Create your page</Link></Button>
         </div>
       </section>
     </>

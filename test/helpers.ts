@@ -1,9 +1,9 @@
 import { randomUUID } from "node:crypto";
 import { db } from "@/db";
 import { user } from "@/db/schema";
-import { coupleSchema, eventSchema, type EventInput } from "@/lib/validation";
+import { basicsSchema, eventSchema, type EventInput } from "@/lib/validation";
 import { createEvent } from "@/server/events";
-import { createWedding } from "@/server/weddings";
+import { createCelebration } from "@/server/celebrations";
 
 export async function makeUser(name = "Test User") {
   const id = randomUUID();
@@ -31,24 +31,16 @@ export function eventInput(overrides: Record<string, string | boolean> = {}): Ev
   });
 }
 
-export async function makeWedding({
+export async function makeCelebration({
   partnerOne = "Ama Mensah",
   partnerTwo = "Kofi Boateng",
   withEvent = true,
-}: { partnerOne?: string; partnerTwo?: string; withEvent?: boolean } = {}) {
+  kind = "wedding",
+  title = "",
+}: { partnerOne?: string; partnerTwo?: string; withEvent?: boolean; kind?: string; title?: string } = {}) {
   const owner = await makeUser();
-  const couple = coupleSchema.parse({
-    partnerOneFullName: partnerOne,
-    partnerOneDisplayName: "",
-    partnerTwoFullName: partnerTwo,
-    partnerTwoDisplayName: "",
-    monogram: "",
-    story: "",
-    guestMessage: "",
-    relationshipStartDate: "",
-    engagementDate: "",
-  });
-  const w = await createWedding(owner.id, couple, "Africa/Accra");
-  const eventId = withEvent ? await createEvent(w.id, "free", eventInput()) : null;
-  return { owner, wedding: w, eventId };
+  const basics = basicsSchema.parse({ kind, title, honoree0: partnerOne, honoree1: partnerTwo, monogram: "" });
+  const c = await createCelebration(owner.id, basics, "Africa/Accra");
+  const eventId = withEvent ? await createEvent(c.id, "free", eventInput()) : null;
+  return { owner, celebration: c, eventId };
 }

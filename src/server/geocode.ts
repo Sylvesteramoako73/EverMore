@@ -11,7 +11,7 @@ export async function geocodeAddress(address: string): Promise<{ lat: number; ln
     url.searchParams.set("limit", "1");
     const res = await fetch(url, {
       // Nominatim's usage policy requires an identifying User-Agent.
-      headers: { "User-Agent": `EverMore wedding websites (${appUrl()})`, "Accept-Language": "en" },
+      headers: { "User-Agent": `EverMore celebration websites (${appUrl()})`, "Accept-Language": "en" },
       signal: AbortSignal.timeout(5000),
       cache: "no-store",
     });

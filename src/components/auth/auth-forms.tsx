@@ -232,7 +232,7 @@ export function CheckEmail() {
       </span>
       <p className="text-muted-foreground">
         We&apos;ve sent a confirmation link to {email ? <strong className="text-navy">{email}</strong> : "your email"}. Open it to finish
-        creating your account; you&apos;ll go straight to setting up your wedding website.
+        creating your account; you&apos;ll go straight to setting up your page.
       </p>
       {email && <ResendVerification email={email} />}
       <p className="text-sm">

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
   title: { default: "EverMore — Your Story. Forever Connected.", template: "%s · EverMore" },
   description:
-    "Beautiful wedding websites from a simple guided form. Share invitations, collect RSVPs and keep your memories in one place, long after the wedding.",
+    "Beautiful pages for weddings, birthdays, memorials, outings and every gathering in between. Share invitations, collect RSVPs and guests' photos, and keep the memories.",
   applicationName: "EverMore",
   openGraph: { siteName: "EverMore", type: "website" },
 };

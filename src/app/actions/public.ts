@@ -5,23 +5,23 @@ import { listEvents } from "@/server/events";
 import { addGuestbookEntry, reportGuestbookEntry } from "@/server/guestbook";
 import { limitPublicAction } from "@/server/rate-limit";
 import { findInvitation, parseRsvp, saveRsvp } from "@/server/rsvp";
-import { getWedding, resolveSlug } from "@/server/weddings";
+import { getCelebration, resolveSlug } from "@/server/celebrations";
 import { fieldErrors, formValues, guestbookSchema, type FormState } from "@/lib/validation";
-import { answerableEvents } from "@/lib/wedding-rules";
+import { answerableEvents } from "@/lib/celebration-rules";
 import { z } from "zod";
 
 const isBot = (formData: FormData) => String(formData.get("website") ?? "").length > 0;
 
-/** Published wedding by slug; null for drafts, archived or unknown pages. */
-async function publishedWedding(slug: string) {
+/** Published celebration by slug; null for drafts, archived or unknown pages. */
+async function publishedCelebration(slug: string) {
   const resolved = await resolveSlug(slug);
   if (!resolved) return null;
-  const w = await getWedding(resolved.weddingId);
+  const w = await getCelebration(resolved.celebrationId);
   return w?.status === "published" ? w : null;
 }
 
 export async function submitRsvp(slug: string, inviteToken: string | null, _prev: FormState, formData: FormData): Promise<FormState> {
-  const w = await publishedWedding(slug);
+  const w = await publishedCelebration(slug);
   if (!w) return { message: "RSVPs aren't available on this page right now. If you're the couple, publish your page first." };
 
   const invitation = inviteToken ? await findInvitation(w.id, inviteToken) : null;
@@ -63,7 +63,7 @@ export async function submitRsvp(slug: string, inviteToken: string | null, _prev
 }
 
 export async function signGuestbook(slug: string, inviteToken: string | null, _prev: FormState, formData: FormData): Promise<FormState> {
-  const w = await publishedWedding(slug);
+  const w = await publishedCelebration(slug);
   if (!w || !w.guestbookEnabled) return { message: "The guestbook isn't open on this page." };
   if (w.visibility === "private" && !(inviteToken && (await findInvitation(w.id, inviteToken)))) {
     return { message: "Please open the page from your personal invitation link to sign the guestbook." };
@@ -84,7 +84,7 @@ export async function signGuestbook(slug: string, inviteToken: string | null, _p
 }
 
 export async function reportMessage(slug: string, entryId: string, reason: string): Promise<{ ok: boolean }> {
-  const w = await publishedWedding(slug);
+  const w = await publishedCelebration(slug);
   if (!w || !z.uuid().safeParse(entryId).success) return { ok: false };
   if (!(await limitPublicAction("report", w.id, 5, 100, 60 * 60 * 1000))) return { ok: false };
   const ok = await reportGuestbookEntry(w.id, entryId, reason || "Reported by a visitor");
