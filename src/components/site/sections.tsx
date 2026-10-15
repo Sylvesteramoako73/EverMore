@@ -38,19 +38,20 @@ export function Section({
       id={id}
       aria-labelledby={`${id}-title`}
       style={{ ["--w-section-bg" as string]: bg }}
-      className={`scroll-mt-20 px-5 py-24 sm:px-8 sm:py-36 ${tone === "tint" ? "w-tint" : tone === "band" ? "w-band" : tone === "pop" ? "w-pop" : ""} ${shaped ? "w-shaped" : ""}`}
+      data-tone={tone}
+      className={`w-section scroll-mt-20 px-5 py-24 sm:px-8 sm:py-36 ${tone === "tint" ? "w-tint" : tone === "band" ? "w-band" : tone === "pop" ? "w-pop" : ""} ${shaped ? "w-shaped" : ""}`}
     >
       {shaped && <SectionShape kind={theme.layout.divider} fill={bg} />}
-      <div className="mx-auto max-w-6xl">
-        <Reveal className={`mb-14 sm:mb-20 ${left ? "text-left" : "text-center"}`}>
+      <div className="w-section-inner mx-auto max-w-6xl">
+        <Reveal className={`w-section-head mb-14 sm:mb-20 ${left ? "text-left" : "text-center"}`}>
           {theme.heading === "band" && <GeometricBand className="mx-auto mb-6 !h-3 max-w-[9rem]" />}
           <p className="w-eyebrow">{eyebrow}</p>
-          <h2 id={`${id}-title`} className={`w-display mt-3 ${size}`}>{title}</h2>
-          {!left && theme.heading !== "classic" && <div className="mt-5"><OrnamentDivider kind={theme.ornament} /></div>}
+          <h2 id={`${id}-title`} className={`w-section-title w-display mt-3 ${size}`}>{title}</h2>
+          {!left && theme.heading !== "classic" && <div className="w-ornament mt-5"><OrnamentDivider kind={theme.ornament} /></div>}
           {left && <div className="mt-6 h-px w-24 bg-[var(--w-accent)]" />}
           {intro && <div className={`w-muted mt-6 max-w-2xl ${left ? "" : "mx-auto"}`}>{intro}</div>}
         </Reveal>
-        {children}
+        <div className="w-section-body">{children}</div>
       </div>
     </section>
   );
@@ -83,7 +84,7 @@ export function SaveTheDate({ w, theme }: { w: CelebrationView; theme: Theme }) 
   const monthName = new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(Date.UTC(y, m - 1, 1)));
 
   return (
-    <section aria-labelledby="save-title" className="w-band px-5 py-20 sm:px-8 sm:py-24">
+    <section aria-labelledby="save-title" className="w-feature w-band px-5 py-20 sm:px-8 sm:py-24">
       <div className={`mx-auto grid max-w-5xl items-center gap-14 ${photo ? "md:grid-cols-2" : ""}`}>
         {photo && (
           <Reveal className="mx-auto w-[min(78vw,320px)]">
@@ -265,7 +266,7 @@ export function CountdownBand({ w, theme }: { w: CelebrationView; theme: Theme }
   const cls = look === "band" ? "w-band" : look === "big" ? (theme.layout.pop ? "w-pop" : "w-band") : "";
   const heading = w.occasion.kind === "outing" ? "Adventure Awaits" : w.occasion.kind === "birthday" ? "The Party Starts In" : "Our Big Day Awaits";
   return (
-    <section aria-label="Countdown" className={`px-5 py-20 text-center sm:py-24 ${cls}`}>
+    <section aria-label="Countdown" className={`w-feature px-5 py-20 text-center sm:py-24 ${cls}`}>
       <Reveal>
         <p className={`w-display ${look === "big" ? "text-3xl uppercase tracking-[0.12em] sm:text-4xl" : "text-4xl italic sm:text-5xl"}`}>{heading}</p>
         <div className="mx-auto mt-10 flex max-w-4xl justify-center">

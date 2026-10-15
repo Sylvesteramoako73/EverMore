@@ -24,8 +24,18 @@ export type Layout = {
   pop: boolean;
 };
 
+/**
+ * The page structure. Each design arranges the same content its own way: chapters, a stationery
+ * suite, a split screen, a bento board, a booklet, an itinerary, a storybook, an index, a classic
+ * scroll, a magazine, a royal programme, or colour bands.
+ */
+export type Frame =
+  | "classic" | "chapters" | "suite" | "split" | "bento" | "booklet"
+  | "itinerary" | "storybook" | "index" | "magazine" | "royal" | "bands";
+
 export type Theme = {
   id: string;
+  frame: Frame;
   name: string;
   tagline: string;
   premium: boolean;
@@ -63,8 +73,9 @@ const JOYFUL: OccasionKind[] = ALL.filter((k) => k !== "funeral");
 export const THEMES: Theme[] = [
   {
     id: "earth-and-ivory",
+    frame: "chapters",
     name: "Earth & Ivory",
-    tagline: "Warm mocha, taupe and ivory with cinematic photos. Timeless for any occasion.",
+    tagline: "Told in chapters: full-bleed photo breaks between each part of your story. Mocha and ivory.",
     premium: false,
     suitedFor: ALL,
     colors: {
@@ -83,8 +94,9 @@ export const THEMES: Theme[] = [
   },
   {
     id: "timeless-elegance",
+    frame: "suite",
     name: "Timeless Elegance",
-    tagline: "Ivory, navy and champagne gold with classic serif type.",
+    tagline: "An invitation suite: every section a paper card on linen, sealed with your monogram.",
     premium: false,
     suitedFor: ["wedding", "anniversary", "funeral", "graduation", "other"],
     colors: {
@@ -103,8 +115,9 @@ export const THEMES: Theme[] = [
   },
   {
     id: "golden-hour",
+    frame: "split",
     name: "Golden Hour",
-    tagline: "Sun-warmed amber and terracotta with a bright split-screen hero.",
+    tagline: "Split screen: a photo panel that changes as guests scroll. Amber and terracotta.",
     premium: false,
     suitedFor: JOYFUL,
     colors: {
@@ -122,8 +135,9 @@ export const THEMES: Theme[] = [
   },
   {
     id: "confetti",
+    frame: "bento",
     name: "Confetti",
-    tagline: "Playful collage, bold type and a burst of colour. Made for parties.",
+    tagline: "A bento board of tiles up front (date, venue, countdown, RSVP), then the fun. For parties.",
     premium: false,
     suitedFor: ["birthday", "graduation", "shower", "reunion", "other"],
     colors: {
@@ -141,8 +155,9 @@ export const THEMES: Theme[] = [
   },
   {
     id: "serene",
+    frame: "booklet",
     name: "Serene",
-    tagline: "Quiet greys and sage, an oval portrait and gentle type. For remembrance.",
+    tagline: "A quiet booklet: one column, a contents page and numbered parts, like an order of service.",
     premium: false,
     suitedFor: ["funeral", "anniversary", "other"],
     colors: {
@@ -160,8 +175,9 @@ export const THEMES: Theme[] = [
   },
   {
     id: "adventure",
+    frame: "itinerary",
     name: "Adventure",
-    tagline: "Forest green, sand and sunset orange with rugged, confident type. For trips and outings.",
+    tagline: "An itinerary: a route runs down the page and every section is a stop. For trips.",
     premium: false,
     suitedFor: ["outing", "reunion", "birthday", "other"],
     colors: {
@@ -180,8 +196,9 @@ export const THEMES: Theme[] = [
   },
   {
     id: "little-blessings",
+    frame: "storybook",
     name: "Little Blessings",
-    tagline: "Soft pastels, an arched portrait and tender type for new arrivals.",
+    tagline: "A storybook: alternating pages with page numbers and arched portraits. For little ones.",
     premium: false,
     suitedFor: ["naming", "shower", "birthday"],
     colors: {
@@ -199,8 +216,9 @@ export const THEMES: Theme[] = [
   },
   {
     id: "modern-minimalist",
+    frame: "index",
     name: "Modern Minimalist",
-    tagline: "Crisp white space, monochrome type and a split-screen hero.",
+    tagline: "An index: a fixed sidebar with the essentials and numbered sections. Crisp and modern.",
     premium: false,
     suitedFor: ALL,
     colors: {
@@ -218,8 +236,9 @@ export const THEMES: Theme[] = [
   },
   {
     id: "romantic-garden",
+    frame: "classic",
     name: "Romantic Garden",
-    tagline: "Blush and sage, flowing italics and botanical details.",
+    tagline: "The classic scroll, in blush and sage with flowing italics and botanical details.",
     premium: false,
     suitedFor: ["wedding", "anniversary", "shower", "naming", "birthday"],
     colors: {
@@ -237,8 +256,9 @@ export const THEMES: Theme[] = [
   },
   {
     id: "luxury-editorial",
+    frame: "magazine",
     name: "Luxury Editorial",
-    tagline: "Magazine-style layouts, oversized Didone type, black and champagne.",
+    tagline: "A magazine: a cover, an “In this issue” contents page and numbered articles.",
     premium: true,
     suitedFor: JOYFUL,
     colors: {
@@ -257,8 +277,9 @@ export const THEMES: Theme[] = [
   },
   {
     id: "traditional-celebration",
+    frame: "royal",
     name: "Traditional Celebration",
-    tagline: "Rich burgundy and gold, framed borders and stately capitals.",
+    tagline: "A royal programme: the whole page inside one ornate gold frame. Burgundy and gold.",
     premium: true,
     suitedFor: ["wedding", "naming", "funeral", "anniversary", "other"],
     colors: {
@@ -277,8 +298,9 @@ export const THEMES: Theme[] = [
   },
   {
     id: "contemporary-african-romance",
+    frame: "bands",
     name: "Contemporary African Romance",
-    tagline: "Terracotta, ochre and forest green with woven geometric bands.",
+    tagline: "Colour bands separated by kente strips, with headings in their own column.",
     premium: true,
     suitedFor: JOYFUL,
     colors: {

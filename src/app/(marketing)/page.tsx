@@ -136,7 +136,7 @@ export default async function HomePage() {
       {/* ───────────── Designs: real screenshots */}
       <section id="designs" className="scroll-mt-20 overflow-hidden bg-[#f3eee4] py-20 sm:py-28">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <Intro eyebrow="Twelve complete designs" title="Not just colours. Completely different feels." text="Each design has its own layouts, type and details: a magazine spread, a boarding-pass itinerary, scattered polaroids, quiet remembrance. Here they are, exactly as guests see them." />
+          <Intro eyebrow="Twelve complete designs" title="Twelve designs. Twelve different page structures." text="Not the same page in different colours: each design is built differently. A magazine with a contents page, an invitation suite of paper cards, a split screen, a bento board, a booklet, a route with stops. Here they are, exactly as guests see them." />
         </div>
         <div className="mt-10">
         <DesignRail label="Designs">

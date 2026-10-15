@@ -12,6 +12,7 @@ import {
 import { ProgrammeVariant, StoryVariant, VenuesVariant } from "./variants";
 import { SharedMoments } from "./shared-moments";
 import { EntryPass, HappeningNow, Livestream, TableFinder, UsherBar } from "./day";
+import { darkHeroFor, Frame, type Block } from "./frames";
 import type { CelebrationView } from "./types";
 import "./celebration.css";
 
@@ -120,62 +121,69 @@ export function CelebrationSite({ w, now, inviteToken = null }: { w: Celebration
     </Section>
   );
 
-  let body: ReactNode;
-  if (after) {
-    body = (
-      <>
-        {show.thankYou && <ThankYouSection w={w} theme={theme} />}
-        {shared}
-        {gallery}
-        {show.memories && <MemoriesSection w={w} theme={theme} />}
-        {show.story && <StoryVariant w={w} theme={theme} />}
-        {show.party && <PartySection w={w} theme={theme} />}
-        {show.schedule && <ProgrammeVariant w={w} theme={theme} now={now} />}
-        {guestbook}
-      </>
-    );
-  } else {
-    body = (
-      <>
-        {show.saveTheDate && <SaveTheDate w={w} theme={theme} />}
-        {show.story && <StoryVariant w={w} theme={theme} />}
-        {show.party && <PartySection w={w} theme={theme} />}
-        {show.schedule && <ProgrammeVariant w={w} theme={theme} now={now} />}
-        {show.schedule && <VenuesVariant w={w} theme={theme} />}
-        {show.colours && <ColoursSection w={w} theme={theme} />}
-        {w.occasion.kind === "outing" && <TripSection w={w} theme={theme} />}
-        {w.phase === "today" && tables}
-        {w.phase === "today" && livestream}
-        {rsvp}
-        {w.phase !== "today" && tables}
-        {w.phase !== "today" && livestream}
-        {!remembrance && <CountdownBand w={w} theme={theme} />}
-        {gallery}
-        {show.memories && <MemoriesSection w={w} theme={theme} />}
-        {shared}
-        {guestbook}
-        {show.gifts && <GiftsSection w={w} theme={theme} inviteToken={inviteToken} />}
-      </>
-    );
-  }
+  // The page as an ordered list of blocks. Each design's frame arranges them its own way.
+  const B = (id: string, node: ReactNode, label?: string): Block | null => (node ? { id, node, label } : null);
+  const blocks = (
+    after
+      ? [
+          B("thank-you", show.thankYou && <ThankYouSection w={w} theme={theme} />, w.occasion.copy.thankYouTitle),
+          B("shared", shared, "Shared moments"),
+          B("gallery", gallery, "Gallery"),
+          B("memories", show.memories && <MemoriesSection w={w} theme={theme} />, "Memories"),
+          B("story", show.story && <StoryVariant w={w} theme={theme} />, w.occasion.copy.storyTitle),
+          B("party", show.party && <PartySection w={w} theme={theme} />, w.facts.partyTitle),
+          B("programme", show.schedule && <ProgrammeVariant w={w} theme={theme} now={now} />, w.occasion.copy.scheduleTitle),
+          B("guestbook", guestbook, w.occasion.copy.guestbookTitle),
+        ]
+      : [
+          B("date", show.saveTheDate && <SaveTheDate w={w} theme={theme} />),
+          B("story", show.story && <StoryVariant w={w} theme={theme} />, w.occasion.copy.storyTitle),
+          B("party", show.party && <PartySection w={w} theme={theme} />, w.facts.partyTitle),
+          B("programme", show.schedule && <ProgrammeVariant w={w} theme={theme} now={now} />, w.occasion.copy.scheduleTitle),
+          B("venues", show.schedule && <VenuesVariant w={w} theme={theme} />, "Venues"),
+          B("colours", show.colours && <ColoursSection w={w} theme={theme} />, "Colours"),
+          B("trip", w.occasion.kind === "outing" && <TripSection w={w} theme={theme} />, "Good to know"),
+          B("tables-now", w.phase === "today" && tables, "Tables"),
+          B("livestream-now", w.phase === "today" && livestream, "Watch live"),
+          B("rsvp", rsvp, "RSVP"),
+          B("tables", w.phase !== "today" && tables, "Tables"),
+          B("livestream", w.phase !== "today" && livestream, "Watch live"),
+          B("countdown", !remembrance && <CountdownBand w={w} theme={theme} />),
+          B("gallery", gallery, "Gallery"),
+          B("memories", show.memories && <MemoriesSection w={w} theme={theme} />, "Memories"),
+          B("shared", shared, "Share"),
+          B("guestbook", guestbook, w.occasion.copy.guestbookTitle),
+          B("gifts", show.gifts && <GiftsSection w={w} theme={theme} inviteToken={inviteToken} />, w.occasion.kind === "funeral" ? "Donations" : "Gifts"),
+        ]
+  ).filter((b): b is Block => Boolean(b));
+
+  const ownNav = theme.frame === "index" || theme.frame === "booklet";
 
   return (
-    <div id="top" style={style} data-photo={theme.photo} data-card={theme.layout.card} data-texture={theme.layout.texture} className="w-page flex-1">
+    <div id="top" style={style} data-frame={theme.frame} data-photo={theme.photo} data-card={theme.layout.card} data-texture={theme.layout.texture} className="w-page flex-1">
       {w.mode !== "live" && (
         <div role="status" className="fixed inset-x-0 bottom-0 z-50 bg-[#101C35] px-4 py-2.5 text-center text-xs text-[#FAF7F0] sm:text-sm">
           {w.mode === "sample" ? "This is a sample page. Create your own in a few minutes." : "Preview: only you can see this page until you publish it."}
         </div>
       )}
-      <SiteNav monogram={w.monogram} items={nav} darkHero={["cinematic", "framed", "editorial", "bordered"].includes(theme.hero)} />
-      <main id="main">
-        <Hero w={w} theme={theme} />
-        {w.phase === "today" && <HappeningNow w={w} initialNow={now} />}
-        {body}
-        <ClosingCard w={w} theme={theme} />
-        <section aria-label="Share this page" className="px-5 pb-20">
-          <ShareSection w={w} />
-        </section>
-      </main>
+      {!ownNav && <SiteNav monogram={w.monogram} items={nav} darkHero={darkHeroFor(theme)} />}
+      <Frame
+        w={w}
+        theme={theme}
+        now={now}
+        nav={nav}
+        blocks={blocks}
+        hero={<Hero w={w} theme={theme} />}
+        live={w.phase === "today" ? <HappeningNow w={w} initialNow={now} /> : null}
+        closing={
+          <>
+            <ClosingCard w={w} theme={theme} />
+            <section aria-label="Share this page" className="w-feature px-5 pb-20">
+              <ShareSection w={w} />
+            </section>
+          </>
+        }
+      />
       <Footer w={w} />
       {w.usher && <UsherBar usher={w.usher} />}
     </div>

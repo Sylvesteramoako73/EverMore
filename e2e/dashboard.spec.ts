@@ -10,7 +10,7 @@ const year = new Date().getFullYear() + 1;
 // The reminders job needs the server's CRON_SECRET, as a real scheduler would send it.
 const cronSecret = (() => {
   try {
-    return readFileSync(".env.local", "utf8").match(/^CRON_SECRET=(.+)$/m)?.[1].trim() ?? process.env.CRON_SECRET ?? "";
+    return readFileSync(".env.local", "utf8").match(/^CRON_SECRET=(.+)$/m)?.[1].trim().replace(/^["']|["']$/g, "") ?? process.env.CRON_SECRET ?? "";
   } catch {
     return process.env.CRON_SECRET ?? "";
   }

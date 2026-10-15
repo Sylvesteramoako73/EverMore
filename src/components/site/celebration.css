@@ -216,3 +216,172 @@ input:focus-visible + .w-choice { outline: 2px solid var(--w-accent); outline-of
 .w-dropcap::first-letter {
   float: left; font-family: var(--w-display); font-size: 4.6em; line-height: .8; padding: .08em .1em 0 0; color: var(--w-accent);
 }
+
+/* ═════════════════════════════ Frames: each design's page structure ═════════════════════════════ */
+
+/* Suite: paper cards on a linen table. */
+[data-frame="suite"] {
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.5), transparent 40%),
+    repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.018) 0 2px, transparent 2px 6px),
+    color-mix(in srgb, var(--w-tint) 70%, var(--w-band) 6%);
+}
+.w-sheet {
+  background: var(--w-surface);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04), 0 30px 60px -40px rgba(0, 0, 0, 0.35);
+  outline: 1px solid color-mix(in srgb, var(--w-line) 70%, transparent);
+  outline-offset: -10px;
+}
+[data-frame="suite"] .w-sheet .w-section { background: transparent !important; padding: 5rem 1.5rem; }
+[data-frame="suite"] .w-sheet .w-shape { display: none; }
+.w-seal {
+  background: var(--w-accent);
+  color: var(--w-accent-ink);
+  box-shadow: inset 0 0 0 4px color-mix(in srgb, var(--w-accent-ink) 25%, transparent), 0 10px 25px -10px rgba(0, 0, 0, 0.5);
+}
+
+/* Split: content column beside the photo panel. */
+@media (min-width: 1024px) {
+  [data-frame="split"] .w-section { padding-left: 4rem; padding-right: 4rem; }
+  [data-frame="split"] .w-section-inner { max-width: 44rem; margin-left: 0; }
+  [data-frame="split"] .w-section-head { text-align: left; }
+  [data-frame="split"] .w-section-head .w-ornament { margin-left: 0; }
+}
+
+/* Bento tiles. */
+.w-tile {
+  border-radius: max(var(--w-radius), 6px);
+  background: var(--w-surface);
+  border: 1px solid var(--w-line);
+}
+.w-tile-accent { background: var(--w-accent); color: var(--w-accent-ink); border-color: transparent; }
+.w-tile-accent2 { background: var(--w-accent2); color: var(--w-ink); border-color: transparent; }
+
+/* Booklet: flat, quiet, roman-numbered sections. */
+[data-frame="booklet"] .w-booklet { counter-reset: part; }
+[data-frame="booklet"] .w-section {
+  background: transparent !important;
+  color: inherit !important;
+  padding: 5.5rem 1.5rem;
+  border-top: 1px solid var(--w-line);
+  counter-increment: part;
+}
+[data-frame="booklet"] .w-shape { display: none; }
+[data-frame="booklet"] .w-section-head::before {
+  content: counter(part, upper-roman);
+  display: block;
+  margin-bottom: 1rem;
+  font-family: var(--w-display);
+  font-size: 1.5rem;
+  color: var(--w-accent);
+}
+
+/* Itinerary: a dashed route with each section as a numbered stop. */
+.w-route { position: relative; counter-reset: stop; }
+.w-route::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 1.6rem;
+  border-left: 2px dashed color-mix(in srgb, var(--w-accent) 70%, transparent);
+  z-index: 1;
+}
+.w-route > .w-section, .w-route > .w-feature { position: relative; padding-left: 4rem; counter-increment: stop; }
+.w-route > .w-section .w-section-head { text-align: left; }
+.w-route > .w-section::before {
+  content: "Stop " counter(stop);
+  position: absolute;
+  top: 6.2rem;
+  left: 0.55rem;
+  z-index: 2;
+  padding: 0.35rem 0.5rem;
+  border-radius: 999px;
+  background: var(--w-accent);
+  color: var(--w-accent-ink);
+  font-size: 0.55rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+}
+@media (min-width: 640px) {
+  .w-route::before { left: 3rem; }
+  .w-route > .w-section, .w-route > .w-feature { padding-left: 7rem; }
+  .w-route > .w-section::before { left: 1.95rem; top: 9rem; }
+}
+
+/* Storybook: alternating pages with page numbers. */
+[data-frame="storybook"] main { counter-reset: page; }
+[data-frame="storybook"] .w-section { counter-increment: page; }
+[data-frame="storybook"] .w-section:nth-of-type(even) .w-section-head { text-align: right; }
+[data-frame="storybook"] .w-section:nth-of-type(odd) .w-section-head { text-align: left; }
+[data-frame="storybook"] .w-section-head .w-ornament { display: none; }
+[data-frame="storybook"] .w-section-inner::after {
+  content: "— " counter(page) " —";
+  display: block;
+  margin-top: 4.5rem;
+  text-align: center;
+  font-family: var(--w-display);
+  font-style: italic;
+  color: var(--w-muted);
+}
+
+/* Index: numbered, left-aligned sections beside the sidebar. */
+[data-frame="index"] main { counter-reset: idx; }
+[data-frame="index"] .w-section { counter-increment: idx; }
+[data-frame="index"] .w-section-inner { max-width: 60rem; margin-left: 0; }
+[data-frame="index"] .w-section-head { text-align: left; border-top: 1px solid var(--w-ink); padding-top: 1.25rem; }
+[data-frame="index"] .w-section-head .w-ornament { display: none; }
+[data-frame="index"] .w-section-head::before {
+  content: counter(idx, decimal-leading-zero);
+  display: block;
+  margin-bottom: 2rem;
+  font-family: var(--w-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+}
+[data-frame="index"] .w-index-side { background: var(--w-bg); z-index: 30; }
+
+/* Magazine: articles with a numbered kicker and a heavy rule. */
+[data-frame="magazine"] main { counter-reset: article; }
+[data-frame="magazine"] .w-section { counter-increment: article; }
+[data-frame="magazine"] .w-section-head { text-align: left; border-top: 3px solid var(--w-ink); padding-top: 1.5rem; }
+[data-frame="magazine"] .w-section-head .w-ornament { display: none; }
+[data-frame="magazine"] .w-section-head::before {
+  content: "No. " counter(article, decimal-leading-zero);
+  display: block;
+  margin-bottom: 1.25rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.32em;
+  color: var(--w-accent);
+}
+
+/* Royal: one ornate frame around the whole programme. */
+.w-royal {
+  border: 4px double var(--w-accent);
+  outline: 1px solid color-mix(in srgb, var(--w-accent) 50%, transparent);
+  outline-offset: 8px;
+  background: var(--w-bg);
+}
+[data-frame="royal"] .w-royal .w-section { background: transparent !important; }
+[data-frame="royal"] .w-royal .w-shape { display: none; }
+[data-frame="royal"] .w-royal .w-section + .w-section::before,
+[data-frame="royal"] .w-royal .w-feature + .w-section::before {
+  content: "✦ ✦ ✦";
+  display: block;
+  margin: -2rem auto 4rem;
+  text-align: center;
+  letter-spacing: 1.2em;
+  color: var(--w-accent);
+}
+
+/* Bands: headings in a left column, alternating colour bands separated by kente strips. */
+@media (min-width: 1024px) {
+  [data-frame="bands"] .w-section-inner { display: grid; grid-template-columns: 17rem minmax(0, 1fr); gap: 4rem; }
+  [data-frame="bands"] .w-section-head { text-align: left; margin-bottom: 0; position: sticky; top: 7rem; align-self: start; }
+  [data-frame="bands"] .w-section-head .w-section-title { font-size: 3rem; }
+}
+[data-frame="bands"] .w-section-head .w-ornament { display: none; }
+[data-frame="bands"] .w-section, [data-frame="bands"] .w-feature { border-top: 12px solid transparent; border-image: repeating-linear-gradient(90deg, var(--w-accent) 0 28px, var(--w-band) 28px 34px, var(--w-accent2) 34px 62px, var(--w-band) 62px 68px) 12; }
+[data-frame="bands"] .w-shape { display: none; }
