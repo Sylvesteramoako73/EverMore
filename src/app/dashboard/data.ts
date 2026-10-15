@@ -48,13 +48,23 @@ export async function recentViews(celebrationId: string, days = 30) {
   return { days: out, total };
 }
 
+/** WhatsApp link to a phone number with a message (international or Ghanaian 0XX numbers). */
+function waLink(phone: string, text: string) {
+  const digits = phone.replace(/[^\d+]/g, "");
+  const to = digits.startsWith("+") ? digits.slice(1) : digits.startsWith("0") && digits.length === 10 ? `233${digits.slice(1)}` : "";
+  return `https://wa.me/${to}?text=${encodeURIComponent(text)}`;
+}
+
+/** A gentle nudge for invitations without a reply. */
+export function whatsappReminder({ phone, name, title, link }: { phone: string; name: string; title: string; link: string }) {
+  return waLink(phone, `Hello ${name}, a gentle reminder to let us know if you can join us for ${title}. You can reply in a few seconds here: ${link}`);
+}
+
 /** A WhatsApp share link for a personal invitation. Uses the guest's number when it looks international. */
 export function whatsappInvite({ phone, name, title, link, remembrance }: { phone: string; name: string; title: string; link: string; remembrance: boolean }) {
   // The full name reads naturally for households too ("Hello Auntie Esi & family!").
   const text = remembrance
     ? `Dear ${name}, here are the details for ${title}. Your personal link: ${link}`
     : `Hello ${name}! You're invited to ${title}. Here are all the details, and you can RSVP on your personal link: ${link}`;
-  const digits = phone.replace(/[^\d+]/g, "");
-  const to = digits.startsWith("+") ? digits.slice(1) : digits.startsWith("0") && digits.length === 10 ? `233${digits.slice(1)}` : "";
-  return `https://wa.me/${to}?text=${encodeURIComponent(text)}`;
+  return waLink(phone, text);
 }

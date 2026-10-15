@@ -5,6 +5,7 @@ import { listEvents } from "@/server/events";
 import { addGuestbookEntry, reportGuestbookEntry } from "@/server/guestbook";
 import { limitPublicAction } from "@/server/rate-limit";
 import { findInvitation, parseRsvp, saveRsvp } from "@/server/rsvp";
+import { findTables } from "@/server/guests";
 import { getCelebration, resolveSlug } from "@/server/celebrations";
 import { fieldErrors, formValues, guestbookSchema, type FormState } from "@/lib/validation";
 import { answerableEvents } from "@/lib/celebration-rules";
@@ -147,4 +148,13 @@ export async function giveGift(slug: string, inviteToken: string | null, _prev: 
   if (!fund.momoNumber) return { message: "MoMo details haven't been added yet. Please contact the hosts." };
   await recordDirectGift(w.id, input);
   return { ok: true, message: `Thank you, ${d.name.split(/\s+/)[0]}! The hosts will confirm when they've received it.` };
+}
+
+// ───────────────────────────── Table finder
+
+export async function findTable(slug: string, query: string): Promise<{ name: string; tableName: string }[]> {
+  const w = await publishedCelebration(slug);
+  if (!w || !w.tableFinderEnabled || w.visibility === "private") return [];
+  if (!(await limitPublicAction("table", w.id, 30, 3000, 10 * 60 * 1000))) return [];
+  return findTables(w.id, String(query).slice(0, 60));
 }

@@ -204,6 +204,8 @@ export const guestFeaturesSchema = z.object({
     .max(5, "Add up to 5 links."),
   thankYouMessage: text(2000),
   hiddenSections: z.array(z.enum(SECTION_IDS)),
+  tableFinderEnabled: checkbox,
+  livestreamUrl: z.union([z.literal(""), httpsUrl]),
 });
 
 export const publishSettingsSchema = z.object({
@@ -250,6 +252,7 @@ export const guestSchema = z.object({
   phone: text(40),
   maxPartySize: z.coerce.number().int().min(1, "At least 1.").max(20, "At most 20."),
   notes: text(500),
+  tableName: text(60),
   eventIds: z.array(z.uuid()),
 });
 export type GuestInput = z.infer<typeof guestSchema>;

@@ -11,6 +11,7 @@ import {
 } from "./sections";
 import { ProgrammeVariant, StoryVariant, VenuesVariant } from "./variants";
 import { SharedMoments } from "./shared-moments";
+import { EntryPass, HappeningNow, Livestream, TableFinder, UsherBar } from "./day";
 import type { CelebrationView } from "./types";
 import "./celebration.css";
 
@@ -54,6 +55,8 @@ export function CelebrationSite({ w, now, inviteToken = null }: { w: Celebration
     gifts: !hidden.has("gifts") && !after && Boolean(w.gifts.message || w.gifts.links.length || w.gifts.funds.length),
     memories: !hidden.has("memories") && w.memories.length > 0,
     thankYou: after && Boolean(w.thankYouMessage),
+    livestream: Boolean(w.livestreamUrl) && !after,
+    tables: w.tableFinder && !after,
   };
 
   const nav = [
@@ -62,6 +65,8 @@ export function CelebrationSite({ w, now, inviteToken = null }: { w: Celebration
     show.schedule && { id: "programme", label: w.occasion.copy.scheduleTitle },
     show.colours && { id: "colours", label: "Colours" },
     show.rsvp && { id: "rsvp", label: "RSVP" },
+    show.tables && { id: "tables", label: "Tables" },
+    show.livestream && { id: "livestream", label: "Watch live" },
     show.gallery && { id: "gallery", label: "Gallery" },
     show.shared && { id: "shared", label: "Share" },
     show.guestbook && { id: "guestbook", label: w.occasion.copy.guestbookTitle },
@@ -79,6 +84,19 @@ export function CelebrationSite({ w, now, inviteToken = null }: { w: Celebration
         {w.rsvp.open ? <RsvpForm w={w} /> : w.rsvp.closedReason ? <p className="w-muted text-center">{w.rsvp.closedReason}</p> : null}
         <RsvpContacts w={w} />
       </Reveal>
+      {w.rsvp.invitation && <div className="mt-8"><EntryPass w={w} /></div>}
+    </Section>
+  );
+
+  const livestream = show.livestream && (
+    <Section id="livestream" eyebrow="Can't be there?" title="Watch Live" theme={theme}>
+      <Livestream url={w.livestreamUrl} />
+    </Section>
+  );
+
+  const tables = show.tables && (
+    <Section id="tables" eyebrow="Seating" title="Find Your Table" theme={theme} tone="tint">
+      <TableFinder w={w} />
     </Section>
   );
 
@@ -122,7 +140,11 @@ export function CelebrationSite({ w, now, inviteToken = null }: { w: Celebration
         {show.schedule && <VenuesVariant w={w} theme={theme} />}
         {show.colours && <ColoursSection w={w} theme={theme} />}
         {w.occasion.kind === "outing" && <TripSection w={w} theme={theme} />}
+        {w.phase === "today" && tables}
+        {w.phase === "today" && livestream}
         {rsvp}
+        {w.phase !== "today" && tables}
+        {w.phase !== "today" && livestream}
         {!remembrance && <CountdownBand w={w} theme={theme} />}
         {gallery}
         {show.memories && <MemoriesSection w={w} theme={theme} />}
@@ -143,6 +165,7 @@ export function CelebrationSite({ w, now, inviteToken = null }: { w: Celebration
       <SiteNav monogram={w.monogram} items={nav} darkHero={["cinematic", "framed", "editorial", "bordered"].includes(theme.hero)} />
       <main id="main">
         <Hero w={w} theme={theme} />
+        {w.phase === "today" && <HappeningNow w={w} initialNow={now} />}
         {body}
         <ClosingCard w={w} theme={theme} />
         <section aria-label="Share this page" className="px-5 pb-20">
@@ -150,6 +173,7 @@ export function CelebrationSite({ w, now, inviteToken = null }: { w: Celebration
         </section>
       </main>
       <Footer w={w} />
+      {w.usher && <UsherBar usher={w.usher} />}
     </div>
   );
 }

@@ -23,6 +23,10 @@ export type GuestView = {
   reply: "yes" | "no" | null;
   link: string;
   whatsapp: string;
+  /** WhatsApp reminder for guests who haven't replied. */
+  reminder: string;
+  tableName: string;
+  checkedIn: number;
 };
 export type EventOption = { id: string; name: string };
 
@@ -58,9 +62,14 @@ export function GuestForm({ guest, events, onDone }: { guest?: GuestView; events
             <Input name="email" type="email" defaultValue={v.email ?? guest?.email ?? ""} />
           </Field>
         </div>
-        <Field label="People on this invitation" hint="Including the guest. They can't reply for more than this." errors={e.maxPartySize}>
-          <Input name="maxPartySize" type="number" min={1} max={20} defaultValue={v.maxPartySize ?? guest?.maxPartySize ?? 2} className="w-28" />
-        </Field>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="People on this invitation" hint="Including the guest. They can't reply for more than this." errors={e.maxPartySize}>
+            <Input name="maxPartySize" type="number" min={1} max={20} defaultValue={v.maxPartySize ?? guest?.maxPartySize ?? 2} className="w-28" />
+          </Field>
+          <Field label="Table" optional hint="Shown on their personal page." errors={e.tableName}>
+            <Input name="tableName" defaultValue={v.tableName ?? guest?.tableName ?? ""} placeholder="e.g. Table 4" />
+          </Field>
+        </div>
         {events.length > 1 && (
           <fieldset>
             <legend className="text-sm font-medium text-navy">Invited to</legend>
@@ -90,7 +99,7 @@ export function ImportGuests() {
     <form action={action} className="space-y-3">
       <FormAlert state={state} />
       <p className="text-sm text-muted-foreground">
-        Upload a CSV (from Excel or Google Sheets) with a <strong>Name</strong> column. Optional columns: Phone, Email, Party size.
+        Upload a CSV (from Excel or Google Sheets) with a <strong>Name</strong> column. Optional columns: Phone, Email, Party size, Table.
       </p>
       <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-border bg-white px-4 py-4 text-sm text-navy hover:border-navy">
         <Upload className="h-4 w-4" aria-hidden />
@@ -181,6 +190,8 @@ function GuestItem({ guest: g, events }: { guest: GuestView; events: EventOption
               {g.reply === "yes" ? "Coming" : g.reply === "no" ? "Can't come" : "No reply yet"}
             </span>
             {g.sent && <span className="rounded-full bg-navy/5 px-2 py-0.5 text-navy">Invitation sent</span>}
+            {g.tableName && <span className="rounded-full bg-blush px-2 py-0.5 text-navy">{g.tableName}</span>}
+            {g.checkedIn > 0 && <span className="rounded-full bg-success/10 px-2 py-0.5 font-semibold text-success">Arrived · {g.checkedIn}</span>}
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -194,6 +205,11 @@ function GuestItem({ guest: g, events }: { guest: GuestView; events: EventOption
               <MessageCircle className="h-4 w-4" aria-hidden /> WhatsApp
             </a>
           </Button>
+          {g.sent && g.reply === null && (
+            <Button asChild size="sm" variant="outline">
+              <a href={g.reminder} target="_blank" rel="noopener">Remind</a>
+            </Button>
+          )}
           <CopyButton text={g.link} />
           <div className="relative">
             <Button type="button" size="icon-sm" variant="ghost" aria-expanded={menu} aria-label={`More for ${g.name}`} onClick={() => setMenu((m) => !m)}>

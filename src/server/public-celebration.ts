@@ -175,7 +175,9 @@ export async function loadPublicCelebration(
       mealOptions: c.mealOptions,
       askDietary: c.askDietary,
       contacts: c.rsvpContacts,
-      invitation: invitation ? { token: invitation.guest.inviteToken, guestName: invitation.guest.name, existing: invitation.hasReplied } : null,
+      invitation: invitation
+        ? { token: invitation.guest.inviteToken, guestName: invitation.guest.name, existing: invitation.hasReplied, tableName: invitation.guest.tableName }
+        : null,
     },
     guestbook: {
       enabled: c.guestbookEnabled,
@@ -205,6 +207,19 @@ export async function loadPublicCelebration(
       online: paymentsEnabled(),
     },
     thankYouMessage: c.thankYouMessage,
+    tableFinder: c.tableFinderEnabled && !preview,
+    usher:
+      member && invitation
+        ? {
+            slug: c.slug,
+            token: invitation.guest.inviteToken,
+            name: invitation.guest.name,
+            tableName: invitation.guest.tableName,
+            maxPartySize: invitation.guest.maxPartySize,
+            checkedInCount: invitation.guest.checkedInCount,
+          }
+        : null,
+    livestreamUrl: c.livestreamUrl,
     memories: [...memories]
       .sort((a, b) => a.happenedOn.localeCompare(b.happenedOn))
       .map((m) => ({
@@ -222,6 +237,8 @@ export async function loadPublicCelebration(
       card: `/${c.slug}/card`,
       calendar: `/${c.slug}/calendar.ics`,
       upload: `/${c.slug}/uploads`,
+      pass: invitation ? `/${c.slug}/pass?invite=${encodeURIComponent(invitation.guest.inviteToken)}` : null,
+      live: `/${c.slug}/live`,
     },
     mode: preview ? "preview" : "live",
   };

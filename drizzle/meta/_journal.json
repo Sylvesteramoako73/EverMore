@@ -15,6 +15,13 @@
       "when": 1792062627807,
       "tag": "0001_gifts",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792063412020,
+      "tag": "0002_day_tools",
+      "breakpoints": true
     }
   ]
 }

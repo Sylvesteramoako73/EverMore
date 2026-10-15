@@ -4,14 +4,16 @@ import { refresh } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { CURRENT_CELEBRATION_COOKIE, listMyCelebrations, requireCurrentCelebration, requireUserForAction } from "@/lib/dal";
+import { CURRENT_CELEBRATION_COOKIE, listMyCelebrations, requireCelebrationAccess, requireCurrentCelebration, requireUserForAction } from "@/lib/dal";
 import { fieldErrors, formValues, guestSchema, type FormState } from "@/lib/validation";
 import { audit } from "@/server/audit";
-import { getCelebration } from "@/server/celebrations";
+import { getCelebration, resolveSlug } from "@/server/celebrations";
 import { LimitError } from "@/server/events";
 import { deleteGuestbookEntry, setGuestbookStatus } from "@/server/guestbook";
 import {
+  checkInGuest,
   createGuest,
+  guestByToken,
   deleteGuest,
   importGuests,
   markInvitationSent,
@@ -248,4 +250,39 @@ export async function removeGift(giftId: string) {
   const { celebration } = await current();
   if (ok(giftId)) await deleteGift(celebration.id, giftId);
   refresh();
+}
+
+// ───────────────────────────── Check-in at the door
+
+export type CheckInResult = { ok: true; id: string; name: string; tableName: string; maxPartySize: number; checkedInCount: number } | { ok: false; error: string };
+
+export async function checkIn(guestId: string, count: number): Promise<CheckInResult> {
+  const { celebration } = await current();
+  if (!ok(guestId) || !Number.isInteger(count)) return { ok: false, error: "Invalid guest." };
+  const row = await checkInGuest(celebration.id, guestId, count);
+  refresh();
+  return row ? { ok: true, ...row } : { ok: false, error: "That guest isn't on this list." };
+}
+
+/** A scanned entry pass: the guest's personal link. Looks them up without checking in yet. */
+export async function lookupPass(scanned: string): Promise<CheckInResult> {
+  const { celebration } = await current();
+  let token = scanned.trim();
+  try {
+    token = new URL(scanned).searchParams.get("invite") ?? token;
+  } catch {}
+  const g = await guestByToken(celebration.id, token);
+  return g ? { ok: true, ...g } : { ok: false, error: "This pass isn't for this celebration, or the link was replaced." };
+}
+
+/** Check in from a guest's page (an usher scanned the pass with the phone camera app). */
+export async function checkInFromPass(slug: string, token: string, count: number): Promise<CheckInResult> {
+  const resolved = await resolveSlug(slug);
+  if (!resolved || !Number.isInteger(count)) return { ok: false, error: "Page not found." };
+  await requireCelebrationAccess(resolved.celebrationId, { forAction: true });
+  const g = await guestByToken(resolved.celebrationId, token);
+  if (!g) return { ok: false, error: "This pass isn't valid any more." };
+  const row = await checkInGuest(resolved.celebrationId, g.id, count);
+  refresh();
+  return row ? { ok: true, ...row } : { ok: false, error: "Couldn't check in." };
 }

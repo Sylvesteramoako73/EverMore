@@ -41,7 +41,7 @@ export type RsvpView = {
   askDietary: boolean;
   contacts: RsvpContact[];
   /** Present when viewing through a personal invitation link. */
-  invitation: { token: string; guestName: string; existing: boolean } | null;
+  invitation: { token: string; guestName: string; existing: boolean; tableName: string } | null;
 };
 
 export type MemoryView = { id: string; title: string; body: string; happenedOn: string; location: string; images: ImageView[] };
@@ -129,11 +129,17 @@ export type CelebrationView = {
     online: boolean;
   };
   thankYouMessage: string;
+  /** Guests can look up their table by name on the page. */
+  tableFinder: boolean;
+  /** Stream link for people watching from afar. */
+  livestreamUrl: string;
+  /** A host or usher opened a guest's personal link (e.g. by scanning their entry pass): offer check-in. */
+  usher: { slug: string; token: string; name: string; tableName: string; maxPartySize: number; checkedInCount: number } | null;
   memories: MemoryView[];
   hiddenSections: string[];
   shareUrl: string;
   /** Links that differ between real pages and samples. */
-  links: { qr: string; card: string | null; calendar: string | null; upload: string | null };
+  links: { qr: string; card: string | null; calendar: string | null; upload: string | null; pass: string | null; live: string | null };
   /** Draft/preview banner, sample pages, and invitation context. */
   mode: "live" | "preview" | "sample";
 };

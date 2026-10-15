@@ -121,7 +121,7 @@ test("a host manages guests, replies and messages from the dashboard", async ({ 
   await page.getByLabel("MoMo number").fill("024 555 0101");
   await page.getByLabel("Name on the account").fill("Abena Asante");
   await page.getByRole("button", { name: "Add fund" }).click();
-  await expect(page.getByText("Fund added.")).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByText(/MTN MoMo 024 555 0101/)).toBeVisible({ timeout: 20_000 });
 
   const giverCtx = await browser.newContext({ ...testInfo.project.use });
   const giver = await giverCtx.newPage();
@@ -144,9 +144,46 @@ test("a host manages guests, replies and messages from the dashboard", async ({ 
   await expect(giver.getByText("Uncle Kwame")).toBeVisible();
   await giverCtx.close();
 
+  // On the day: seat the guest, show their entry pass, check them in at the door, run the slideshow.
+  await page.goto("/dashboard/guests");
+  const row = page.getByRole("listitem").filter({ hasText: "Auntie Esi & family" });
+  await row.getByRole("button", { name: /More for/ }).click();
+  await page.getByRole("button", { name: "Edit details" }).click();
+  await row.getByLabel(/^Table/).fill("Table 7");
+  await row.getByRole("button", { name: "Save changes" }).click();
+  await expect(row.getByText("Table 7", { exact: true })).toBeVisible({ timeout: 20_000 });
+
+  const passCtx = await browser.newContext({ ...testInfo.project.use });
+  const passPage = await passCtx.newPage();
+  await passPage.goto(link.pathname + link.search);
+  await expect(passPage.getByText("Your entry pass")).toBeVisible();
+  await expect(passPage.getByText("Table 7")).toBeVisible();
+  const passQr = await passPage.request.get(`/${slug}/pass?invite=${link.searchParams.get("invite")}`);
+  expect(passQr.headers()["content-type"]).toContain("image/svg+xml");
+  expect((await passPage.request.get(`/${slug}/pass?invite=not-a-real-token-at-all-xx`)).status()).toBe(404);
+  await passCtx.close();
+
+  await page.goto("/dashboard/checkin");
+  await page.getByPlaceholder("Search by name, phone or table").fill("Esi");
+  await page.getByRole("button", { name: /Auntie Esi & family/ }).click();
+  await page.getByRole("button", { name: "Check in" }).click();
+  await expect(page.getByText("Checked in")).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByText("3", { exact: true }).first()).toBeVisible();
+
+  // A signed-in usher who scans the pass with the camera app lands on the guest page with a check-in bar.
+  await page.goto(link.pathname + link.search);
+  const bar = page.getByRole("region", { name: "Check-in" });
+  await expect(bar.getByText(/Checked in · 3/)).toBeVisible();
+  await bar.getByRole("button", { name: "One fewer" }).click();
+  await bar.getByRole("button", { name: "Update" }).click();
+  await expect(bar.getByText(/Checked in · 2/)).toBeVisible({ timeout: 20_000 });
+
+  const live = await page.request.get(`/${slug}/live`);
+  expect(live.status()).toBe(200);
+
   // Optional: screenshots for a visual check (SHOTS=<dir>).
   if (process.env.SHOTS) {
-    for (const p of ["", "/guests", "/rsvps", "/messages", "/gifts", "/settings"]) {
+    for (const p of ["", "/guests", "/rsvps", "/messages", "/gifts", "/checkin", "/settings"]) {
       await page.goto(`/dashboard${p}`);
       await page.waitForTimeout(800);
       await page.screenshot({ path: `${process.env.SHOTS}/dash${p.replace("/", "-") || "-home"}.png`, fullPage: true });

@@ -8,7 +8,7 @@ import { getOccasion } from "@/lib/occasions";
 import { listEvents } from "@/server/events";
 import { listGuests } from "@/server/guests";
 import { listRsvps } from "@/server/rsvp";
-import { loadDashboard, whatsappInvite } from "../data";
+import { loadDashboard, whatsappInvite, whatsappReminder } from "../data";
 import { PageSkeleton } from "@/components/dashboard/skeleton";
 
 export const metadata: Metadata = { title: "Guests" };
@@ -41,6 +41,9 @@ async function Guests() {
       reply: replyByGuest.get(g.id) ?? null,
       link,
       whatsapp: whatsappInvite({ phone: g.phone, name: g.name, title: c.title, link, remembrance }),
+      reminder: whatsappReminder({ phone: g.phone, name: g.name, title: c.title, link }),
+      tableName: g.tableName,
+      checkedIn: g.checkedInCount,
     };
   });
   const options = events.map((e) => ({ id: e.id, name: e.name }));

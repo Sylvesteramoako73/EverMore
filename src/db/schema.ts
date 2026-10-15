@@ -156,6 +156,10 @@ export const celebration = pgTable(
     giftMessage: text("gift_message").notNull().default(""),
     giftLinks: jsonb("gift_links").$type<{ label: string; url: string }[]>().notNull().default([]),
     thankYouMessage: text("thank_you_message").notNull().default(""),
+    /** Anyone on the page can look up their table by name (otherwise only via personal links). */
+    tableFinderEnabled: boolean("table_finder_enabled").notNull().default(false),
+    /** YouTube, Facebook or other stream link for those who can't attend in person. */
+    livestreamUrl: text("livestream_url").notNull().default(""),
     /** Sections the couple hides on the public page, e.g. ["story", "gallery"]. */
     hiddenSections: text("hidden_sections").array().notNull().default(sql`ARRAY[]::text[]`),
 
@@ -307,6 +311,11 @@ export const guest = pgTable(
     inviteToken: text("invite_token").notNull().unique(),
     /** Set when the couple marks the invitation as sent; never inferred. */
     invitationSentAt: timestamp("invitation_sent_at", { withTimezone: true }),
+    /** Seating: shown to the guest on their personal page and in the table finder. */
+    tableName: text("table_name").notNull().default(""),
+    /** Door check-in on the day: when, and how many people from this invitation arrived. */
+    checkedInAt: timestamp("checked_in_at", { withTimezone: true }),
+    checkedInCount: integer("checked_in_count").notNull().default(0),
     ...timestamps,
   },
   (t) => [index("guest_celebration_idx").on(t.celebrationId)],

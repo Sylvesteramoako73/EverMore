@@ -85,7 +85,7 @@ describe("saving RSVPs", () => {
   it("keeps one reply per invitation even if the guest changes their email", async () => {
     const { celebration, events } = await twoEvents();
     const guestId = await createGuest(celebration.id, "free", {
-      name: "The Mensah Family", email: "", phone: "", maxPartySize: 4, notes: "", eventIds: [],
+      name: "The Mensah Family", email: "", phone: "", maxPartySize: 4, notes: "", tableName: "", eventIds: [],
     });
     await saveRsvp(celebration.id, guestId, ok(parseRsvp(form(events, ["yes", "yes"]), events, limits)));
     await saveRsvp(celebration.id, guestId, ok(parseRsvp(form(events, ["yes", "no"], { email: "new@example.com" }), events, limits)));
@@ -108,7 +108,7 @@ describe("invitations", () => {
     const { celebration, church } = await twoEvents();
     const other = await makeCelebration();
     const guestId = await createGuest(celebration.id, "free", {
-      name: "Auntie Akos", email: "", phone: "", maxPartySize: 2, notes: "", eventIds: [church.id],
+      name: "Auntie Akos", email: "", phone: "", maxPartySize: 2, notes: "", tableName: "", eventIds: [church.id],
     });
     const [g] = await listGuests(celebration.id);
     expect(g.eventIds).toEqual([church.id]);
@@ -127,7 +127,7 @@ describe("invitations", () => {
     const { celebration } = await twoEvents();
     const other = await makeCelebration();
     await createGuest(celebration.id, "free", {
-      name: "Sneaky", email: "", phone: "", maxPartySize: 1, notes: "", eventIds: [other.eventId!],
+      name: "Sneaky", email: "", phone: "", maxPartySize: 1, notes: "", tableName: "", eventIds: [other.eventId!],
     });
     expect((await listGuests(celebration.id))[0].eventIds).toEqual([]);
   });

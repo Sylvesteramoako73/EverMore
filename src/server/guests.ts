@@ -1,6 +1,6 @@
 import "server-only";
 import { randomBytes } from "node:crypto";
-import { and, asc, count, eq, inArray } from "drizzle-orm";
+import { and, asc, count, eq, ilike, inArray, ne } from "drizzle-orm";
 import { db } from "@/db";
 import { event, guest, guestEvent, rsvp } from "@/db/schema";
 import { entitlements } from "@/lib/plans";
@@ -35,6 +35,7 @@ export async function createGuest(celebrationId: string, plan: string, input: Gu
         phone: input.phone,
         maxPartySize: input.maxPartySize,
         notes: input.notes,
+        tableName: input.tableName,
         inviteToken: newInviteToken(),
       })
       .returning({ id: guest.id });
@@ -48,7 +49,7 @@ export async function updateGuest(celebrationId: string, guestId: string, input:
   return db.transaction(async (tx) => {
     const updated = await tx
       .update(guest)
-      .set({ name: input.name, email: input.email, phone: input.phone, maxPartySize: input.maxPartySize, notes: input.notes })
+      .set({ name: input.name, email: input.email, phone: input.phone, maxPartySize: input.maxPartySize, notes: input.notes, tableName: input.tableName })
       .where(and(eq(guest.id, guestId), eq(guest.celebrationId, celebrationId)))
       .returning({ id: guest.id });
     if (!updated.length) return false;
@@ -124,7 +125,7 @@ function splitCsvLine(line: string) {
   return out.map((s) => s.trim());
 }
 
-export type ImportRow = { name: string; email: string; phone: string; maxPartySize: number };
+export type ImportRow = { name: string; email: string; phone: string; maxPartySize: number; tableName: string };
 
 /**
  * Read a guest list CSV with a header row containing at least "name". Optional columns:
@@ -140,6 +141,7 @@ export function parseGuestCsv(text: string): { rows: ImportRow[]; problems: stri
   const emailCol = col("email");
   const phoneCol = col("phone", "mobile");
   const sizeCol = col("party", "size", "guests", "max", "seats");
+  const tableCol = col("table");
 
   const rows: ImportRow[] = [];
   const problems: string[] = [];
@@ -155,6 +157,7 @@ export function parseGuestCsv(text: string): { rows: ImportRow[]; problems: stri
       email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : "",
       phone: phoneCol >= 0 ? (cells[phoneCol] ?? "").slice(0, 40) : "",
       maxPartySize: Number.isFinite(size) ? Math.min(Math.max(size, 1), 20) : 1,
+      tableName: tableCol >= 0 ? (cells[tableCol] ?? "").slice(0, 60) : "",
     });
   });
   return { rows, problems };
@@ -167,4 +170,42 @@ export async function importGuests(celebrationId: string, plan: string, rows: Im
   if (!rows.length) return 0;
   await db.insert(guest).values(rows.map((r) => ({ celebrationId, ...r, notes: "", inviteToken: newInviteToken() })));
   return rows.length;
+}
+
+// ───────────────────────────── Check-in at the door
+
+/** Check in (or update the head count of) an invitation. count 0 undoes the check-in. */
+export async function checkInGuest(celebrationId: string, guestId: string, count: number) {
+  const [row] = await db
+    .update(guest)
+    .set({ checkedInAt: count > 0 ? new Date() : null, checkedInCount: Math.max(0, Math.min(count, 50)) })
+    .where(and(eq(guest.id, guestId), eq(guest.celebrationId, celebrationId)))
+    .returning({ id: guest.id, name: guest.name, tableName: guest.tableName, maxPartySize: guest.maxPartySize, checkedInCount: guest.checkedInCount });
+  return row ?? null;
+}
+
+/** Find the invitation behind a scanned entry pass (the personal link's token). */
+export async function guestByToken(celebrationId: string, token: string) {
+  if (!/^[A-Za-z0-9_-]{20,64}$/.test(token)) return null;
+  const [row] = await db
+    .select({ id: guest.id, name: guest.name, tableName: guest.tableName, maxPartySize: guest.maxPartySize, checkedInCount: guest.checkedInCount, checkedInAt: guest.checkedInAt })
+    .from(guest)
+    .where(and(eq(guest.celebrationId, celebrationId), eq(guest.inviteToken, token)))
+    .limit(1);
+  return row ?? null;
+}
+
+/** Escape LIKE wildcards so a search for "50%" means the characters, not a pattern. */
+const escapeLike = (s: string) => s.replace(/[\\%_]/g, (c) => `\\${c}`);
+
+/** Table finder: invitations whose name contains the search (at least 3 letters), with a table set. */
+export async function findTables(celebrationId: string, query: string) {
+  const q = query.trim();
+  if (q.length < 3) return [];
+  return db
+    .select({ name: guest.name, tableName: guest.tableName })
+    .from(guest)
+    .where(and(eq(guest.celebrationId, celebrationId), ne(guest.tableName, ""), ilike(guest.name, `%${escapeLike(q)}%`)))
+    .orderBy(asc(guest.name))
+    .limit(6);
 }

@@ -19,11 +19,13 @@ export async function GET() {
       g.email,
       g.maxPartySize,
       g.eventIds.length ? g.eventIds.map((id) => eventName.get(id) ?? "").join("; ") : "All events",
+      g.tableName,
       g.invitationSentAt ? "Yes" : "No",
       r ? (r.answers.some((a) => a.attending) ? "Coming" : "Can't come") : "No reply",
       appUrl(`/${c.slug}?invite=${g.inviteToken}`),
+      g.checkedInCount || "",
       g.notes,
     ];
   });
-  return csvResponse(`${c.slug}-guests.csv`, toCsv([["Name", "Phone", "Email", "Party size", "Invited to", "Invitation sent", "Reply", "Personal link", "Notes"], ...rows]));
+  return csvResponse(`${c.slug}-guests.csv`, toCsv([["Name", "Phone", "Email", "Party size", "Invited to", "Table", "Invitation sent", "Reply", "Personal link", "Arrived", "Notes"], ...rows]));
 }

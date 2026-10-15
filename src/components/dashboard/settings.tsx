@@ -24,6 +24,8 @@ export type GuestFeatureValues = {
   giftLinks: { label: string; url: string }[];
   thankYouMessage: string;
   hiddenSections: string[];
+  tableFinderEnabled: boolean;
+  livestreamUrl: string;
 };
 
 const SECTIONS: [string, string][] = [
@@ -118,6 +120,19 @@ export function GuestFeaturesForm({ values }: { values: GuestFeatureValues }) {
             </Button>
           )}
         </div>
+      </fieldset>
+
+      <fieldset className="space-y-3">
+        <legend className="mb-2 text-lg text-navy">On the day</legend>
+        <Toggle
+          name="tableFinderEnabled"
+          label="Let guests find their table by name"
+          hint="Adds a “Find your table” search. Guests with personal links always see their own table."
+          defaultChecked={values.tableFinderEnabled}
+        />
+        <Field label="Livestream link" optional hint="YouTube links play right on your page. Facebook and others open in a new tab." errors={e.livestreamUrl}>
+          <Input name="livestreamUrl" type="url" placeholder="https://youtube.com/live/…" defaultValue={values.livestreamUrl} />
+        </Field>
       </fieldset>
 
       <fieldset className="space-y-3">

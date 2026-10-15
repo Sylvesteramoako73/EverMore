@@ -97,6 +97,8 @@ async function Settings() {
             giftLinks: c.giftLinks,
             thankYouMessage: c.thankYouMessage,
             hiddenSections: c.hiddenSections,
+            tableFinderEnabled: c.tableFinderEnabled,
+            livestreamUrl: c.livestreamUrl,
           }}
         />
       </section>

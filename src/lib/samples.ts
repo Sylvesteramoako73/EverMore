@@ -336,10 +336,13 @@ export function sampleCelebration(
       online: true,
     },
     thankYouMessage: spec.thankYou,
+    tableFinder: false,
+    livestreamUrl: "",
+    usher: null,
     memories: [],
     hiddenSections: [],
     shareUrl: `https://evermore.example/${spec.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`,
-    links: { qr: `/samples/${theme.id}/qr`, card: null, calendar: null, upload: null },
+    links: { qr: `/samples/${theme.id}/qr`, card: null, calendar: null, upload: null, pass: null, live: null },
     mode: "sample",
   };
 }
