@@ -44,9 +44,9 @@ const PHOTO_SETS: Record<OccasionKind, { hero: string; portraits: string[]; gall
     venues: ["trip-road", "trip-boat", "trip-boat-sunset", "trip-truck"],
   },
   naming: {
-    hero: "baby-fabric",
-    portraits: ["baby-cap", "family-mother"],
-    gallery: ["family-attire", "baby-bump", "reunion-table", "baby-cap", "flowers-table"],
+    hero: "baby-laugh",
+    portraits: ["baby-mother", "baby-cap"],
+    gallery: ["baby-mother", "family-attire", "baby-bump", "reunion-table", "family-mother", "flowers-table"],
     venues: ["venue-pavilion", "venue-tables"],
   },
   graduation: {

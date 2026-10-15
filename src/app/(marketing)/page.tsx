@@ -14,7 +14,7 @@ const OCCASIONS = [
   { kind: "birthday", theme: "confetti", label: "Birthdays", blurb: "Wishes wall, dress code and everyone's photos.", photo: "bday-cake-group", span: "" },
   { kind: "funeral", theme: "serene", label: "Celebrations of life", blurb: "Order of events, tributes and details, with care.", photo: "mem-candle-flowers", span: "" },
   { kind: "outing", theme: "adventure", label: "Outings & trips", blurb: "Itinerary, meeting point and what to bring.", photo: "trip-sunset-group", span: "md:col-span-2" },
-  { kind: "naming", theme: "little-blessings", label: "Naming ceremonies", blurb: "The name, its meaning and blessings.", photo: "baby-fabric", span: "" },
+  { kind: "naming", theme: "little-blessings", label: "Naming ceremonies", blurb: "The name, its meaning and blessings.", photo: "baby-laugh", span: "" },
   { kind: "graduation", theme: "modern-minimalist", label: "Graduations", blurb: "Celebrate the graduate with everyone.", photo: "grad-flowers", span: "" },
   { kind: "reunion", theme: "golden-hour", label: "Reunions", blurb: "Family and class reunions, before and after.", photo: "reunion-friends", span: "" },
   { kind: "opening", theme: "luxury-editorial", label: "Grand openings", blurb: "Shops, restaurants, offices: open your doors in style.", photo: "open-boutique", span: "" },

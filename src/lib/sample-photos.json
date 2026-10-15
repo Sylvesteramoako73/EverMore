@@ -539,13 +539,22 @@
     "width": 1600,
     "height": 1067
   },
-  "baby-fabric": {
-    "id": "1781263409297-77997e64f2e0",
-    "by": "Aliburhan S",
-    "alt": "Adult holding a smiling baby wrapped in colourful fabric",
-    "src": "/samples/photos/baby-fabric.webp",
-    "thumb": "/samples/photos/baby-fabric-sm.webp",
-    "width": 1069,
+  "baby-laugh": {
+    "id": "1737648987004-2f724d30e6b7",
+    "by": "Eyo Archibong",
+    "alt": "Baby laughing on African print fabric",
+    "src": "/samples/photos/baby-laugh.webp",
+    "thumb": "/samples/photos/baby-laugh-sm.webp",
+    "width": 1600,
+    "height": 1067
+  },
+  "baby-mother": {
+    "id": "1596510915000-e48cdabed089",
+    "by": "Lawrence Crayton",
+    "alt": "Mother cuddling her smiling baby",
+    "src": "/samples/photos/baby-mother.webp",
+    "thumb": "/samples/photos/baby-mother-sm.webp",
+    "width": 1067,
     "height": 1600
   },
   "baby-cap": {

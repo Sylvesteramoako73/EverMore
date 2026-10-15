@@ -78,7 +78,8 @@ const PHOTOS = {
   "trip-truck": ["1767819657087-fbbb63a28e1a", "Marina Zvada", "Friends riding in the back of a truck"],
   "trip-road": ["1694771169765-e8248b0e7d17", "Michael Ali", "Dirt road with mountains"],
   // Babies & family
-  "baby-fabric": ["1781263409297-77997e64f2e0", "Aliburhan S", "Adult holding a smiling baby wrapped in colourful fabric"],
+  "baby-laugh": ["1737648987004-2f724d30e6b7", "Eyo Archibong", "Baby laughing on African print fabric"],
+  "baby-mother": ["1596510915000-e48cdabed089", "Lawrence Crayton", "Mother cuddling her smiling baby"],
   "baby-cap": ["1604807788279-ea778c075cee", "Gabriel Tovar", "Baby in a white knit cap"],
   "baby-bump": ["1512094476718-4d8f19366c62", "Andre Adjahoe", "Parents-to-be"],
   "family-mother": ["1769451741731-999ed37e471c", "Folakemi Oke", "Woman in traditional attire with children"],
