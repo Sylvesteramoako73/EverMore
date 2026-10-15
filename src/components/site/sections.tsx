@@ -94,7 +94,7 @@ export function SaveTheDate({ w }: { w: CelebrationView }) {
           </Reveal>
         )}
         <Reveal className="text-center">
-          <h2 id="save-title" className="w-display text-3xl tracking-[0.12em] uppercase sm:text-4xl">Save the Date</h2>
+          <h2 id="save-title" className="w-display text-3xl tracking-[0.12em] uppercase sm:text-4xl">{w.occasion.copy.dateTitle}</h2>
           <p className="mt-2 text-sm opacity-80">{formatLongDate(new Date(p.startsAt), p.timezone)}</p>
           <table className="mx-auto mt-8 w-full max-w-sm text-sm" aria-label={`Calendar for ${monthName}`}>
             <caption className="sr-only">{monthName}</caption>

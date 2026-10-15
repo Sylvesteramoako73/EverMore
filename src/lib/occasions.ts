@@ -60,6 +60,8 @@ export type Occasion = {
     guestbookTitle: string;
     guestbookPrompt: string;
     thankYouTitle: string;
+    /** Heading over the date-and-calendar section ("Save the Date" is for weddings). */
+    dateTitle: string;
     keyDateLabel: string;
   };
   eventSuggestions: string[];
@@ -88,6 +90,7 @@ export const OCCASIONS: Record<OccasionKind, Occasion> = {
       guestbookTitle: "Guestbook",
       guestbookPrompt: "Share a wish, a memory or a little advice for the happy couple.",
       thankYouTitle: "Thank You",
+      dateTitle: "Save the Date",
       keyDateLabel: "Wedding date (anniversaries are counted from it)",
     },
     eventSuggestions: ["Traditional engagement", "Traditional wedding", "Church ceremony", "Civil ceremony", "Reception", "Thanksgiving service", "After-party"],
@@ -112,6 +115,7 @@ export const OCCASIONS: Record<OccasionKind, Occasion> = {
       guestbookTitle: "Birthday Wishes",
       guestbookPrompt: "Leave a birthday wish, a favourite memory or a funny story.",
       thankYouTitle: "Thank You",
+      dateTitle: "Join the Party",
       keyDateLabel: "Date of birth (for age and yearly reminders)",
     },
     eventSuggestions: ["Birthday party", "Birthday dinner", "Thanksgiving service", "Brunch", "Surprise party"],
@@ -136,6 +140,7 @@ export const OCCASIONS: Record<OccasionKind, Occasion> = {
       guestbookTitle: "Tributes & Condolences",
       guestbookPrompt: "Share a tribute, a memory or words of comfort for the family.",
       thankYouTitle: "The Family Thanks You",
+      dateTitle: "Please Join Us",
       keyDateLabel: "Date of passing (for remembrance reminders)",
     },
     eventSuggestions: ["Wake-keeping", "Burial service", "Funeral service", "Final funeral rites", "Thanksgiving service", "One-week observance", "Memorial service"],
@@ -160,6 +165,7 @@ export const OCCASIONS: Record<OccasionKind, Occasion> = {
       guestbookTitle: "Shout-outs",
       guestbookPrompt: "Leave a note for the group.",
       thankYouTitle: "Thanks for Coming",
+      dateTitle: "Mark Your Calendar",
       keyDateLabel: "Trip date",
     },
     eventSuggestions: ["Meet-up & departure", "Arrival & check-in", "Hike", "Boat cruise", "Lunch", "Games & activities", "Bonfire", "Departure home"],
@@ -184,6 +190,7 @@ export const OCCASIONS: Record<OccasionKind, Occasion> = {
       guestbookTitle: "Blessings",
       guestbookPrompt: "Leave a blessing or a wish for the baby and family.",
       thankYouTitle: "Thank You",
+      dateTitle: "Welcome Our Little One",
       keyDateLabel: "Baby's date of birth",
     },
     eventSuggestions: ["Outdooring", "Naming ceremony", "Dedication service", "Reception"],
@@ -208,6 +215,7 @@ export const OCCASIONS: Record<OccasionKind, Occasion> = {
       guestbookTitle: "Wishes",
       guestbookPrompt: "Share your wishes and favourite memories of the couple.",
       thankYouTitle: "Thank You",
+      dateTitle: "Celebrate With Us",
       keyDateLabel: "Original wedding date",
     },
     eventSuggestions: ["Vow renewal", "Anniversary dinner", "Thanksgiving service", "Party"],
@@ -232,6 +240,7 @@ export const OCCASIONS: Record<OccasionKind, Occasion> = {
       guestbookTitle: "Congratulations",
       guestbookPrompt: "Leave a congratulations message for the graduate.",
       thankYouTitle: "Thank You",
+      dateTitle: "Celebrate With Us",
       keyDateLabel: "Graduation date",
     },
     eventSuggestions: ["Graduation ceremony", "Thanksgiving service", "Graduation party", "Dinner"],
@@ -256,6 +265,7 @@ export const OCCASIONS: Record<OccasionKind, Occasion> = {
       guestbookTitle: "Messages",
       guestbookPrompt: "Say hello, share what you've been up to, or post a memory.",
       thankYouTitle: "Thank You",
+      dateTitle: "Mark Your Calendar",
       keyDateLabel: "Reunion date",
     },
     eventSuggestions: ["Welcome & registration", "Get-together", "Dinner", "Games", "Thanksgiving service", "Picnic"],
@@ -280,6 +290,7 @@ export const OCCASIONS: Record<OccasionKind, Occasion> = {
       guestbookTitle: "Wishes",
       guestbookPrompt: "Leave a sweet wish or piece of advice.",
       thankYouTitle: "Thank You",
+      dateTitle: "Mark Your Calendar",
       keyDateLabel: "Date",
     },
     eventSuggestions: ["Baby shower", "Bridal shower", "Brunch", "Games"],
@@ -304,6 +315,7 @@ export const OCCASIONS: Record<OccasionKind, Occasion> = {
       guestbookTitle: "Messages",
       guestbookPrompt: "Leave a message.",
       thankYouTitle: "Thank You",
+      dateTitle: "Mark Your Calendar",
       keyDateLabel: "Date",
     },
     eventSuggestions: ["Celebration", "Service", "Reception", "Dinner", "Party"],

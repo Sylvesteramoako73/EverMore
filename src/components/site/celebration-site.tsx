@@ -44,8 +44,8 @@ export function CelebrationSite({ w, now, inviteToken = null }: { w: Celebration
   } as CSSProperties;
 
   const show = {
-    // "Save the Date" is a wedding custom; other occasions lead straight into their story and programme.
-    saveTheDate: w.occasion.kind === "wedding" && !after && w.events.length > 0 && !hidden.has("schedule"),
+    // The date-and-calendar section; its heading comes from the occasion ("Save the Date" only for weddings).
+    saveTheDate: !after && !remembrance && w.events.length > 0 && !hidden.has("schedule"),
     story: !hidden.has("story"),
     schedule: !hidden.has("schedule") && w.events.length > 0,
     colours: !hidden.has("colours") && w.colours.length > 0,

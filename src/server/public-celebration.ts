@@ -137,6 +137,7 @@ export async function loadPublicCelebration(
         guestbookTitle: occasion.copy.guestbookTitle,
         guestbookPrompt: occasion.copy.guestbookPrompt,
         thankYouTitle: occasion.copy.thankYouTitle,
+        dateTitle: occasion.copy.dateTitle,
       },
     },
     title: c.title,

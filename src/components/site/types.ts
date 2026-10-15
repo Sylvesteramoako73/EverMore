@@ -76,6 +76,7 @@ export type OccasionView = {
     guestbookTitle: string;
     guestbookPrompt: string;
     thankYouTitle: string;
+    dateTitle: string;
   };
 };
 
