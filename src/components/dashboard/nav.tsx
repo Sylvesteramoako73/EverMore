@@ -1,6 +1,6 @@
 "use client";
 
-import { Camera, Gift, Home, LogOut, MailCheck, MessageSquareHeart, PenLine, ScanLine, Settings, Users } from "lucide-react";
+import { Camera, Gift, History, Home, LogOut, MailCheck, MessageSquareHeart, PenLine, ScanLine, Settings, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTransition } from "react";
@@ -16,6 +16,7 @@ export const DASHBOARD_NAV = [
   { href: "/dashboard/photos", label: "Photos", icon: Camera },
   { href: "/dashboard/gifts", label: "Gifts", icon: Gift },
   { href: "/dashboard/checkin", label: "Check-in", icon: ScanLine },
+  { href: "/dashboard/memories", label: "Memories", icon: History },
   { href: "/dashboard/edit", label: "Edit page", icon: PenLine },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ] as const;

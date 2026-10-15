@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
 import { signUpAndVerify, uniqueEmail } from "./helpers";
 
@@ -5,6 +6,15 @@ import { signUpAndVerify, uniqueEmail } from "./helpers";
 // export them, and look after guestbook messages.
 
 const year = new Date().getFullYear() + 1;
+
+// The reminders job needs the server's CRON_SECRET, as a real scheduler would send it.
+const cronSecret = (() => {
+  try {
+    return readFileSync(".env.local", "utf8").match(/^CRON_SECRET=(.+)$/m)?.[1].trim() ?? process.env.CRON_SECRET ?? "";
+  } catch {
+    return process.env.CRON_SECRET ?? "";
+  }
+})();
 
 async function quickWedding(page: Page) {
   await page.getByText("Wedding", { exact: true }).click();
@@ -181,9 +191,25 @@ test("a host manages guests, replies and messages from the dashboard", async ({ 
   const live = await page.request.get(`/${slug}/live`);
   expect(live.status()).toBe(200);
 
+  // Memories and reminders; the reminders job can be run by hand locally.
+  await page.goto("/dashboard/memories");
+  await page.getByLabel("What happened").fill("We said yes");
+  await page.getByLabel("When").fill("2026-02-14");
+  await page.getByLabel(/^Where/).fill("Labadi Beach");
+  await page.getByRole("button", { name: "Add memory" }).click();
+  await expect(page.getByText("Memory added to your timeline.")).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByText("Labadi Beach")).toBeVisible();
+  await page.getByLabel("A week before").check();
+  await page.getByRole("button", { name: "Save reminders" }).click();
+  await expect(page.getByText("Reminders saved.")).toBeVisible({ timeout: 20_000 });
+  expect((await page.request.get("/api/cron/reminders", { headers: { authorization: "Bearer wrong-secret-wrong" } })).status()).toBe(401);
+  const job = await page.request.get("/api/cron/reminders", { headers: cronSecret ? { authorization: `Bearer ${cronSecret}` } : {} });
+  expect(job.status()).toBe(200);
+  expect(await job.json()).toMatchObject({ queued: expect.any(Number), sent: expect.any(Number) });
+
   // Optional: screenshots for a visual check (SHOTS=<dir>).
   if (process.env.SHOTS) {
-    for (const p of ["", "/guests", "/rsvps", "/messages", "/gifts", "/checkin", "/settings"]) {
+    for (const p of ["", "/guests", "/rsvps", "/messages", "/gifts", "/checkin", "/memories", "/settings"]) {
       await page.goto(`/dashboard${p}`);
       await page.waitForTimeout(800);
       await page.screenshot({ path: `${process.env.SHOTS}/dash${p.replace("/", "-") || "-home"}.png`, fullPage: true });

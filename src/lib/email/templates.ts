@@ -60,6 +60,32 @@ export const emails = {
       ],
       { label: "Add a memory", url },
     ),
+
+  memorialReminder: (to: string, name: string, years: number, daysBefore: number, url: string) =>
+    message(
+      to,
+      daysBefore === 0 ? `Remembering ${name} today` : `${years} ${years === 1 ? "year" : "years"} since ${name} passed, in ${daysBefore} days`,
+      daysBefore === 0 ? `Remembering ${name}` : `${daysBefore} days to go`,
+      [
+        daysBefore === 0
+          ? `Today marks ${years} ${years === 1 ? "year" : "years"} since ${name} was called home. We're thinking of you and your family.`
+          : `In ${daysBefore} days it will be ${years} ${years === 1 ? "year" : "years"} since ${name} passed.`,
+        "If you'd like, add a memory or a photo to their page so family and friends can remember together.",
+      ],
+      { label: "Add a memory", url },
+    ),
+
+  birthdayReminder: (to: string, name: string, age: number, daysBefore: number, url: string) =>
+    message(
+      to,
+      daysBefore === 0 ? `Happy birthday, ${name}!` : `${name} turns ${age} in ${daysBefore} days`,
+      daysBefore === 0 ? `Happy ${ordinal(age)} birthday` : `${daysBefore} days to go`,
+      [
+        daysBefore === 0 ? `${name} is ${age} today. Happy birthday!` : `${name}'s ${ordinal(age)} birthday is coming up in ${daysBefore} days.`,
+        "Add a memory from this year to their EverMore page.",
+      ],
+      { label: "Add a memory", url },
+    ),
 };
 
 export function ordinal(n: number) {

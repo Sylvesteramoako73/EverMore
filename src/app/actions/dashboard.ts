@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { CURRENT_CELEBRATION_COOKIE, listMyCelebrations, requireCelebrationAccess, requireCurrentCelebration, requireUserForAction } from "@/lib/dal";
-import { fieldErrors, formValues, guestSchema, type FormState } from "@/lib/validation";
+import { anniversarySchema, fieldErrors, formValues, guestSchema, memorySchema, type FormState } from "@/lib/validation";
 import { audit } from "@/server/audit";
 import { getCelebration, resolveSlug } from "@/server/celebrations";
 import { LimitError } from "@/server/events";
@@ -22,6 +22,8 @@ import {
   updateGuest,
 } from "@/server/guests";
 import { setMediaStatus } from "@/server/media";
+import { createMemory, deleteMemory, updateMemory } from "@/server/memories";
+import { saveReminderPreference } from "@/server/reminders";
 import { acceptInvite, inviteMember, removeMember, revokeInvite } from "@/server/members";
 import { createFund, deleteFund, deleteGift, parseAmount, setGiftStatus, updateFund } from "@/server/gifts";
 import { paymentsEnabled } from "@/lib/env";
@@ -285,4 +287,37 @@ export async function checkInFromPass(slug: string, token: string, count: number
   const row = await checkInGuest(resolved.celebrationId, g.id, count);
   refresh();
   return row ? { ok: true, ...row } : { ok: false, error: "Couldn't check in." };
+}
+
+// ───────────────────────────── Memories & reminders
+
+export async function saveMemory(memoryId: string | null, _prev: FormState, formData: FormData): Promise<FormState> {
+  const { user, celebration } = await current();
+  const parsed = memorySchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { errors: fieldErrors(parsed.error), values: formValues(formData) };
+  if (memoryId) {
+    if (!ok(memoryId) || !(await updateMemory(celebration.id, memoryId, parsed.data))) return { message: "That memory no longer exists." };
+  } else await createMemory(celebration.id, user.id, parsed.data);
+  refresh();
+  return { ok: true, message: memoryId ? "Memory updated." : "Memory added to your timeline." };
+}
+
+export async function removeMemory(memoryId: string) {
+  const { celebration } = await current();
+  if (ok(memoryId)) await deleteMemory(celebration.id, memoryId);
+  refresh();
+}
+
+export async function saveReminders(_prev: FormState, formData: FormData): Promise<FormState> {
+  const { user, celebration } = await current();
+  const parsed = anniversarySchema.safeParse({
+    emailEnabled: formData.get("emailEnabled"),
+    remindDaysBefore: formData.getAll("remindDaysBefore"),
+    includeMemoryPrompt: formData.get("includeMemoryPrompt"),
+  });
+  if (!parsed.success) return { errors: fieldErrors(parsed.error) };
+  const days = parsed.data.remindDaysBefore.length ? parsed.data.remindDaysBefore : [0];
+  await saveReminderPreference(celebration.id, user.id, { ...parsed.data, remindDaysBefore: days });
+  refresh();
+  return { ok: true, message: parsed.data.emailEnabled ? "Reminders saved." : "Reminders turned off." };
 }
