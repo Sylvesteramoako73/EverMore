@@ -141,11 +141,11 @@ export function StoryVariant({ w, theme }: { w: CelebrationView; theme: Theme })
 
 function VenueButtons({ e, center = true }: { e: EventView; center?: boolean }) {
   return (
-    <div className={`mt-6 flex flex-wrap gap-2 ${center ? "justify-center" : ""}`}>
-      <a className="w-btn w-btn-sm" href={mapsSearch(e)} target="_blank" rel="noopener noreferrer">
-        <MapPin className="h-4 w-4" aria-hidden /> View map<span className="sr-only"> for {e.venueName || e.name} (opens in a new tab)</span>
+    <div className={`mt-6 flex flex-wrap gap-x-8 gap-y-3 ${center ? "justify-center" : ""}`}>
+      <a className="w-link" href={mapsSearch(e)} target="_blank" rel="noopener noreferrer">
+        <MapPin className="h-3.5 w-3.5" aria-hidden /> View map<span className="sr-only"> for {e.venueName || e.name} (opens in a new tab)</span>
       </a>
-      <a className="w-btn w-btn-sm w-btn-ghost" href={mapsDirections(e)} target="_blank" rel="noopener noreferrer">
+      <a className="w-link" href={mapsDirections(e)} target="_blank" rel="noopener noreferrer">
         Directions<span className="sr-only"> to {e.venueName || e.name} (opens in a new tab)</span>
       </a>
     </div>
@@ -346,8 +346,8 @@ export function ProgrammeVariant({ w, theme, now }: { w: CelebrationView; theme:
                     </dl>
                   </div>
                   {(e.venueName || e.venueAddress) && (
-                    <a href={mapsDirections(e)} target="_blank" rel="noopener noreferrer" className="w-btn w-btn-sm">
-                      <MapPin className="h-4 w-4" aria-hidden /> Go<span className="sr-only"> to {e.venueName} (opens in a new tab)</span>
+                    <a href={mapsDirections(e)} target="_blank" rel="noopener noreferrer" className="w-link">
+                      <MapPin className="h-3.5 w-3.5" aria-hidden /> Directions<span className="sr-only"> to {e.venueName} (opens in a new tab)</span>
                     </a>
                   )}
                 </div>

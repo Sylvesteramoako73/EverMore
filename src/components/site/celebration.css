@@ -22,9 +22,9 @@
 .w-band { background: var(--w-band); color: var(--w-band-ink); }
 .w-eyebrow {
   font-family: var(--w-body);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.32em;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.36em;
   text-transform: uppercase;
   color: var(--w-accent);
 }
@@ -34,10 +34,12 @@
   border: 1px solid var(--w-line);
   border-radius: var(--w-radius);
 }
+/* Hairline edge and the faintest lift: paper on a table, not a widget. */
 .w-card {
   background: var(--w-surface);
-  border-radius: calc(var(--w-radius) + 6px);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 14px 40px -24px rgba(0, 0, 0, 0.25);
+  border: 1px solid color-mix(in srgb, var(--w-line) 80%, transparent);
+  border-radius: var(--w-radius);
+  box-shadow: 0 40px 70px -55px rgba(0, 0, 0, 0.28);
 }
 .w-line { border-color: var(--w-line); }
 
@@ -58,17 +60,50 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  min-height: 3rem;
-  padding: 0 1.6rem;
-  border-radius: max(calc(var(--w-radius) * 0.5), 2px);
+  min-height: 3.25rem;
+  padding: 0 2rem;
+  border-radius: max(calc(var(--w-radius) * 0.35), 1px);
   background: var(--w-accent);
   color: var(--w-accent-ink);
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.26em;
   text-transform: uppercase;
   transition: filter 0.2s ease, transform 0.2s ease;
 }
+
+/* The invitation's call to action: a fine outlined button in the colour of the text around it. */
+.w-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.4rem;
+  padding: 0 2.4rem;
+  border: 1px solid currentColor;
+  border-radius: max(calc(var(--w-radius) * 0.35), 1px);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+.w-cta:hover { background: color-mix(in srgb, currentColor 12%, transparent); }
+.w-cta-light { color: #fff; }
+
+/* Small text links (maps, directions): letter-spaced capitals over a hairline. */
+.w-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 45%, transparent);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  transition: border-color 0.25s ease;
+}
+.w-link:hover { border-color: currentColor; }
 .w-btn:hover { filter: brightness(1.08); }
 .w-btn:active { transform: translateY(1px); }
 .w-btn:disabled { opacity: 0.6; cursor: not-allowed; }

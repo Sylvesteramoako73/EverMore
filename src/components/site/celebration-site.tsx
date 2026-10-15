@@ -137,7 +137,7 @@ export function CelebrationSite({ w, now, inviteToken = null }: { w: Celebration
   } else {
     body = (
       <>
-        {show.saveTheDate && <SaveTheDate w={w} />}
+        {show.saveTheDate && <SaveTheDate w={w} theme={theme} />}
         {show.story && <StoryVariant w={w} theme={theme} />}
         {show.party && <PartySection w={w} theme={theme} />}
         {show.schedule && <ProgrammeVariant w={w} theme={theme} now={now} />}

@@ -491,9 +491,9 @@ export function SiteNav({ monogram, items, darkHero = true }: { monogram: string
             : "text-[var(--w-ink)]"
       }`}
     >
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
         <a href="#top" className="w-display text-2xl tracking-wide">{monogram}</a>
-        <ul className="hidden gap-6 text-[0.72rem] font-semibold tracking-[0.18em] uppercase md:flex">
+        <ul className="hidden gap-8 text-[0.68rem] font-medium tracking-[0.26em] uppercase md:flex">
           {items.map((i) => (
             <li key={i.id}><a href={`#${i.id}`} className="py-2 hover:opacity-70">{i.label}</a></li>
           ))}

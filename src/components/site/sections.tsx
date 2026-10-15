@@ -28,21 +28,21 @@ export function Section({
   const shaped = tone !== "plain" && theme.layout.divider !== "none";
   const left = theme.heading === "editorial-left";
   const size =
-    theme.heading === "minimal-caps" ? "text-3xl tracking-[0.12em] uppercase sm:text-4xl"
-    : theme.heading === "script-centered" ? "text-5xl italic sm:text-6xl"
-    : theme.heading === "ornate" ? "text-4xl tracking-[0.08em] uppercase sm:text-5xl"
-    : theme.heading === "editorial-left" ? "text-5xl sm:text-7xl"
-    : "text-5xl sm:text-6xl";
+    theme.heading === "minimal-caps" ? "text-3xl tracking-[0.18em] uppercase sm:text-[2.6rem]"
+    : theme.heading === "script-centered" ? "text-5xl italic sm:text-7xl"
+    : theme.heading === "ornate" ? "text-4xl tracking-[0.1em] uppercase sm:text-5xl"
+    : theme.heading === "editorial-left" ? "text-5xl sm:text-[5.5rem]"
+    : "text-5xl sm:text-[4.2rem]";
   return (
     <section
       id={id}
       aria-labelledby={`${id}-title`}
       style={{ ["--w-section-bg" as string]: bg }}
-      className={`scroll-mt-20 px-5 py-20 sm:px-8 sm:py-28 ${tone === "tint" ? "w-tint" : tone === "band" ? "w-band" : tone === "pop" ? "w-pop" : ""} ${shaped ? "w-shaped" : ""}`}
+      className={`scroll-mt-20 px-5 py-24 sm:px-8 sm:py-36 ${tone === "tint" ? "w-tint" : tone === "band" ? "w-band" : tone === "pop" ? "w-pop" : ""} ${shaped ? "w-shaped" : ""}`}
     >
       {shaped && <SectionShape kind={theme.layout.divider} fill={bg} />}
       <div className="mx-auto max-w-6xl">
-        <Reveal className={`mb-12 sm:mb-16 ${left ? "text-left" : "text-center"}`}>
+        <Reveal className={`mb-14 sm:mb-20 ${left ? "text-left" : "text-center"}`}>
           {theme.heading === "band" && <GeometricBand className="mx-auto mb-6 !h-3 max-w-[9rem]" />}
           <p className="w-eyebrow">{eyebrow}</p>
           <h2 id={`${id}-title`} className={`w-display mt-3 ${size}`}>{title}</h2>
@@ -72,7 +72,7 @@ export function SectionShape({ kind, fill }: { kind: Theme["layout"]["divider"];
   );
 }
 
-export function SaveTheDate({ w }: { w: CelebrationView }) {
+export function SaveTheDate({ w, theme }: { w: CelebrationView; theme: Theme }) {
   const p = w.events.find((e) => e.id === w.primaryEventId) ?? w.events[0];
   if (!p) return null;
   const { y, m, d } = parsePlainDate(plainDateInZone(new Date(p.startsAt), p.timezone));
@@ -87,10 +87,17 @@ export function SaveTheDate({ w }: { w: CelebrationView }) {
       <div className={`mx-auto grid max-w-5xl items-center gap-14 ${photo ? "md:grid-cols-2" : ""}`}>
         {photo && (
           <Reveal className="mx-auto w-[min(78vw,320px)]">
-            <figure className="w-tilt-l bg-white p-3 pb-12 shadow-[0_30px_60px_-30px_rgba(0,0,0,.7)]">
-              <Picture image={photo} sizes="320px" className="aspect-[4/5] w-full object-cover" />
-              <figcaption className="w-display mt-3 text-center text-2xl text-[#2a1b13] italic">Moments</figcaption>
-            </figure>
+            {theme.photo === "polaroid" ? (
+              <figure className="w-tilt-l bg-white p-3 pb-12 shadow-[0_30px_60px_-30px_rgba(0,0,0,.7)]">
+                <Picture image={photo} sizes="320px" className="aspect-[4/5] w-full object-cover" />
+                <figcaption className="w-display mt-3 text-center text-2xl text-[#2a1b13] italic">Moments</figcaption>
+              </figure>
+            ) : (
+              // A fine inset frame, like a mounted print.
+              <figure className="border border-[color-mix(in_srgb,var(--w-band-ink)_35%,transparent)] p-3">
+                <Picture image={photo} sizes="320px" className={`aspect-[4/5] w-full object-cover ${theme.hero === "arch" ? "w-arch" : ""}`} />
+              </figure>
+            )}
           </Reveal>
         )}
         <Reveal className="text-center">
@@ -262,7 +269,7 @@ export function CountdownBand({ w, theme }: { w: CelebrationView; theme: Theme }
       <Reveal>
         <p className={`w-display ${look === "big" ? "text-3xl uppercase tracking-[0.12em] sm:text-4xl" : "text-4xl italic sm:text-5xl"}`}>{heading}</p>
         <div className="mx-auto mt-10 flex max-w-4xl justify-center">
-          <Countdown to={p.startsAt} tone={look === "circles" ? "dark" : "light"} look={look === "band" ? "boxes" : look} after={<p className="w-display text-2xl italic">{w.occasion.copy.today}</p>} />
+          <Countdown to={p.startsAt} tone={look === "circles" ? "dark" : "light"} look={look === "band" ? "inline" : look} after={<p className="w-display text-2xl italic">{w.occasion.copy.today}</p>} />
         </div>
       </Reveal>
     </section>

@@ -39,12 +39,17 @@ export function Countdown({
   to,
   after,
   tone = "light",
-  look = "boxes",
+  look = "inline",
+  align = "center",
+  seconds = true,
 }: {
   to: string;
   after: ReactNode;
   tone?: "light" | "dark";
-  look?: "boxes" | "big" | "circles";
+  look?: "inline" | "boxes" | "big" | "circles";
+  align?: "start" | "center";
+  /** Seconds tick restlessly; the opening screen leaves them out for calm. */
+  seconds?: boolean;
 }) {
   const current = useNow();
   const target = Date.parse(to);
@@ -56,6 +61,24 @@ export function Countdown({
     ["Minutes", diff === null ? "–" : pad(Math.floor(diff / 60_000) % 60)],
     ["Seconds", diff === null ? "–" : pad(Math.floor(diff / 1000) % 60)],
   ];
+  const shown = seconds ? units : units.slice(0, 3);
+  // Large light numerals separated by hairlines: how printed invitations and fine watches show time.
+  if (look === "inline") {
+    return (
+      <div role="timer" aria-label="Time until the celebration" className={`flex ${align === "center" ? "justify-center" : "justify-start"}`}>
+        {shown.map(([label, value], i) => (
+          <div
+            key={label}
+            className={`text-center ${i === 0 ? "pr-5 sm:pr-8" : "px-5 sm:px-8"}`}
+            style={i ? { borderLeft: "1px solid color-mix(in srgb, currentColor 28%, transparent)" } : undefined}
+          >
+            <span className="w-display block text-[2.4rem] leading-none font-light tabular-nums sm:text-5xl">{value}</span>
+            <span className="mt-2.5 block text-[0.6rem] tracking-[0.34em] uppercase opacity-70">{label}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
   if (look === "big") {
     return (
       <div role="timer" aria-label="Time until the celebration" className="grid grid-cols-4 gap-3 sm:gap-8">
