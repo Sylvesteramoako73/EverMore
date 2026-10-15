@@ -50,3 +50,8 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# Agent skill files installed by marketplace integrations (not part of the app)
+/.agents/
+/.claude/
+skills-lock.json
