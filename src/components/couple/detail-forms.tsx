@@ -1,5 +1,6 @@
 "use client";
 
+import { PARTY_TITLES } from "@/lib/akan";
 import { Cake, Feather, Heart, Users } from "lucide-react";
 import { useActionState, useEffect, useRef, useState, type ReactNode } from "react";
 import { saveBasics, saveCelebrationInfo, saveColours, saveRsvpContacts } from "@/app/actions/celebration";
@@ -186,10 +187,13 @@ export function DetailsForm({
   const v = (k: keyof Omit<CelebrationInfoValues, "details">) => state?.values?.[k] ?? String(values[k] ?? "");
   const d = (k: keyof OccasionDetails) => {
     const raw = state?.values?.[k] ?? values.details[k];
-    return Array.isArray(raw) ? raw.join("\n") : raw === null || raw === undefined ? "" : String(raw);
+    // Lists come back one per line; party members as "Name — Role".
+    if (Array.isArray(raw)) return raw.map((x) => (typeof x === "string" ? x : `${x.name}${x.role ? ` — ${x.role}` : ""}`)).join("\n");
+    return raw === null || raw === undefined ? "" : String(raw);
   };
   // Birthdays, namings and memorials take their yearly date from the dates below.
   const ownKeyDate = !["birthday", "funeral", "naming"].includes(kind);
+  const party = PARTY_TITLES[kind];
 
   return (
     <form ref={ref} action={action} onChange={schedule} className="space-y-8" noValidate>
@@ -238,6 +242,14 @@ export function DetailsForm({
             <Field label="When you met or started dating" optional errors={e.relationshipStartDate}><Input type="date" name="relationshipStartDate" defaultValue={d("relationshipStartDate")} /></Field>
             <Field label="Engagement date" optional errors={e.engagementDate}><Input type="date" name="engagementDate" defaultValue={d("engagementDate")} /></Field>
           </div>
+        </Group>
+      )}
+
+      {party && (
+        <Group title={party.title} description={party.hint}>
+          <Field label="One person per line: name — role" optional errors={e.party}>
+            <Textarea name="party" rows={4} defaultValue={d("party")} placeholder={party.example} />
+          </Field>
         </Group>
       )}
 

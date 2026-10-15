@@ -19,6 +19,7 @@ function facts(w: CelebrationView): Fact[] {
     f.parents && ["Proud parents", f.parents],
     w.occasion.kind === "birthday" && f.turningAge && ["Turning", String(f.turningAge)],
     f.institution && ["Graduating from", f.institution],
+    f.dayName && [`Born on a ${f.dayName.day}`, `${f.dayName.male} · ${f.dayName.female}`],
   ].filter(Boolean) as Fact[];
 }
 

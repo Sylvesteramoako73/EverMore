@@ -1,3 +1,4 @@
+import { parseParty } from "./akan";
 import { z } from "zod";
 import { isValidTimeZone } from "./dates";
 import { slugProblem } from "./slug";
@@ -87,7 +88,7 @@ const optionalAge = z
 const INFO_FIELDS = [
   "keyDate", "timezone", "subtype", "story", "guestMessage", "rsvpDeadline", "dressCode", "announcement", "hashtag",
   "contactName", "contactEmail", "contactPhone", "relationshipStartDate", "engagementDate", "dateOfBirth", "turningAge",
-  "dateOfPassing", "nameMeaning", "parents", "meetingPoint", "packingList", "costNote", "institution",
+  "dateOfPassing", "nameMeaning", "parents", "meetingPoint", "packingList", "costNote", "institution", "party",
 ] as const;
 
 export const celebrationInfoSchema = z.preprocess(
@@ -123,10 +124,11 @@ export const celebrationInfoSchema = z.preprocess(
     packingList: z.string().transform((v) => v.split(/\r?\n/).map((s) => s.trim()).filter(Boolean).slice(0, 30)),
     costNote: text(500),
     institution: text(160),
+    party: z.string().max(4000).transform(parseParty),
   })
-  .transform(({ relationshipStartDate, engagementDate, dateOfBirth, turningAge, dateOfPassing, nameMeaning, parents, meetingPoint, packingList, costNote, institution, ...rest }) => ({
+  .transform(({ relationshipStartDate, engagementDate, dateOfBirth, turningAge, dateOfPassing, nameMeaning, parents, meetingPoint, packingList, costNote, institution, party, ...rest }) => ({
     ...rest,
-    details: { relationshipStartDate, engagementDate, dateOfBirth, turningAge, dateOfPassing, nameMeaning, parents, meetingPoint, packingList, costNote, institution },
+    details: { relationshipStartDate, engagementDate, dateOfBirth, turningAge, dateOfPassing, nameMeaning, parents, meetingPoint, packingList, costNote, institution, party },
   })),
 );
 export type CelebrationInfoInput = z.infer<typeof celebrationInfoSchema>;

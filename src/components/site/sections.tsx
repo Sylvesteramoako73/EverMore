@@ -293,6 +293,33 @@ export function GiftsSection({ w, theme, inviteToken = null }: { w: CelebrationV
   );
 }
 
+/** The bridal party, godparents, the family or the organisers: a card each with initials. */
+export function PartySection({ w, theme }: { w: CelebrationView; theme: Theme }) {
+  const initials = (name: string) =>
+    name
+      .split(/\s+/)
+      .filter((p) => /^[\p{L}]/u.test(p))
+      .slice(0, 2)
+      .map((p) => p[0])
+      .join("")
+      .toUpperCase();
+  return (
+    <Section id="party" eyebrow={w.occasion.kind === "funeral" ? "Left behind to cherish her memory" : "With us on the day"} title={w.facts.partyTitle} theme={theme}>
+      <ul className="mx-auto grid max-w-4xl grid-cols-2 gap-4 sm:grid-cols-3">
+        {w.facts.party.map((p, i) => (
+          <Reveal as="li" key={`${p.name}-${i}`} className="w-card flex flex-col items-center p-6 text-center">
+            <span aria-hidden className="grid h-16 w-16 place-items-center rounded-full border border-[var(--w-accent)] text-xl tracking-wider text-[var(--w-accent)]">
+              {initials(p.name) || "♥"}
+            </span>
+            <p className="w-display mt-4 text-xl leading-tight">{p.name}</p>
+            {p.role && <p className="w-eyebrow mt-2">{p.role}</p>}
+          </Reveal>
+        ))}
+      </ul>
+    </Section>
+  );
+}
+
 export function ThankYouSection({ w, theme }: { w: CelebrationView; theme: Theme }) {
   return (
     <Section id="thank-you" eyebrow="From our hearts" title={w.occasion.copy.thankYouTitle} theme={theme}>

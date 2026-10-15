@@ -2,6 +2,7 @@ import type { CelebrationView, EventView, FundView, ImageView, OccasionView } fr
 import { addDays, plainDateInZone, zonedLocalToUtc } from "./dates";
 import { getOccasion, type ColourSwatch, type OccasionKind } from "./occasions";
 import photos from "./sample-photos.json";
+import { akanDayName, PARTY_TITLES } from "./akan";
 import { getTheme, THEMES } from "./themes";
 
 // Sample celebrations for the marketing site. Names, dates and places are fictional; photos are
@@ -90,6 +91,16 @@ const SPECS: Record<OccasionKind, SampleSpec> = {
     title: "Ama & Kofi", names: ["Ama", "Kofi"],
     guestMessage: "We can't wait to celebrate the beginning of our forever with the people we love most.",
     story: "We met on a rainy evening in Accra, sharing an umbrella neither of us remembered bringing. Coffee became dinner, dinner became years, and a friendship became a love story.",
+    facts: {
+      party: [
+        { name: "Efua Mensah", role: "Maid of honour" },
+        { name: "Kwesi Boateng", role: "Best man" },
+        { name: "Adwoa Asante", role: "Bridesmaid" },
+        { name: "Yaw Darko", role: "Groomsman" },
+        { name: "Uncle Fiifi", role: "MC" },
+        { name: "Little Akosua", role: "Flower girl" },
+      ],
+    },
     events: [
       { name: "Traditional Engagement", offsetDays: -1, start: "10:00", end: "14:00", venue: "The Family Home", address: "East Legon, Accra", description: "Join both families as we honour tradition.", dressCode: "Kente & traditional attire", icon: "heart" },
       { name: "Wedding Ceremony", offsetDays: 0, start: "11:00", end: "13:00", venue: "Holy Trinity Cathedral", address: "High Street, Accra", description: "Join us as we exchange vows and begin our forever together.", icon: "church" },
@@ -137,7 +148,15 @@ const SPECS: Record<OccasionKind, SampleSpec> = {
       { name: "Thanksgiving Service", offsetDays: 1, start: "09:00", end: "11:00", venue: "Presbyterian Church", address: "Koforidua", description: "", dressCode: "White", icon: "church" },
     ],
     colours: [{ name: "Black", hex: "#111111", note: "Saturday" }, { name: "Red", hex: "#9B1C1C", note: "Saturday" }, { name: "White", hex: "#F5F5F2", note: "Sunday" }],
-    facts: { lifeDates: { born: "1948-03-14", passed: "2026-08-02" } },
+    facts: {
+      lifeDates: { born: "1948-03-14", passed: "2026-08-02" },
+      party: [
+        { name: "Michael Owusu", role: "Son" },
+        { name: "Abena Owusu-Mensah", role: "Daughter" },
+        { name: "Kwesi Owusu", role: "Son" },
+        { name: "Grandchildren & great-grandchildren", role: "" },
+      ],
+    },
     thankYou: "The family is deeply grateful for your love, prayers and support.",
   },
   outing: {
@@ -167,7 +186,16 @@ const SPECS: Record<OccasionKind, SampleSpec> = {
       { name: "Reception", offsetDays: 0, start: "10:00", end: "14:00", venue: "The Mensah Residence", address: "Tema Community 25", description: "Breakfast and celebration with family and friends.", icon: "dinner" },
     ],
     colours: [{ name: "Soft blue", hex: "#AFC6DB", note: "" }, { name: "White", hex: "#FFFFFF", note: "" }],
-    facts: { nameMeaning: "Nhyira means \"blessing\" in Twi.", parents: "Akosua & Kojo Mensah" },
+    facts: {
+      nameMeaning: "Nhyira means \"blessing\" in Twi.",
+      parents: "Akosua & Kojo Mensah",
+      dayName: akanDayName("2026-08-15"),
+      party: [
+        { name: "Nana Ama Mensah", role: "Grandmother" },
+        { name: "Kojo Asante", role: "Godfather" },
+        { name: "Efua Darko", role: "Godmother" },
+      ],
+    },
     thankYou: "Thank you for the blessings, gifts and love you showered on Nhyira.",
   },
   graduation: {
@@ -289,6 +317,9 @@ export function sampleCelebration(
     facts: {
       nameMeaning: "", parents: "", meetingPoint: "", packingList: [], costNote: "", institution: "", turningAge: null,
       lifeDates: { born: null, passed: null },
+      party: [],
+      partyTitle: PARTY_TITLES[occasion]?.title ?? "Special People",
+      dayName: null,
       ...spec.facts,
     },
     contact: null,

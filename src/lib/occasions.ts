@@ -32,6 +32,8 @@ export type OccasionDetails = {
   packingList?: string[];
   costNote?: string;
   institution?: string;
+  /** People with special roles: bridal party, godparents, the family, organisers. */
+  party?: { name: string; role: string }[];
 };
 
 export type Occasion = {

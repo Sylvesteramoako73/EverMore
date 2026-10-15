@@ -95,6 +95,7 @@ test("a family creates a celebration-of-life page without a countdown", async ({
   await expect(page.getByRole("heading", { level: 1, name: "The details" })).toBeVisible({ timeout: 20_000 });
   await page.getByLabel("Date of birth").fill("1948-03-14");
   await page.getByLabel("Date of passing").fill("2026-08-02");
+  await page.getByLabel(/One person per line/).fill("Michael Owusu — Son\nAbena Owusu — Daughter");
   await page.getByRole("button", { name: "Save & continue" }).click();
 
   await expect(page.getByRole("heading", { level: 1, name: "Programme & venues" })).toBeVisible({ timeout: 20_000 });
@@ -116,4 +117,13 @@ test("a family creates a celebration-of-life page without a countdown", async ({
   await expect(guest.getByText("14 March 1948 – 2 August 2026")).toBeVisible();
   await expect(guest.getByRole("timer")).toHaveCount(0);
   await expect(guest.getByRole("heading", { name: "Order of Events" })).toBeVisible();
+  await expect(guest.getByRole("heading", { name: "The Family" })).toBeVisible();
+  await expect(guest.getByText("Michael Owusu")).toBeVisible();
+
+  // The printable funeral brochure.
+  await guest.goto(`/${slug}/programme`);
+  await expect(guest.getByText("Order of Service")).toBeVisible();
+  await expect(guest.getByRole("heading", { name: "Celebrating the Life of Madam Esther Owusu" })).toBeVisible();
+  await expect(guest.getByText("Burial Service")).toBeVisible();
+  if (process.env.SHOTS) await guest.screenshot({ path: `${process.env.SHOTS}/brochure.png`, fullPage: true });
 });

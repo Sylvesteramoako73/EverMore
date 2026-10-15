@@ -104,6 +104,11 @@ export type CelebrationView = {
     turningAge: number | null;
     /** Remembrance pages: "1948 – 2026" style life dates. */
     lifeDates: { born: string | null; passed: string | null };
+    /** People with special roles, and the section title for them ("The Bridal Party"). */
+    party: { name: string; role: string }[];
+    partyTitle: string;
+    /** Akan day names for the day of birth (naming and birthday pages). */
+    dayName: { day: string; male: string; female: string } | null;
   };
   contact: { name: string; email: string; phone: string } | null;
   hero: ImageView | null;

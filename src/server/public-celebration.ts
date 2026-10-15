@@ -6,6 +6,7 @@ import { pageViewDaily } from "@/db/schema";
 import { answerableEvents, celebrationPhase, primaryEvent, rsvpDeadlinePassed, visibleEvents, yearlyDate } from "@/lib/celebration-rules";
 import { plainDateInZone } from "@/lib/dates";
 import { appUrl, paymentsEnabled } from "@/lib/env";
+import { akanDayName, PARTY_TITLES } from "@/lib/akan";
 import { getOccasion } from "@/lib/occasions";
 import { getCelebration, resolveSlug, type Celebration } from "./celebrations";
 import { fundTotals, listFunds, recentSupporters } from "./gifts";
@@ -155,6 +156,9 @@ export async function loadPublicCelebration(
       institution: d.institution ?? "",
       turningAge: d.turningAge ?? null,
       lifeDates: { born: d.dateOfBirth ?? null, passed: d.dateOfPassing ?? null },
+      party: d.party ?? [],
+      partyTitle: PARTY_TITLES[c.kind]?.title ?? "Special People",
+      dayName: c.kind === "naming" || c.kind === "birthday" ? akanDayName(d.dateOfBirth) : null,
     },
     contact: c.contactEmail || c.contactPhone ? { name: c.contactName, email: c.contactEmail, phone: c.contactPhone } : null,
     hero: heroMedia?.isPublic ? image(heroMedia) : null,

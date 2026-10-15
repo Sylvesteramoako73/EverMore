@@ -6,7 +6,7 @@ import { Hero } from "./hero";
 import { Gallery, GuestbookPanel, RsvpForm, ShareSection, SiteNav } from "./interactive";
 import { Reveal } from "./live";
 import {
-  ClosingCard, ColoursSection, CountdownBand, Footer, GiftsSection, MemoriesSection, RsvpContacts, SaveTheDate, Section,
+  ClosingCard, ColoursSection, CountdownBand, Footer, GiftsSection, MemoriesSection, PartySection, RsvpContacts, SaveTheDate, Section,
   ThankYouSection, TripSection,
 } from "./sections";
 import { ProgrammeVariant, StoryVariant, VenuesVariant } from "./variants";
@@ -56,6 +56,7 @@ export function CelebrationSite({ w, now, inviteToken = null }: { w: Celebration
     memories: !hidden.has("memories") && w.memories.length > 0,
     thankYou: after && Boolean(w.thankYouMessage),
     livestream: Boolean(w.livestreamUrl) && !after,
+    party: !hidden.has("story") && w.facts.party.length > 0,
     tables: w.tableFinder && !after,
   };
 
@@ -127,6 +128,7 @@ export function CelebrationSite({ w, now, inviteToken = null }: { w: Celebration
         {gallery}
         {show.memories && <MemoriesSection w={w} theme={theme} />}
         {show.story && <StoryVariant w={w} theme={theme} />}
+        {show.party && <PartySection w={w} theme={theme} />}
         {show.schedule && <ProgrammeVariant w={w} theme={theme} now={now} />}
         {guestbook}
       </>
@@ -136,6 +138,7 @@ export function CelebrationSite({ w, now, inviteToken = null }: { w: Celebration
       <>
         {show.saveTheDate && <SaveTheDate w={w} />}
         {show.story && <StoryVariant w={w} theme={theme} />}
+        {show.party && <PartySection w={w} theme={theme} />}
         {show.schedule && <ProgrammeVariant w={w} theme={theme} now={now} />}
         {show.schedule && <VenuesVariant w={w} theme={theme} />}
         {show.colours && <ColoursSection w={w} theme={theme} />}

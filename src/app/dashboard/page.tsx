@@ -1,4 +1,4 @@
-import { ArrowRight, Camera, Download, Eye, MailCheck, MessageSquareHeart, Printer, QrCode, Tv, Users } from "lucide-react";
+import { ArrowRight, BookOpen, Camera, Download, Eye, MailCheck, MessageSquareHeart, Printer, QrCode, Tv, Users } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { CopyButton } from "@/components/dashboard/bits";
@@ -80,6 +80,9 @@ async function Overview() {
             </Button>
             <Button asChild size="sm" variant="outline" className="border-white/20 bg-transparent text-ivory hover:bg-white/10 hover:text-ivory">
               <a href={`/${c.slug}/card`} target="_blank" rel="noopener"><Printer className="h-4 w-4" aria-hidden /> Printable card</a>
+            </Button>
+            <Button asChild size="sm" variant="outline" className="border-white/20 bg-transparent text-ivory hover:bg-white/10 hover:text-ivory">
+              <a href={`/${c.slug}/programme`} target="_blank" rel="noopener"><BookOpen className="h-4 w-4" aria-hidden /> {remembrance ? "Funeral brochure" : "Programme booklet"}</a>
             </Button>
             <Button asChild size="sm" variant="outline" className="border-white/20 bg-transparent text-ivory hover:bg-white/10 hover:text-ivory">
               <a href={`/${c.slug}/live`} target="_blank" rel="noopener"><Tv className="h-4 w-4" aria-hidden /> Slideshow for the venue</a>
