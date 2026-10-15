@@ -155,7 +155,7 @@ async function Wizard({ searchParams }: PageProps<"/onboarding">) {
               <h2 className="text-2xl text-navy">Colours of the day</h2>
               <p className="mt-1 text-sm text-muted-foreground">Optional. Shown as swatches so guests can dress to match.</p>
             </div>
-            <ColoursEditor colours={celebration.colours} />
+            <ColoursEditor colours={celebration.colours} useColourTheme={celebration.useColourTheme} />
           </section>
           <div className="flex justify-end border-t border-border pt-6"><ContinueButton step={6} label="Continue to review" /></div>
         </div>

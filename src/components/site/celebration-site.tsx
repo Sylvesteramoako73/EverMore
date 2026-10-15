@@ -42,6 +42,16 @@ export function CelebrationSite({ w, now, inviteToken = null }: { w: Celebration
     "--w-display": FONT_STACKS[theme.fonts.display],
     "--w-body": FONT_STACKS[theme.fonts.body],
     "--w-display-weight": theme.fonts.displayWeight,
+    // The host's colours of the day, when they chose to colour the page with them.
+    ...(w.palette && {
+      "--w-accent": w.palette.accent,
+      "--w-accent-ink": w.palette.accentInk,
+      "--w-accent2": w.palette.accent2,
+      "--w-band": w.palette.band,
+      "--w-band-ink": w.palette.bandInk,
+      "--w-tint": w.palette.tint,
+      "--w-line": w.palette.line,
+    }),
   } as CSSProperties;
 
   const show = {

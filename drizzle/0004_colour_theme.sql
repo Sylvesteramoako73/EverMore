@@ -1,0 +1,1 @@
+ALTER TABLE "celebration" ADD COLUMN "use_colour_theme" boolean DEFAULT true NOT NULL;

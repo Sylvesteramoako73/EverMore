@@ -313,7 +313,7 @@ const COLOUR_PRESETS: ColourSwatch[][] = [
   [{ name: "Blush", hex: "#F2D5D3", note: "" }, { name: "Sage", hex: "#AEBFA5", note: "" }, { name: "White", hex: "#FFFFFF", note: "" }],
 ];
 
-export function ColoursEditor({ colours }: { colours: ColourSwatch[] }) {
+export function ColoursEditor({ colours, useColourTheme = true }: { colours: ColourSwatch[]; useColourTheme?: boolean }) {
   const [state, action] = useActionState<FormState, FormData>(saveColours, undefined);
   const [rows, setRows] = useState<ColourSwatch[]>(colours.length ? colours : []);
   const update = (i: number, patch: Partial<ColourSwatch>) => setRows((r) => r.map((x, j) => (j === i ? { ...x, ...patch } : x)));
@@ -347,6 +347,13 @@ export function ColoursEditor({ colours }: { colours: ColourSwatch[] }) {
           </li>
         ))}
       </ul>
+      <label className="flex items-start gap-3 rounded-xl border border-border bg-white p-4">
+        <input type="checkbox" name="useColourTheme" defaultChecked={useColourTheme} className="mt-1 h-4 w-4 accent-[var(--navy)]" />
+        <span>
+          <span className="block text-sm font-medium text-navy">Design the page in these colours</span>
+          <span className="block text-sm text-muted-foreground">Buttons, accents and colour bands take on your colours of the day. Untick to keep the design&apos;s own palette.</span>
+        </span>
+      </label>
       <div className="flex flex-wrap gap-2">
         {rows.length < 5 && (
           <Button type="button" variant="outline" onClick={() => setRows((r) => [...r, { name: "", hex: "#C69A4A", note: "" }])}>+ Add a colour</Button>

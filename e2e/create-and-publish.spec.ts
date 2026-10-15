@@ -67,6 +67,15 @@ test("a couple creates, publishes and shares their wedding page", async ({ page,
   await expect(guest.getByRole("heading", { level: 1 })).toContainText("Ama");
   await expect(guest.getByRole("heading", { name: "Taupe, Mocha & Ivory" })).toBeVisible();
 
+  // The page is coloured from the chosen colours: mocha for the dark bands, a readable taupe-based accent.
+  const vars = await guest.locator("#top").evaluate((el) => ({
+    band: el.style.getPropertyValue("--w-band"),
+    accent: el.style.getPropertyValue("--w-accent"),
+  }));
+  expect(vars.band).toBe("#291811");
+  expect(vars.accent).toMatch(/^#[0-9A-F]{6}$/);
+  if (process.env.SHOTS) await guest.screenshot({ path: `${process.env.SHOTS}/coloured.png`, fullPage: true });
+
   // The QR code encodes the canonical public URL.
   const qr = await guest.request.get(`/${slug}/qr?format=svg`);
   expect(qr.status()).toBe(200);

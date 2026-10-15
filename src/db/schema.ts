@@ -134,6 +134,8 @@ export const celebration = pgTable(
     themeId: text("theme_id").notNull().default("earth-and-ivory"),
     /** "Colours of the day": named swatches guests can dress in. */
     colours: jsonb("colours").$type<ColourSwatch[]>().notNull().default([]),
+    /** Colour the page (accent, bands, tints) from the colours of the day instead of the design's palette. */
+    useColourTheme: boolean("use_colour_theme").notNull().default(true),
     heroMediaId: uuid("hero_media_id").references((): AnyPgColumn => media.id, { onDelete: "set null" }),
     primaryEventId: uuid("primary_event_id").references((): AnyPgColumn => event.id, { onDelete: "set null" }),
 

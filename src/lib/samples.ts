@@ -356,6 +356,8 @@ export function sampleCelebration(
     portraits: set.portraits.map((n) => image(n)),
     gallery: set.gallery.map((n) => image(n)),
     colours: spec.colours,
+    // Samples show each design in its own palette.
+    palette: null,
     events,
     primaryEventId: main.id,
     phase: daysAhead > 0 ? "upcoming" : "after",

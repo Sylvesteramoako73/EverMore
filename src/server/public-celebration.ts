@@ -8,6 +8,8 @@ import { plainDateInZone } from "@/lib/dates";
 import { appUrl, paymentsEnabled } from "@/lib/env";
 import { akanDayName, PARTY_TITLES } from "@/lib/akan";
 import { getOccasion } from "@/lib/occasions";
+import { paletteFromColours } from "@/lib/palette";
+import { getTheme } from "@/lib/themes";
 import { getCelebration, resolveSlug, type Celebration } from "./celebrations";
 import { fundTotals, listFunds, recentSupporters } from "./gifts";
 import { listEvents } from "./events";
@@ -166,6 +168,7 @@ export async function loadPublicCelebration(
     portraits: publicPhotos.filter((p) => p.collection === "portrait" && p.id !== c.heroMediaId).map(image),
     gallery: publicPhotos.filter((p) => ["gallery", "engagement", "event"].includes(p.collection)).map(image),
     colours: c.colours,
+    palette: c.useColourTheme ? paletteFromColours(c.colours, getTheme(c.themeId).colors.bg) : null,
     events: events.map(eventView),
     primaryEventId: primary?.id ?? null,
     phase,

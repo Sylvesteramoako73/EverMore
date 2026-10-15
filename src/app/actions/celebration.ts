@@ -101,7 +101,7 @@ export async function saveColours(_prev: FormState, formData: FormData): Promise
     names.map((name, i) => ({ name: name.trim(), hex: (hexes[i] ?? "").trim(), note: (notes[i] ?? "").trim() })).filter((c) => c.name),
   );
   if (!parsed.success) return { message: parsed.error.issues[0]?.message ?? "Please check your colours." };
-  await updateCelebration(celebration.id, { colours: parsed.data });
+  await updateCelebration(celebration.id, { colours: parsed.data, useColourTheme: formData.get("useColourTheme") === "on" });
   refresh();
   return { ok: true, message: parsed.data.length ? "Colours saved." : "Colours cleared." };
 }

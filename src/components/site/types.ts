@@ -1,3 +1,4 @@
+import type { PagePalette } from "@/lib/palette";
 import type { Phase } from "@/lib/celebration-rules";
 import type { ColourSwatch, OccasionKind, RsvpContact } from "@/lib/occasions";
 
@@ -116,6 +117,8 @@ export type CelebrationView = {
   portraits: ImageView[];
   gallery: ImageView[];
   colours: ColourSwatch[];
+  /** Page colours derived from the colours of the day (null = use the design's own palette). */
+  palette: PagePalette | null;
   events: EventView[];
   primaryEventId: string | null;
   phase: Phase;
