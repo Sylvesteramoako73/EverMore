@@ -4,8 +4,8 @@ import path from "node:path";
 import { env } from "@/lib/env";
 
 /**
- * Object storage. The local-disk driver suits a single server; for several instances implement this
- * interface for S3/R2/GCS (put/get/delete by key) and select it here.
+ * Object storage by key. Local disk for development and single servers; Vercel Blob (private files)
+ * when BLOB_READ_WRITE_TOKEN is set, e.g. on Vercel where the disk doesn't persist.
  */
 export interface StorageDriver {
   put(key: string, body: Buffer, contentType: string): Promise<void>;
@@ -43,9 +43,47 @@ function localDriver(root: string): StorageDriver {
   };
 }
 
+/**
+ * Vercel Blob with private access: files are only readable with the store token, so every photo is
+ * still served through /media/…, which checks who may see it.
+ */
+function blobDriver(token: string): StorageDriver {
+  const check = (key: string, pattern = KEY_PATTERN) => {
+    if (!pattern.test(key)) throw new Error("Invalid storage key");
+    return key;
+  };
+  return {
+    async put(key, body, contentType) {
+      const { put } = await import("@vercel/blob");
+      await put(check(key), body, { access: "private", token, contentType, addRandomSuffix: false, allowOverwrite: true });
+    },
+    async get(key) {
+      const { get } = await import("@vercel/blob");
+      try {
+        const res = await get(check(key), { access: "private", token });
+        if (!res || res.statusCode !== 200) return null;
+        return Buffer.from(await new Response(res.stream).arrayBuffer());
+      } catch {
+        return null;
+      }
+    },
+    async deletePrefix(prefix) {
+      const { del, list } = await import("@vercel/blob");
+      let cursor: string | undefined;
+      do {
+        const page = await list({ prefix: `${check(prefix, PREFIX_PATTERN)}/`, cursor, token });
+        if (page.blobs.length) await del(page.blobs.map((b) => b.url), { token });
+        cursor = page.hasMore ? page.cursor : undefined;
+      } while (cursor);
+    },
+  };
+}
+
 let driver: StorageDriver | undefined;
 export function storage(): StorageDriver {
-  driver ??= localDriver(path.resolve(/*turbopackIgnore: true*/ process.cwd(), env.UPLOAD_DIR));
+  driver ??= env.BLOB_READ_WRITE_TOKEN
+    ? blobDriver(env.BLOB_READ_WRITE_TOKEN)
+    : localDriver(path.resolve(/*turbopackIgnore: true*/ process.cwd(), env.UPLOAD_DIR));
   return driver;
 }
 

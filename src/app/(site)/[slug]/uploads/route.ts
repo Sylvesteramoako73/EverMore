@@ -38,7 +38,7 @@ export async function POST(request: Request, { params }: RouteContext<"/[slug]/u
   const origin = request.headers.get("origin");
   if (origin && origin !== new URL(appUrl()).origin && origin !== new URL(request.url).origin) return json({ error: "Forbidden" }, 403);
   if (Number(request.headers.get("content-length") ?? 0) > MAX_VIDEO_BYTES + 1024 * 1024) {
-    return json({ error: "That file is too large. Videos can be up to 50 MB, photos up to 15 MB." }, 413);
+    return json({ error: `That file is too large. Videos can be up to ${Math.round(MAX_VIDEO_BYTES / 1_000_000)} MB, photos up to 15 MB.` }, 413);
   }
 
   const { slug } = await params;

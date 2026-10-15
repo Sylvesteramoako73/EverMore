@@ -354,7 +354,7 @@ export function sampleCelebration(
               { id: "s2", name: "Kojo", message: "Save me a seat by the dance floor!", createdAt: new Date(now).toISOString() },
             ],
     },
-    shared: { enabled: true, moderated: true, items: [], total: 0 },
+    shared: { enabled: true, moderated: true, items: [], total: 0, maxVideoBytes: 50 * 1024 * 1024 },
     gifts: {
       message: occasion === "funeral" ? "The family is grateful for your support at this time." : "Your presence is the greatest gift. If you'd like to bless us further, you can give below.",
       links: [],

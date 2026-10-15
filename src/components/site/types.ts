@@ -124,7 +124,7 @@ export type CelebrationView = {
   timezone: string;
   rsvp: RsvpView;
   guestbook: { enabled: boolean; moderated: boolean; entries: { id: string; name: string; message: string; createdAt: string }[] };
-  shared: { enabled: boolean; moderated: boolean; items: SharedItem[]; total: number };
+  shared: { enabled: boolean; moderated: boolean; items: SharedItem[]; total: number; maxVideoBytes: number };
   gifts: {
     message: string;
     links: { label: string; url: string }[];

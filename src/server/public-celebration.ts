@@ -12,7 +12,7 @@ import { getCelebration, resolveSlug, type Celebration } from "./celebrations";
 import { fundTotals, listFunds, recentSupporters } from "./gifts";
 import { listEvents } from "./events";
 import { listGuestbook } from "./guestbook";
-import { listMedia, listShared, mediaUrl, type Media } from "./media";
+import { listMedia, listShared, MAX_VIDEO_BYTES, mediaUrl, type Media } from "./media";
 import { listMemories } from "./memories";
 import { findInvitation } from "./rsvp";
 
@@ -194,6 +194,7 @@ export async function loadPublicCelebration(
       moderated: c.guestUploadsModeration,
       items: shared.items.map(sharedItem),
       total: shared.total,
+      maxVideoBytes: MAX_VIDEO_BYTES,
     },
     gifts: {
       message: c.giftMessage,

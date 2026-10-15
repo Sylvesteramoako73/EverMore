@@ -64,15 +64,22 @@ function create(): Handle {
   };
 }
 
-// One handle per process, surviving dev hot reloads.
+// One handle per process, surviving dev hot reloads. Opened on first use, so importing this module
+// (e.g. while `next build` collects page config) never needs a database.
 const g = globalThis as unknown as { __evermoreDb?: Handle; __evermoreMigrated?: Promise<void> };
-const handle = (g.__evermoreDb ??= create());
+const handle = () => (g.__evermoreDb ??= create());
 
-export const db = handle.db;
+export const db: Database = new Proxy({} as Database, {
+  get(_target, prop) {
+    const real = handle().db as unknown as Record<PropertyKey, unknown>;
+    const value = real[prop];
+    return typeof value === "function" ? (value as (...args: unknown[]) => unknown).bind(real) : value;
+  },
+});
 
 /** Apply pending migrations once per process. Called from instrumentation (server start) and test setup. */
 export function migrateDatabase() {
-  g.__evermoreMigrated ??= handle.migrate().catch((err) => {
+  g.__evermoreMigrated ??= handle().migrate().catch((err) => {
     g.__evermoreMigrated = undefined;
     throw err;
   });

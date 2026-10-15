@@ -1,5 +1,6 @@
 "use client";
 
+import { shrinkImage } from "@/lib/shrink-image";
 import { Download, ImagePlus, Loader2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState, type FormEvent } from "react";
@@ -10,7 +11,7 @@ import type { CelebrationView, SharedItem } from "./types";
 type FileState = { name: string; status: "waiting" | "uploading" | "done" | "error"; error?: string };
 
 const MAX_PHOTO = 15 * 1024 * 1024;
-const MAX_VIDEO = 50 * 1024 * 1024;
+
 
 /** "Share the love": guests upload their photos and videos, everyone browses and downloads them. */
 export function SharedMoments({ w, inviteToken }: { w: CelebrationView; inviteToken: string | null }) {
@@ -36,14 +37,14 @@ export function SharedMoments({ w, inviteToken }: { w: CelebrationView; inviteTo
     let added = 0;
     for (const [i, file] of chosen.entries()) {
       const set = (s: Partial<FileState>) => setFiles((all) => all.map((x, j) => (j === i ? { ...x, ...s } : x)));
-      const tooBig = file.type.startsWith("video/") ? file.size > MAX_VIDEO : file.size > MAX_PHOTO;
+      const tooBig = file.type.startsWith("video/") ? file.size > w.shared.maxVideoBytes : file.size > MAX_PHOTO;
       if (tooBig) {
-        set({ status: "error", error: file.type.startsWith("video/") ? "Videos up to 50 MB" : "Photos up to 15 MB" });
+        set({ status: "error", error: file.type.startsWith("video/") ? `Videos up to ${Math.round(w.shared.maxVideoBytes / 1_000_000)} MB` : "Photos up to 15 MB" });
         continue;
       }
       set({ status: "uploading" });
       const body = new FormData();
-      body.set("file", file);
+      body.set("file", await shrinkImage(file));
       body.set("name", String(form.get("name") ?? ""));
       body.set("consent", String(form.get("consent") ?? ""));
       body.set("website", String(form.get("website") ?? ""));
@@ -148,7 +149,7 @@ export function SharedMoments({ w, inviteToken }: { w: CelebrationView; inviteTo
           <div>
             <label htmlFor="up-files" className="w-label">Photos or videos</label>
             <input id="up-files" name="files" type="file" multiple required accept="image/jpeg,image/png,image/webp,image/avif,video/mp4,video/webm,video/quicktime" className="w-input py-3" aria-describedby="up-hint" />
-            <p id="up-hint" className="w-muted mt-1.5 text-xs">Photos up to 15 MB, videos up to 50 MB.</p>
+            <p id="up-hint" className="w-muted mt-1.5 text-xs">Photos up to 15 MB, videos up to {Math.round(w.shared.maxVideoBytes / 1_000_000)} MB.</p>
           </div>
           <label className="flex items-start gap-2 text-sm">
             <input type="checkbox" name="consent" required className="mt-1 h-4 w-4 accent-[var(--w-accent)]" />

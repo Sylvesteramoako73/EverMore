@@ -1,5 +1,6 @@
 "use client";
 
+import { shrinkImage } from "@/lib/shrink-image";
 import { ArrowLeft, ArrowRight, Eye, EyeOff, ImagePlus, Loader2, Star, Trash2 } from "lucide-react";
 import { useRef, useState, useTransition } from "react";
 import { choosePhotoAsHero, removePhoto, reorderPhoto, updatePhotoDetails, uploadPhoto } from "@/app/actions/celebration";
@@ -45,7 +46,7 @@ function Uploader({ collection, label }: { collection: PhotoItem["collection"]; 
         continue;
       }
       const data = new FormData();
-      data.set("file", file);
+      data.set("file", await shrinkImage(file));
       data.set("collection", collection);
       const res = await uploadPhoto(data);
       update(res.ok ? { status: "done" } : { status: "error", error: res.error });

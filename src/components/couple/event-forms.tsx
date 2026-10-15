@@ -1,5 +1,6 @@
 "use client";
 
+import { shrinkInputFiles } from "@/lib/shrink-image";
 import { MapPin, Pencil, Star, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useActionState, useTransition } from "react";
@@ -130,7 +131,7 @@ export function EventForm({
         </Field>
         <div className="space-y-2">
           <Field label="Venue photo" optional hint="Shown on the venue card. JPEG, PNG or WebP, up to 15 MB.">
-            <Input type="file" name="venuePhoto" accept="image/jpeg,image/png,image/webp,image/avif" className="py-2" />
+            <Input type="file" name="venuePhoto" accept="image/jpeg,image/png,image/webp,image/avif" className="py-2" onChange={(e) => shrinkInputFiles(e.currentTarget)} />
           </Field>
           {event?.venueImage && (
             <label className="flex items-center gap-2 text-sm">

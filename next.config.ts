@@ -10,7 +10,7 @@ const csp = [
   "img-src 'self' data: blob:",
   "font-src 'self' data:",
   "connect-src 'self'",
-  "frame-src 'self' https://www.openstreetmap.org",
+  "frame-src 'self' https://www.openstreetmap.org https://www.youtube-nocookie.com",
   "frame-ancestors 'self'", // the dashboard previews pages in a same-origin frame
   "base-uri 'self'",
   "form-action 'self' https://accounts.google.com",
@@ -22,7 +22,8 @@ const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "SAMEORIGIN" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+  // Camera only for our own pages (the check-in desk scans entry passes).
+  { key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=()" },
   ...(isDev ? [] : [{ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" }]),
 ];
 
@@ -31,6 +32,8 @@ const nextConfig: NextConfig = {
   partialPrefetching: true,
   poweredByHeader: false,
   serverExternalPackages: ["@electric-sql/pglite", "pg", "sharp"],
+  // Migrations are read from disk at startup (src/instrumentation.ts), so ship them with the server.
+  outputFileTracingIncludes: { "/**": ["./drizzle/**/*"] },
   experimental: {
     authInterrupts: true,
     // Photos are uploaded one per request and resized on the server.

@@ -15,6 +15,8 @@ const schema = z.object({
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
   UPLOAD_DIR: z.string().default("./data/uploads"),
+  /** Vercel Blob store token. When set, uploads go to Blob (private) instead of UPLOAD_DIR. */
+  BLOB_READ_WRITE_TOKEN: z.string().optional(),
   /**
    * Header carrying the real client IP, set by your proxy/CDN (e.g. "x-forwarded-for" behind a load balancer
    * that overwrites it, "cf-connecting-ip" on Cloudflare). Leave unset when not behind a trusted proxy.

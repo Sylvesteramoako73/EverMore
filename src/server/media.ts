@@ -199,7 +199,8 @@ export function verifyMediaSignature(mediaId: string, variant: Variant, expires:
 
 // ───────────────────────────── Guest uploads ("Share the love")
 
-export const MAX_VIDEO_BYTES = 50 * 1024 * 1024;
+/** Vercel accepts ≈4.5 MB per request, so videos there are short clips; elsewhere up to 50 MB. */
+export const MAX_VIDEO_BYTES = process.env.VERCEL ? 4 * 1024 * 1024 : 50 * 1024 * 1024;
 const VIDEO_TYPES: Record<string, string> = { "video/mp4": "mp4", "video/webm": "webm", "video/quicktime": "mov" };
 
 /**
@@ -225,7 +226,7 @@ export async function addGuestUpload(
 
   if (ext) {
     if (file.size === 0) throw new UploadError("That file is empty.");
-    if (file.size > MAX_VIDEO_BYTES) throw new UploadError("Videos must be 50 MB or smaller. Try a shorter clip.");
+    if (file.size > MAX_VIDEO_BYTES) throw new UploadError(`Videos must be ${Math.round(MAX_VIDEO_BYTES / 1_000_000)} MB or smaller. Try a shorter clip.`);
     const key = `${keys.prefix}/video.${ext}`;
     await storage().put(key, Buffer.from(await file.arrayBuffer()), file.type);
     await db.insert(media).values({
