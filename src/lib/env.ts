@@ -11,6 +11,11 @@ const schema = z.object({
   /** Canonical public origin, e.g. https://evermore.example. Used for links, QR codes and auth callbacks. */
   APP_URL: z.url().default("http://localhost:3000"),
   RESEND_API_KEY: z.string().optional(),
+  /**
+   * Temporary escape hatch for a live site without an email provider yet: "1" lets people sign up and
+   * sign in without confirming their email. Remove it once RESEND_API_KEY is set.
+   */
+  ALLOW_UNVERIFIED_SIGNUPS: z.string().optional(),
   EMAIL_FROM: z.string().default("EverMore <hello@evermore.example>"),
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
@@ -46,3 +51,6 @@ export const isProduction = env.NODE_ENV === "production";
 export const appUrl = (path = "") => `${env.APP_URL.replace(/\/$/, "")}${path}`;
 
 export const paymentsEnabled = () => Boolean(env.PAYSTACK_SECRET_KEY);
+
+/** Whether new accounts must confirm their email before signing in. */
+export const emailVerificationRequired = env.ALLOW_UNVERIFIED_SIGNUPS !== "1";

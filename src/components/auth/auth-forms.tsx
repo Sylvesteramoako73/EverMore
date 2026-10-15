@@ -79,7 +79,7 @@ function Divider() {
 
 // ───────────────────────────── Sign up
 
-export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
+export function SignUpForm({ googleEnabled, verifyEmail = true }: { googleEnabled: boolean; verifyEmail?: boolean }) {
   const router = useRouter();
   // e.g. an invitation to co-host: come back to it after confirming the email.
   const returnTo = safeNext(useSearchParams().get("next"), "/onboarding");
@@ -106,6 +106,12 @@ export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
     if (error) {
       // Don't reveal whether an address is registered beyond what the provider returns.
       setMessage({ ok: false, text: error.status === 429 ? "Too many attempts. Please wait a few minutes." : (error.message ?? "We couldn't create your account.") });
+      return;
+    }
+    if (!verifyEmail) {
+      // No confirmation step on this site: the new account is already signed in.
+      router.push(returnTo);
+      router.refresh();
       return;
     }
     router.push(`/check-email?email=${encodeURIComponent(email)}`);

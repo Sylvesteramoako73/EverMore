@@ -5,7 +5,7 @@ import { nextCookies } from "better-auth/next-js";
 import { db, schema } from "@/db";
 import { sendEmail } from "@/lib/email/send";
 import { emails } from "@/lib/email/templates";
-import { env, isProduction } from "@/lib/env";
+import { emailVerificationRequired, env, isProduction } from "@/lib/env";
 
 const google =
   env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
@@ -33,7 +33,7 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: true,
+    requireEmailVerification: emailVerificationRequired,
     minPasswordLength: 10,
     maxPasswordLength: 128,
     resetPasswordTokenExpiresIn: 60 * 60,
@@ -43,7 +43,7 @@ export const auth = betterAuth({
     },
   },
   emailVerification: {
-    sendOnSignUp: true,
+    sendOnSignUp: emailVerificationRequired,
     autoSignInAfterVerification: true,
     expiresIn: 60 * 60 * 24,
     sendVerificationEmail: async ({ user, url }) => {
