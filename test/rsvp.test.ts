@@ -136,9 +136,17 @@ describe("invitations", () => {
     const csv = '﻿Name,Email,Party size\n"Mensah, Kofi & Ama",KOFI@example.com,2\nYaw,not-an-email,\n,missing@example.com,1\n';
     const { rows, problems } = parseGuestCsv(csv);
     expect(rows).toEqual([
-      { name: "Mensah, Kofi & Ama", email: "kofi@example.com", phone: "", maxPartySize: 2 },
-      { name: "Yaw", email: "", phone: "", maxPartySize: 1 },
+      { name: "Mensah, Kofi & Ama", email: "kofi@example.com", phone: "", maxPartySize: 2, tableName: "" },
+      { name: "Yaw", email: "", phone: "", maxPartySize: 1, tableName: "" },
     ]);
     expect(problems).toHaveLength(2);
+  });
+
+  it("reads an optional table column for seating", () => {
+    const { rows } = parseGuestCsv("Name,Phone,Table\nEsi,024 123 4567,Table 7\nKojo,,\n");
+    expect(rows.map((r) => [r.name, r.phone, r.tableName])).toEqual([
+      ["Esi", "024 123 4567", "Table 7"],
+      ["Kojo", "", ""],
+    ]);
   });
 });
