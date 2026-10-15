@@ -51,7 +51,7 @@ export function CelebrationSite({ w, now, inviteToken = null }: { w: Celebration
     rsvp: !after && !hidden.has("rsvp") && (w.rsvp.open || Boolean(w.rsvp.closedReason) || w.rsvp.contacts.length > 0),
     shared: !hidden.has("shared") && w.shared.enabled && (w.phase !== "upcoming" || w.shared.items.length > 0 || w.mode === "sample"),
     guestbook: !hidden.has("guestbook") && w.guestbook.enabled,
-    gifts: !hidden.has("gifts") && !after && Boolean(w.gifts.message || w.gifts.links.length),
+    gifts: !hidden.has("gifts") && !after && Boolean(w.gifts.message || w.gifts.links.length || w.gifts.funds.length),
     memories: !hidden.has("memories") && w.memories.length > 0,
     thankYou: after && Boolean(w.thankYouMessage),
   };
@@ -128,7 +128,7 @@ export function CelebrationSite({ w, now, inviteToken = null }: { w: Celebration
         {show.memories && <MemoriesSection w={w} theme={theme} />}
         {shared}
         {guestbook}
-        {show.gifts && <GiftsSection w={w} theme={theme} />}
+        {show.gifts && <GiftsSection w={w} theme={theme} inviteToken={inviteToken} />}
       </>
     );
   }

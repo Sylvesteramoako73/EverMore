@@ -1,4 +1,4 @@
-import type { CelebrationView, EventView, ImageView, OccasionView } from "@/components/site/types";
+import type { CelebrationView, EventView, FundView, ImageView, OccasionView } from "@/components/site/types";
 import { addDays, plainDateInZone, zonedLocalToUtc } from "./dates";
 import { getOccasion, type ColourSwatch, type OccasionKind } from "./occasions";
 import photos from "./sample-photos.json";
@@ -240,6 +240,15 @@ const WEDDING_BY_THEME: Record<string, (typeof PHOTO_SETS)["wedding"]> = {
   },
 };
 
+/** Sample gift funds: amounts in pesewas. */
+const SAMPLE_FUNDS: Partial<Record<OccasionKind, FundView>> = {
+  wedding: { id: "f1", title: "Wedding gift", description: "Towards our first home together.", goal: null, raised: 1_250_000, count: 23, currency: "GHS", momo: { number: "024 000 0001", name: "Ama Mensah", network: "MTN MoMo" } },
+  funeral: { id: "f1", title: "Funeral contributions", description: "Support for the family towards the funeral arrangements.", goal: 3_000_000, raised: 1_840_000, count: 41, currency: "GHS", momo: { number: "024 000 0002", name: "Michael Owusu", network: "MTN MoMo" } },
+  outing: { id: "f1", title: "Trip fund", description: "GH₵ 450 per person covers transport, the boat cruise and lunch.", goal: 900_000, raised: 630_000, count: 14, currency: "GHS", momo: { number: "020 000 0003", name: "Akosua Darko", network: "Telecel Cash" } },
+  birthday: { id: "f1", title: "Birthday gift", description: "Kwame is saving towards a trip home to the village.", goal: null, raised: 480_000, count: 12, currency: "GHS", momo: { number: "024 000 0004", name: "Kwame Asante", network: "MTN MoMo" } },
+  naming: { id: "f1", title: "Blessings for Nhyira", description: "Gifts towards Nhyira's education fund.", goal: null, raised: 390_000, count: 18, currency: "GHS", momo: { number: "024 000 0005", name: "Yaa Mensah", network: "MTN MoMo" } },
+};
+
 /** A complete sample page for an occasion in a theme, `daysAhead` from today (negative = already happened). */
 export function sampleCelebration(
   themeId: string,
@@ -316,8 +325,15 @@ export function sampleCelebration(
     },
     shared: { enabled: true, moderated: true, items: [], total: 0 },
     gifts: {
-      message: occasion === "funeral" ? "Donations towards the funeral can be made to the family. Contact Michael for details." : "Your presence is the greatest gift.",
+      message: occasion === "funeral" ? "The family is grateful for your support at this time." : "Your presence is the greatest gift. If you'd like to bless us further, you can give below.",
       links: [],
+      funds: [SAMPLE_FUNDS[occasion] ?? SAMPLE_FUNDS.wedding!],
+      supporters: [
+        { name: "Auntie Akos", message: "God bless you both." },
+        { name: "Kojo & Efua", message: "" },
+        { name: "Someone special", message: "" },
+      ],
+      online: true,
     },
     thankYouMessage: spec.thankYou,
     memories: [],

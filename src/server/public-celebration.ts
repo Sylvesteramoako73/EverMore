@@ -5,9 +5,10 @@ import { db } from "@/db";
 import { pageViewDaily } from "@/db/schema";
 import { answerableEvents, celebrationPhase, primaryEvent, rsvpDeadlinePassed, visibleEvents, yearlyDate } from "@/lib/celebration-rules";
 import { plainDateInZone } from "@/lib/dates";
-import { appUrl } from "@/lib/env";
+import { appUrl, paymentsEnabled } from "@/lib/env";
 import { getOccasion } from "@/lib/occasions";
 import { getCelebration, resolveSlug, type Celebration } from "./celebrations";
+import { fundTotals, listFunds, recentSupporters } from "./gifts";
 import { listEvents } from "./events";
 import { listGuestbook } from "./guestbook";
 import { listMedia, listShared, mediaUrl, type Media } from "./media";
@@ -63,12 +64,15 @@ export async function loadPublicCelebration(
     placeholder: m.placeholder,
   });
 
-  const [allEvents, photos, entries, memories, shared] = await Promise.all([
+  const [allEvents, photos, entries, memories, shared, funds, totals, supporters] = await Promise.all([
     listEvents(c.id),
     listMedia(c.id, ["portrait", "engagement", "gallery", "event", "venue"]),
     c.guestbookEnabled ? listGuestbook(c.id, { onlyApproved: true }) : Promise.resolve([]),
     listMemories(c.id, { onlyPublic: true }),
     c.guestUploadsEnabled ? listShared(c.id, { onlyApproved: true, limit: sharedLimit }) : Promise.resolve({ items: [], total: 0 }),
+    listFunds(c.id),
+    fundTotals(c.id),
+    recentSupporters(c.id),
   ]);
   const byId = new Map(photos.map((p) => [p.id, p]));
 
@@ -184,7 +188,22 @@ export async function loadPublicCelebration(
       items: shared.items.map(sharedItem),
       total: shared.total,
     },
-    gifts: { message: c.giftMessage, links: c.giftLinks },
+    gifts: {
+      message: c.giftMessage,
+      links: c.giftLinks,
+      funds: funds.map((f) => ({
+        id: f.id,
+        title: f.title,
+        description: f.description,
+        goal: f.goalMinor,
+        raised: f.showProgress ? (totals.get(f.id)?.raised ?? 0) : null,
+        count: totals.get(f.id)?.count ?? 0,
+        currency: f.currency,
+        momo: f.momoNumber ? { number: f.momoNumber, name: f.momoName, network: f.momoNetwork } : null,
+      })),
+      supporters: supporters.map(({ name, message }) => ({ name, message })),
+      online: paymentsEnabled(),
+    },
     thankYouMessage: c.thankYouMessage,
     memories: [...memories]
       .sort((a, b) => a.happenedOn.localeCompare(b.happenedOn))

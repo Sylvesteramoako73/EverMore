@@ -46,6 +46,18 @@ export type RsvpView = {
 
 export type MemoryView = { id: string; title: string; body: string; happenedOn: string; location: string; images: ImageView[] };
 
+/** A gift or contribution fund. Amounts are in minor units (pesewas). `raised` is null when hidden. */
+export type FundView = {
+  id: string;
+  title: string;
+  description: string;
+  goal: number | null;
+  raised: number | null;
+  count: number;
+  currency: string;
+  momo: { number: string; name: string; network: string } | null;
+};
+
 export type SharedItem = ImageView & { kind: "photo" | "video"; guestName: string; downloadUrl: string };
 
 /** Occasion wording and behaviour, resolved on the server so client components stay small. */
@@ -107,7 +119,15 @@ export type CelebrationView = {
   rsvp: RsvpView;
   guestbook: { enabled: boolean; moderated: boolean; entries: { id: string; name: string; message: string; createdAt: string }[] };
   shared: { enabled: boolean; moderated: boolean; items: SharedItem[]; total: number };
-  gifts: { message: string; links: { label: string; url: string }[] };
+  gifts: {
+    message: string;
+    links: { label: string; url: string }[];
+    funds: FundView[];
+    /** Recent confirmed givers (anonymous ones shown as "Someone special"). */
+    supporters: { name: string; message: string }[];
+    /** Online MoMo/card payment through Paystack is available. */
+    online: boolean;
+  };
   thankYouMessage: string;
   memories: MemoryView[];
   hiddenSections: string[];

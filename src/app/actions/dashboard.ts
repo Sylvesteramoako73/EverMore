@@ -21,6 +21,9 @@ import {
 } from "@/server/guests";
 import { setMediaStatus } from "@/server/media";
 import { acceptInvite, inviteMember, removeMember, revokeInvite } from "@/server/members";
+import { createFund, deleteFund, deleteGift, parseAmount, setGiftStatus, updateFund } from "@/server/gifts";
+import { paymentsEnabled } from "@/lib/env";
+import { MOMO_NETWORKS } from "@/lib/money";
 import { deleteRsvp } from "@/server/rsvp";
 
 const uuid = z.uuid();
@@ -189,4 +192,60 @@ export async function switchCelebration(celebrationId: string) {
   if (!mine.some((m) => m.id === celebrationId)) return;
   (await cookies()).set(CURRENT_CELEBRATION_COOKIE, celebrationId, { httpOnly: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 365 });
   redirect("/dashboard");
+}
+
+// ───────────────────────────── Gifts & contributions
+
+const fundSchema = z.object({
+  title: z.string().trim().min(1, "Give this fund a name.").max(80),
+  description: z.string().trim().max(500),
+  goal: z.string().trim(),
+  showProgress: z.preprocess((v) => v === "on", z.boolean()),
+  momoNumber: z
+    .string()
+    .trim()
+    .max(20)
+    .refine((v) => !v || /^\+?[\d\s-]{9,20}$/.test(v), "Enter a phone number, e.g. 024 123 4567."),
+  momoName: z.string().trim().max(80),
+  momoNetwork: z.enum(["", ...MOMO_NETWORKS]),
+});
+
+export async function saveFund(fundId: string | null, _prev: FormState, formData: FormData): Promise<FormState> {
+  const { celebration } = await current();
+  const parsed = fundSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { errors: fieldErrors(parsed.error), values: formValues(formData) };
+  const { goal, ...rest } = parsed.data;
+  const goalMinor = goal ? parseAmount(goal) : null;
+  if (goal && !goalMinor) return { errors: { goal: ["Enter a goal in cedis, e.g. 5000."] }, values: formValues(formData) };
+  if (!rest.momoNumber && !paymentsEnabled()) return { errors: { momoNumber: ["Add the MoMo number guests should send to."] }, values: formValues(formData) };
+  try {
+    if (fundId) {
+      if (!ok(fundId) || !(await updateFund(celebration.id, fundId, { ...rest, goalMinor }))) return { message: "That fund no longer exists." };
+    } else await createFund(celebration.id, { ...rest, goalMinor });
+  } catch (err) {
+    return { message: err instanceof Error ? err.message : "Couldn't save the fund.", values: formValues(formData) };
+  }
+  refresh();
+  return { ok: true, message: fundId ? "Fund updated." : "Fund added. Guests will see it in the Gifts section of your page." };
+}
+
+export async function removeFund(fundId: string) {
+  const { celebration } = await current();
+  if (ok(fundId)) await deleteFund(celebration.id, fundId);
+  refresh();
+}
+
+/** Direct MoMo gifts only: the host confirms they received it (or not). */
+export async function markGift(giftId: string, status: "confirmed" | "failed" | "pending") {
+  const { user, celebration } = await current();
+  if (!ok(giftId) || !["confirmed", "failed", "pending"].includes(status)) return;
+  await setGiftStatus(celebration.id, giftId, status);
+  await audit({ actorUserId: user.id, action: `gift.${status}`, targetType: "gift", targetId: giftId, celebrationId: celebration.id });
+  refresh();
+}
+
+export async function removeGift(giftId: string) {
+  const { celebration } = await current();
+  if (ok(giftId)) await deleteGift(celebration.id, giftId);
+  refresh();
 }

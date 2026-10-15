@@ -39,7 +39,7 @@ export default function DashboardLayout({ children }: LayoutProps<"/dashboard">)
 async function NavWithBadges() {
   const { celebration } = await loadDashboard();
   const waiting = await waitingCounts(celebration.id);
-  return <DashboardNav badges={{ "/dashboard/messages": waiting.messages, "/dashboard/photos": waiting.photos }} />;
+  return <DashboardNav badges={{ "/dashboard/messages": waiting.messages, "/dashboard/photos": waiting.photos, "/dashboard/gifts": waiting.gifts }} />;
 }
 
 async function PageLink() {

@@ -23,6 +23,11 @@ const schema = z.object({
   /** Shared secret for the scheduled-jobs endpoint. */
   CRON_SECRET: z.string().min(16).optional(),
   GEOCODER: z.enum(["nominatim", "off"]).default("nominatim"),
+  /**
+   * Paystack secret key (sk_live_… / sk_test_…). When set, guests can give by Mobile Money or card online.
+   * Unset: guests see the host's MoMo details and the host confirms gifts by hand.
+   */
+  PAYSTACK_SECRET_KEY: z.string().optional(),
 });
 
 function load() {
@@ -37,3 +42,5 @@ function load() {
 export const env = load();
 export const isProduction = env.NODE_ENV === "production";
 export const appUrl = (path = "") => `${env.APP_URL.replace(/\/$/, "")}${path}`;
+
+export const paymentsEnabled = () => Boolean(env.PAYSTACK_SECRET_KEY);

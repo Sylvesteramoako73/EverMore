@@ -115,9 +115,38 @@ test("a host manages guests, replies and messages from the dashboard", async ({ 
   await expect(helper.getByText("Auntie Esi & family", { exact: true })).toBeVisible();
   await helperCtx.close();
 
+  // Gifts: the host adds a fund with MoMo details; a guest says they sent MoMo; the host confirms.
+  await page.goto("/dashboard/gifts");
+  await expect(page.getByRole("heading", { name: "Start collecting gifts" })).toBeVisible();
+  await page.getByLabel("MoMo number").fill("024 555 0101");
+  await page.getByLabel("Name on the account").fill("Abena Asante");
+  await page.getByRole("button", { name: "Add fund" }).click();
+  await expect(page.getByText("Fund added.")).toBeVisible({ timeout: 20_000 });
+
+  const giverCtx = await browser.newContext({ ...testInfo.project.use });
+  const giver = await giverCtx.newPage();
+  await giver.goto(`/${slug}`);
+  const gifts = giver.getByRole("region", { name: "Gifts" });
+  await expect(gifts.getByText("024 555 0101")).toBeVisible();
+  await gifts.getByRole("button", { name: "Give a gift" }).click();
+  await gifts.getByRole("button", { name: "200", exact: true }).click();
+  await gifts.getByLabel("Your name").fill("Uncle Kwame");
+  await gifts.getByRole("button", { name: /I've sent it/ }).click();
+  await expect(gifts.getByText(/Thank you, Uncle! The hosts will confirm/)).toBeVisible({ timeout: 20_000 });
+
+  await page.reload();
+  const pendingGift = page.getByRole("listitem").filter({ hasText: "Uncle Kwame · GH₵ 200" });
+  await pendingGift.getByRole("button", { name: "Received", exact: true }).click();
+  await expect(page.getByText(/GH₵ 200 received from 1 person/)).toBeVisible({ timeout: 20_000 });
+
+  await giver.reload();
+  await expect(giver.getByRole("region", { name: "Gifts" }).getByText("GH₵ 200", { exact: true })).toBeVisible();
+  await expect(giver.getByText("Uncle Kwame")).toBeVisible();
+  await giverCtx.close();
+
   // Optional: screenshots for a visual check (SHOTS=<dir>).
   if (process.env.SHOTS) {
-    for (const p of ["", "/guests", "/rsvps", "/messages", "/settings"]) {
+    for (const p of ["", "/guests", "/rsvps", "/messages", "/gifts", "/settings"]) {
       await page.goto(`/dashboard${p}`);
       await page.waitForTimeout(800);
       await page.screenshot({ path: `${process.env.SHOTS}/dash${p.replace("/", "-") || "-home"}.png`, fullPage: true });

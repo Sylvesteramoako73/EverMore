@@ -466,6 +466,68 @@ export const notification = pgTable(
   (t) => [index("notification_due_idx").on(t.status, t.scheduledFor)],
 );
 
+// ─────────────────────────────────────────────── Gifts & contributions
+
+/**
+ * Something guests can give towards: a wedding gift, a trip fund, funeral contributions.
+ * Money goes straight to the host (MoMo) or through Paystack; EverMore only records it.
+ */
+export const fund = pgTable(
+  "fund",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    celebrationId: uuid("celebration_id")
+      .notNull()
+      .references(() => celebration.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    description: text("description").notNull().default(""),
+    /** Optional target in the smallest unit (pesewas for GHS). */
+    goalMinor: integer("goal_minor"),
+    currency: text("currency").notNull().default("GHS"),
+    /** Show the amount raised and the progress bar on the public page. */
+    showProgress: boolean("show_progress").notNull().default(true),
+    /** Where guests send Mobile Money directly when online payment isn't set up (or as an alternative). */
+    momoNumber: text("momo_number").notNull().default(""),
+    momoName: text("momo_name").notNull().default(""),
+    momoNetwork: text("momo_network").notNull().default(""),
+    position: integer("position").notNull().default(0),
+    ...timestamps,
+  },
+  (t) => [index("fund_celebration_idx").on(t.celebrationId)],
+);
+
+export const giftMethod = pgEnum("gift_method", ["paystack", "momo_direct"]);
+export const giftStatus = pgEnum("gift_status", ["pending", "confirmed", "failed"]);
+
+export const gift = pgTable(
+  "gift",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    celebrationId: uuid("celebration_id")
+      .notNull()
+      .references(() => celebration.id, { onDelete: "cascade" }),
+    fundId: uuid("fund_id").references(() => fund.id, { onDelete: "set null" }),
+    name: text("name").notNull(),
+    email: text("email").notNull().default(""),
+    phone: text("phone").notNull().default(""),
+    message: text("message").notNull().default(""),
+    /** Hide the giver's name from other guests (the host always sees it). */
+    anonymous: boolean("anonymous").notNull().default(false),
+    amountMinor: integer("amount_minor").notNull(),
+    currency: text("currency").notNull().default("GHS"),
+    method: giftMethod("method").notNull(),
+    /** Paystack: confirmed by verification/webhook. Direct MoMo: confirmed by the host. */
+    status: giftStatus("status").notNull().default("pending"),
+    /** Our payment reference (Paystack) – unique so webhooks are idempotent. */
+    reference: text("reference").notNull().unique(),
+    /** What the payment provider reported, e.g. "mobile_money" / "card", and the MoMo network. */
+    channel: text("channel").notNull().default(""),
+    confirmedAt: timestamp("confirmed_at", { withTimezone: true }),
+    ...timestamps,
+  },
+  (t) => [index("gift_celebration_idx").on(t.celebrationId, t.status), index("gift_fund_idx").on(t.fundId)],
+);
+
 // ─────────────────────────────────────────────── Operations
 
 export const auditLog = pgTable(

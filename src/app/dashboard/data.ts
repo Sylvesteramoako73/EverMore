@@ -3,7 +3,7 @@ import { and, count, eq, gte, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 import { db } from "@/db";
-import { guestbookEntry, media, pageViewDaily } from "@/db/schema";
+import { gift, guestbookEntry, media, pageViewDaily } from "@/db/schema";
 import { requireCurrentCelebration } from "@/lib/dal";
 import { appUrl } from "@/lib/env";
 import { getCelebration } from "@/server/celebrations";
@@ -20,11 +20,12 @@ export const loadDashboard = cache(async () => {
 
 /** Things waiting for the host: messages and guest photos to approve. */
 export const waitingCounts = cache(async (celebrationId: string) => {
-  const [[messages], [photos]] = await Promise.all([
+  const [[messages], [photos], [gifts]] = await Promise.all([
     db.select({ n: count() }).from(guestbookEntry).where(and(eq(guestbookEntry.celebrationId, celebrationId), eq(guestbookEntry.status, "pending"))),
     db.select({ n: count() }).from(media).where(and(eq(media.celebrationId, celebrationId), eq(media.source, "guest"), eq(media.status, "pending"))),
+    db.select({ n: count() }).from(gift).where(and(eq(gift.celebrationId, celebrationId), eq(gift.method, "momo_direct"), eq(gift.status, "pending"))),
   ]);
-  return { messages: messages.n, photos: photos.n };
+  return { messages: messages.n, photos: photos.n, gifts: gifts.n };
 });
 
 /** Page views per day for the last `days` days (missing days are zero). */

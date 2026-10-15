@@ -1,3 +1,4 @@
+import { GiftPanel } from "./gifts";
 import {
   Bus, Cake, Camera, Check, Church, Feather, Flame, Flower2, Gift, GlassWater, Heart, Map, Music, Phone, Star, Sun, Utensils,
 } from "lucide-react";
@@ -270,7 +271,7 @@ export function CountdownBand({ w, theme }: { w: CelebrationView; theme: Theme }
 
 // ───────────────────────────── Gifts, thank you, memories
 
-export function GiftsSection({ w, theme }: { w: CelebrationView; theme: Theme }) {
+export function GiftsSection({ w, theme, inviteToken = null }: { w: CelebrationView; theme: Theme; inviteToken?: string | null }) {
   return (
     <Section id="gifts" eyebrow="With gratitude" title={w.occasion.kind === "funeral" ? "Donations" : "Gifts"} theme={theme}>
       <Reveal className="mx-auto max-w-2xl text-center">
@@ -287,6 +288,7 @@ export function GiftsSection({ w, theme }: { w: CelebrationView; theme: Theme })
           </ul>
         )}
       </Reveal>
+      {w.gifts.funds.length > 0 && <GiftPanel w={w} inviteToken={inviteToken} />}
     </Section>
   );
 }
