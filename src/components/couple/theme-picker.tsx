@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, Monitor, Smartphone } from "lucide-react";
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { chooseTheme } from "@/app/actions/celebration";
 import { Button } from "@/components/ui/button";
@@ -14,8 +14,8 @@ export function ThemePicker({ themes, current, slug, premiumAllowed }: { themes:
   const [pending, start] = useTransition();
 
   return (
-    <div className="grid gap-8 xl:grid-cols-[1fr_minmax(340px,440px)]">
-      <fieldset>
+    <div className={`grid gap-8 ${device === "mobile" ? "xl:grid-cols-[1fr_minmax(340px,440px)]" : ""}`}>
+      <fieldset className={device === "desktop" ? "order-2" : ""}>
         <legend className="sr-only">Choose a theme</legend>
         <div className="grid gap-4 sm:grid-cols-2">
           {themes.map((t) => {
@@ -67,7 +67,7 @@ export function ThemePicker({ themes, current, slug, premiumAllowed }: { themes:
         <p aria-live="polite" className="mt-3 min-h-5 text-sm text-muted-foreground">{pending ? "Applying theme…" : ""}</p>
       </fieldset>
 
-      <div className="xl:sticky xl:top-24 xl:self-start">
+      <div className={device === "mobile" ? "xl:sticky xl:top-24 xl:self-start" : "order-1"}>
         <div className="mb-3 flex items-center justify-between">
           <p className="text-sm font-medium text-navy">Preview with your details</p>
           <div className="flex gap-1" role="group" aria-label="Preview size">
@@ -76,14 +76,11 @@ export function ThemePicker({ themes, current, slug, premiumAllowed }: { themes:
           </div>
         </div>
         <div className={`mx-auto overflow-hidden rounded-[1.5rem] border-[8px] border-navy bg-navy ${device === "mobile" ? "w-[330px]" : "w-full"}`}>
-          <div className={device === "mobile" ? "h-[620px]" : "h-[520px]"}>
+          <div className={device === "mobile" ? "h-[620px]" : ""}>
             {device === "mobile" ? (
               <iframe key={`${version}-m`} src={`/${slug}`} title="Preview of your celebration page" className="h-full w-full bg-white" />
             ) : (
-              // Render at desktop width and scale down to fit.
-              <div className="relative h-full w-full overflow-hidden bg-white">
-                <iframe key={`${version}-d`} src={`/${slug}`} title="Desktop preview of your celebration page" className="absolute top-0 left-0 h-[1040px] w-[1280px] origin-top-left scale-[0.5] border-0" />
-              </div>
+              <DesktopFrame src={`/${slug}`} version={version} />
             )}
           </div>
         </div>
@@ -91,6 +88,32 @@ export function ThemePicker({ themes, current, slug, premiumAllowed }: { themes:
           Open full preview in a new tab
         </a>
       </div>
+    </div>
+  );
+}
+
+const DESKTOP = { width: 1440, height: 900 };
+
+/** The page drawn at a real desktop size (1440×900) and scaled to fit the available width. */
+function DesktopFrame({ src, version }: { src: string; version: number }) {
+  const box = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(0.5);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => setScale(entry.contentRect.width / DESKTOP.width));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return (
+    <div ref={box} className="relative w-full overflow-hidden bg-white" style={{ height: DESKTOP.height * scale }}>
+      <iframe
+        key={`${version}-d`}
+        src={src}
+        title="Desktop preview of your celebration page"
+        className="absolute top-0 left-0 origin-top-left border-0"
+        style={{ width: DESKTOP.width, height: DESKTOP.height, transform: `scale(${scale})` }}
+      />
     </div>
   );
 }

@@ -1,0 +1,1 @@
+ALTER TYPE "public"."occasion_kind" ADD VALUE 'opening' BEFORE 'other';

@@ -16,12 +16,13 @@ const OCCASIONS = [
   { kind: "outing", theme: "adventure", label: "Outings & trips", blurb: "Itinerary, meeting point and what to bring.", photo: "trip-sunset-group", span: "md:col-span-2" },
   { kind: "naming", theme: "little-blessings", label: "Naming ceremonies", blurb: "The name, its meaning and blessings.", photo: "baby-fabric", span: "" },
   { kind: "graduation", theme: "modern-minimalist", label: "Graduations", blurb: "Celebrate the graduate with everyone.", photo: "grad-flowers", span: "" },
-  { kind: "reunion", theme: "golden-hour", label: "Reunions", blurb: "Family and class reunions, before and after.", photo: "reunion-friends", span: "md:col-span-2" },
+  { kind: "reunion", theme: "golden-hour", label: "Reunions", blurb: "Family and class reunions, before and after.", photo: "reunion-friends", span: "" },
+  { kind: "opening", theme: "luxury-editorial", label: "Grand openings", blurb: "Shops, restaurants, offices: open your doors in style.", photo: "open-boutique", span: "" },
 ] as const;
 
 const FAQ = [
   ["How long does it take to make a page?", "Most people finish in about ten minutes. You fill in a guided form; we design the page. You can preview it before anyone else sees it and keep editing after you publish."],
-  ["What occasions can I use EverMore for?", "Weddings, birthdays, funerals and memorials, naming ceremonies and outdoorings, outings and trips, reunions, anniversaries, showers, graduations, and anything else worth gathering for. Each gets wording, sections and designs that fit."],
+  ["What occasions can I use EverMore for?", "Weddings, birthdays, funerals and memorials, naming ceremonies and outdoorings, grand openings, outings and trips, reunions, anniversaries, showers, graduations, and anything else worth gathering for. Each gets wording, sections and designs that fit."],
   ["Do guests need an account or an app?", "No. Guests open your link or scan the QR code in any browser to see the details, find the venues and RSVP."],
   ["Can guests share their own photos?", "Yes. Guests upload photos and short videos to a shared gallery that everyone can browse and download. By default you approve each upload before it appears."],
   ["Who can see our page?", "You choose. Unlisted pages are visible to anyone with the link but kept out of search engines. Private pages only open through each guest's personal invitation link. Public pages can optionally appear in search results."],
@@ -52,7 +53,7 @@ export default async function HomePage() {
         <div aria-hidden className="pointer-events-none absolute -top-40 left-1/3 h-[34rem] w-[34rem] rounded-full bg-champagne/20 blur-3xl" />
         <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-4 pt-14 pb-24 sm:px-6 lg:grid-cols-[1fr_1.05fr] lg:pt-20 lg:pb-28">
           <div className="animate-rise">
-            <p className="eyebrow !text-champagne">Weddings · Birthdays · Memorials · Trips · and more</p>
+            <p className="eyebrow !text-champagne">Weddings · Birthdays · Memorials · Grand openings · and more</p>
             <h1 className="mt-5 text-[clamp(2.7rem,6vw,4.6rem)] leading-[1.02]">
               Every moment that matters deserves a <em className="text-champagne">beautiful home</em>.
             </h1>
@@ -98,7 +99,7 @@ export default async function HomePage() {
           <div className="evm-marquee flex gap-10 text-sm tracking-[0.25em] whitespace-nowrap text-ivory/60 uppercase">
             {Array.from({ length: 2 }, (_, k) => (
               <span key={k} className="flex shrink-0 gap-10" aria-hidden={k === 1}>
-                {["Weddings", "Birthdays", "Outdoorings", "Celebrations of life", "Road trips", "Reunions", "Anniversaries", "Graduations", "Baby showers", "Housewarmings"].map((o) => (
+                {["Weddings", "Birthdays", "Outdoorings", "Grand openings", "Celebrations of life", "Road trips", "Reunions", "Anniversaries", "Graduations", "Baby showers"].map((o) => (
                   <span key={o} className="flex items-center gap-10">{o}<span className="text-champagne">✦</span></span>
                 ))}
               </span>

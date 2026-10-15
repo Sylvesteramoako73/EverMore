@@ -1,7 +1,7 @@
 "use client";
 
 import { PARTY_TITLES } from "@/lib/akan";
-import { Cake, Feather, Heart, Users } from "lucide-react";
+import { Cake, Feather, Heart, Store, Users } from "lucide-react";
 import { useActionState, useEffect, useRef, useState, type ReactNode } from "react";
 import { saveBasics, saveCelebrationInfo, saveColours, saveRsvpContacts } from "@/app/actions/celebration";
 import { Field, FormAlert, SubmitButton } from "@/components/forms";
@@ -30,7 +30,7 @@ export type CelebrationInfoValues = {
   details: OccasionDetails;
 };
 
-const GROUP_ICONS = { love: Heart, milestones: Cake, remembrance: Feather, together: Users } as const;
+const GROUP_ICONS = { love: Heart, milestones: Cake, remembrance: Feather, together: Users, business: Store } as const;
 
 function Group({ title, description, children }: { title: string; description?: string; children: ReactNode }) {
   return (

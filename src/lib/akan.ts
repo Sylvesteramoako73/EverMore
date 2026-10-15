@@ -26,6 +26,7 @@ export const PARTY_TITLES: Partial<Record<string, { title: string; hint: string;
   funeral: { title: "The Family", hint: "Children, spouse and chief mourners, as you'd like them listed.", example: "Michael Owusu — Son\nAbena Owusu — Daughter" },
   reunion: { title: "Organising Committee", hint: "Who's organising, so people know who to ask.", example: "Akua Darko — Chair\nYaw Mensah — Treasurer" },
   outing: { title: "Trip Organisers", hint: "Who to call on the trip.", example: "Akosua Darko — Coordinator" },
+  opening: { title: "Meet the Team", hint: "The founders, staff and partners behind the business.", example: "Adwoa Mensah — Founder\nKojo Asante — Master tailor" },
   graduation: { title: "Special Thanks", hint: "Family and mentors you'd like to honour.", example: "Mum & Dad — Everything" },
 };
 

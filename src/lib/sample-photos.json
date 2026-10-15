@@ -674,6 +674,78 @@
     "width": 1600,
     "height": 1287
   },
+  "open-boutique": {
+    "id": "1769107805412-90d9191d53e9",
+    "by": "Caroline Badran",
+    "alt": "Bright boutique interior with clothing and accessories",
+    "src": "/samples/photos/open-boutique.webp",
+    "thumb": "/samples/photos/open-boutique-sm.webp",
+    "width": 1067,
+    "height": 1600
+  },
+  "open-shop": {
+    "id": "1777628530456-bb93d3a03faf",
+    "by": "Bayu Syaits",
+    "alt": "Clothing boutique interior with racks of apparel",
+    "src": "/samples/photos/open-shop.webp",
+    "thumb": "/samples/photos/open-shop-sm.webp",
+    "width": 1067,
+    "height": 1600
+  },
+  "open-window": {
+    "id": "1785860089217-5c7f62013cb9",
+    "by": "Jinsheng Bian",
+    "alt": "Shop window display with mannequin and flowers",
+    "src": "/samples/photos/open-window.webp",
+    "thumb": "/samples/photos/open-window-sm.webp",
+    "width": 1600,
+    "height": 1034
+  },
+  "open-ribbon": {
+    "id": "1787555267772-002780c3fe8a",
+    "by": "Ayush Design",
+    "alt": "Cutting a red welcome ribbon",
+    "src": "/samples/photos/open-ribbon.webp",
+    "thumb": "/samples/photos/open-ribbon-sm.webp",
+    "width": 1600,
+    "height": 1068
+  },
+  "open-tailor": {
+    "id": "1687422809069-0fa3546b8471",
+    "by": "Ali Mkumbwa",
+    "alt": "Tailor smiling at his sewing machine",
+    "src": "/samples/photos/open-tailor.webp",
+    "thumb": "/samples/photos/open-tailor-sm.webp",
+    "width": 1600,
+    "height": 1067
+  },
+  "open-owner": {
+    "id": "1769636930016-5d9f0ca653aa",
+    "by": "Jadon Johnson",
+    "alt": "Smiling business owner",
+    "src": "/samples/photos/open-owner.webp",
+    "thumb": "/samples/photos/open-owner-sm.webp",
+    "width": 1200,
+    "height": 1600
+  },
+  "open-champagne": {
+    "id": "1580657274234-7339717f4541",
+    "by": "Alexander Naglestad",
+    "alt": "Champagne poured into a tray of flutes",
+    "src": "/samples/photos/open-champagne.webp",
+    "thumb": "/samples/photos/open-champagne-sm.webp",
+    "width": 1600,
+    "height": 1068
+  },
+  "open-toast": {
+    "id": "1647905555465-0f9004fbdaed",
+    "by": "Micaela Peduzi",
+    "alt": "Guests raising a toast",
+    "src": "/samples/photos/open-toast.webp",
+    "thumb": "/samples/photos/open-toast-sm.webp",
+    "width": 1600,
+    "height": 1060
+  },
   "grad-kente-walk": {
     "id": "1692883702706-a50fc21da44f",
     "by": "Raymond Owusu-Afriyie",

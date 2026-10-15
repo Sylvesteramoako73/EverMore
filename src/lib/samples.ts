@@ -67,6 +67,12 @@ const PHOTO_SETS: Record<OccasionKind, { hero: string; portraits: string[]; gall
     gallery: ["bday-tables", "family-mother", "bday-cake", "reunion-women"],
     venues: ["venue-tables"],
   },
+  opening: {
+    hero: "open-boutique",
+    portraits: ["open-owner", "open-tailor"],
+    gallery: ["open-shop", "open-window", "open-champagne", "open-ribbon", "open-toast"],
+    venues: ["open-shop", "open-boutique", "open-toast"],
+  },
   other: {
     hero: "family-games",
     portraits: ["bday-tables", "reunion-laugh"],
@@ -226,6 +232,28 @@ const SPECS: Record<OccasionKind, SampleSpec> = {
     colours: [{ name: "Blush", hex: "#F2D5D3", note: "" }, { name: "Sage", hex: "#AEBFA5", note: "" }],
     thankYou: "Thank you for showering us with love!",
   },
+  opening: {
+    title: "Adwoa Atelier", names: [],
+    guestMessage: "Five years of sewing from a spare room, and now a home of our own. Come and celebrate with us.",
+    story: "Adwoa Atelier began with one sewing machine and a lot of faith. Today we open our first boutique in Osu: made-to-measure kaba and slit, bridal wear and ready-to-wear, all cut and finished in Accra. Join us for the ribbon cutting, a blessing, music and a first look at our new collection.",
+    events: [
+      { name: "Blessing & prayers", offsetDays: 0, start: "10:00", end: "10:30", venue: "Adwoa Atelier", address: "Oxford Street, Osu, Accra", description: "A short blessing of the new shop.", icon: "dove" },
+      { name: "Ribbon cutting", offsetDays: 0, start: "10:30", end: "11:00", venue: "Adwoa Atelier", address: "Oxford Street, Osu, Accra", description: "Officially opening our doors, with our very first customers.", icon: "star" },
+      { name: "Open house & cocktails", offsetDays: 0, start: "11:00", end: "16:00", venue: "Adwoa Atelier", address: "Oxford Street, Osu, Accra", description: "Browse the new collection, meet the team, and enjoy 15% off everything on opening day.", dressCode: "Smart, with a touch of kente", icon: "glass" },
+    ],
+    colours: [
+      { name: "Champagne", hex: "#D8C3A0", note: "Our signature colour." },
+      { name: "Ink", hex: "#1B1B1F", note: "" },
+    ],
+    facts: {
+      party: [
+        { name: "Adwoa Mensah", role: "Founder & designer" },
+        { name: "Kojo Asante", role: "Master tailor" },
+        { name: "Efua Darko", role: "Store manager" },
+      ],
+    },
+    thankYou: "Thank you for opening our doors with us. We can't wait to dress you.",
+  },
   other: {
     title: "Housewarming at the Asantes'", names: [],
     guestMessage: "New home, same friends. Come and see it!",
@@ -270,6 +298,7 @@ const WEDDING_BY_THEME: Record<string, (typeof PHOTO_SETS)["wedding"]> = {
 
 /** Sample gift funds: amounts in pesewas. */
 const SAMPLE_FUNDS: Partial<Record<OccasionKind, FundView>> = {
+  opening: { id: "f1", title: "Support the shop", description: "Gifts towards our first sewing machines and fittings. Thank you!", goal: 2_000_000, raised: 1_150_000, count: 19, currency: "GHS", momo: { number: "024 000 0006", name: "Adwoa Mensah", network: "MTN MoMo" } },
   wedding: { id: "f1", title: "Wedding gift", description: "Towards our first home together.", goal: null, raised: 1_250_000, count: 23, currency: "GHS", momo: { number: "024 000 0001", name: "Ama Mensah", network: "MTN MoMo" } },
   funeral: { id: "f1", title: "Funeral contributions", description: "Support for the family towards the funeral arrangements.", goal: 3_000_000, raised: 1_840_000, count: 41, currency: "GHS", momo: { number: "024 000 0002", name: "Michael Owusu", network: "MTN MoMo" } },
   outing: { id: "f1", title: "Trip fund", description: "GH₵ 450 per person covers transport, the boat cruise and lunch.", goal: 900_000, raised: 630_000, count: 14, currency: "GHS", momo: { number: "020 000 0003", name: "Akosua Darko", network: "Telecel Cash" } },

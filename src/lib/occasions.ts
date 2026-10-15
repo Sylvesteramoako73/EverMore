@@ -11,6 +11,7 @@ export const OCCASION_KINDS = [
   "graduation",
   "reunion",
   "shower",
+  "opening",
   "other",
 ] as const;
 export type OccasionKind = (typeof OCCASION_KINDS)[number];
@@ -41,7 +42,7 @@ export type Occasion = {
   label: string;
   /** Shown on the "What are you celebrating?" picker. */
   pitch: string;
-  group: "love" | "milestones" | "remembrance" | "together";
+  group: "love" | "milestones" | "remembrance" | "together" | "business";
   /** Who the page is about. min 0 = the title alone (e.g. an outing). */
   honorees: { min: number; max: number; labels: string[] };
   /** Default headline from the honorees, before the host edits it. */
@@ -296,6 +297,31 @@ export const OCCASIONS: Record<OccasionKind, Occasion> = {
     eventSuggestions: ["Baby shower", "Bridal shower", "Brunch", "Games"],
     recommendedThemes: ["little-blessings", "romantic-garden", "confetti", "golden-hour"],
   },
+  opening: {
+    kind: "opening",
+    label: "Grand opening",
+    pitch: "A new shop, restaurant, office, salon or church building: open your doors in style.",
+    group: "business",
+    honorees: { min: 0, max: 0, labels: [] },
+    defaultTitle: () => "Our Grand Opening",
+    countdown: true,
+    after: "memories",
+    copy: {
+      hostLine: "You're cordially invited to the",
+      invitation: "Be among the first through our doors. Join us for the ribbon cutting, refreshments and a first look.",
+      today: "We're open! Come and celebrate with us",
+      afterLead: "Thank you for opening our doors with us",
+      storyTitle: "Our Story",
+      scheduleTitle: "Opening Day",
+      guestbookTitle: "Good Wishes",
+      guestbookPrompt: "Leave a word of encouragement for the team.",
+      thankYouTitle: "Thank You for Coming",
+      dateTitle: "Opening Day",
+      keyDateLabel: "Opening date",
+    },
+    eventSuggestions: ["Ribbon cutting", "Opening ceremony", "Blessing & prayers", "Cocktail reception", "Open house", "Launch party"],
+    recommendedThemes: ["luxury-editorial", "modern-minimalist", "golden-hour", "timeless-elegance"],
+  },
   other: {
     kind: "other",
     label: "Something else",
@@ -332,6 +358,7 @@ export const OCCASION_GROUPS: { id: Occasion["group"]; label: string }[] = [
   { id: "milestones", label: "Milestones" },
   { id: "remembrance", label: "Remembrance" },
   { id: "together", label: "Together" },
+  { id: "business", label: "Business" },
 ];
 
 /** Icons available for programme items (rendered by the site; keys stay stable). */

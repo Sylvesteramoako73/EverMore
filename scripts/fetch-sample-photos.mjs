@@ -94,6 +94,15 @@ const PHOTOS = {
   "reunion-women": ["1630726410985-a1021e8a232a", "Andra C Taylor Jr", "Women laughing together"],
   "reunion-lunch": ["1529832588601-c01e066263a8", "Mohau Mannathoko", "Friends at an outdoor lunch table"],
   "party-dance": ["1711743658461-38c875d37c8e", "Sthembile Nobathana", "Friends dancing at a party"],
+  // Grand openings
+  "open-boutique": ["1769107805412-90d9191d53e9", "Caroline Badran", "Bright boutique interior with clothing and accessories"],
+  "open-shop": ["1777628530456-bb93d3a03faf", "Bayu Syaits", "Clothing boutique interior with racks of apparel"],
+  "open-window": ["1785860089217-5c7f62013cb9", "Jinsheng Bian", "Shop window display with mannequin and flowers"],
+  "open-ribbon": ["1787555267772-002780c3fe8a", "Ayush Design", "Cutting a red welcome ribbon"],
+  "open-tailor": ["1687422809069-0fa3546b8471", "Ali Mkumbwa", "Tailor smiling at his sewing machine"],
+  "open-owner": ["1769636930016-5d9f0ca653aa", "Jadon Johnson", "Smiling business owner"],
+  "open-champagne": ["1580657274234-7339717f4541", "Alexander Naglestad", "Champagne poured into a tray of flutes"],
+  "open-toast": ["1647905555465-0f9004fbdaed", "Micaela Peduzi", "Guests raising a toast"],
   // Graduation
   "grad-kente-walk": ["1692883702706-a50fc21da44f", "Raymond Owusu-Afriyie", "Two graduates in gowns and kente stoles"],
   "grad-kente": ["1680265254066-b2b65e1e95ca", "Emmanuel Yeboah Okine", "Graduate in a kente stole"],
