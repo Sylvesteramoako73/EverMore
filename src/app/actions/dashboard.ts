@@ -1,9 +1,10 @@
 "use server";
 
 import { refresh } from "next/cache";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { requireCurrentCelebration, requireUserForAction } from "@/lib/dal";
+import { CURRENT_CELEBRATION_COOKIE, listMyCelebrations, requireCurrentCelebration, requireUserForAction } from "@/lib/dal";
 import { fieldErrors, formValues, guestSchema, type FormState } from "@/lib/validation";
 import { audit } from "@/server/audit";
 import { getCelebration } from "@/server/celebrations";
@@ -19,6 +20,7 @@ import {
   updateGuest,
 } from "@/server/guests";
 import { setMediaStatus } from "@/server/media";
+import { acceptInvite, inviteMember, removeMember, revokeInvite } from "@/server/members";
 import { deleteRsvp } from "@/server/rsvp";
 
 const uuid = z.uuid();
@@ -125,4 +127,66 @@ export async function moderateShared(mediaId: string, status: "approved" | "hidd
   const { celebration } = await current();
   if (ok(mediaId) && (status === "approved" || status === "hidden")) await setMediaStatus(celebration.id, mediaId, status);
   refresh();
+}
+
+// ───────────────────────────── People who manage the page
+
+const inviteSchema = z.object({
+  email: z.string().trim().toLowerCase().email("Enter a valid email address."),
+  role: z.enum(["cohost", "planner"]),
+});
+
+/** Owner only: invite a co-host or planner by email. */
+export async function inviteHelper(_prev: FormState, formData: FormData): Promise<FormState> {
+  const { user, celebration, role } = await current();
+  if (role !== "owner") return { message: "Only the page owner can invite people." };
+  const parsed = inviteSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { errors: fieldErrors(parsed.error), values: formValues(formData) };
+  try {
+    const sent = await inviteMember(celebration.id, user, parsed.data.email, parsed.data.role);
+    await audit({ actorUserId: user.id, action: "member.invited", targetType: "celebration", targetId: celebration.id, celebrationId: celebration.id, metadata: { role: parsed.data.role } });
+    refresh();
+    return {
+      ok: true,
+      message: sent.delivered
+        ? `Invitation sent to ${parsed.data.email}.`
+        : `Invitation created. Email isn't set up here, so share this link with them: ${sent.url}`,
+    };
+  } catch (err) {
+    if (err instanceof LimitError) return { message: err.message, values: formValues(formData) };
+    throw err;
+  }
+}
+
+export async function cancelInvite(inviteId: string) {
+  const { celebration, role } = await current();
+  if (role === "owner" && ok(inviteId)) await revokeInvite(celebration.id, inviteId);
+  refresh();
+}
+
+export async function removeHelper(userId: string) {
+  const { user, celebration, role } = await current();
+  if (role !== "owner" || userId === user.id) return;
+  if (await removeMember(celebration.id, userId))
+    await audit({ actorUserId: user.id, action: "member.removed", targetType: "user", targetId: userId, celebrationId: celebration.id });
+  refresh();
+}
+
+/** Accept a co-host/planner invitation and open that celebration's dashboard. */
+export async function acceptInvitation(token: string) {
+  const user = await requireUserForAction();
+  const celebrationId = await acceptInvite(token, user.id);
+  if (!celebrationId) redirect(`/join/${encodeURIComponent(token)}`);
+  await audit({ actorUserId: user.id, action: "member.joined", targetType: "celebration", targetId: celebrationId, celebrationId });
+  (await cookies()).set(CURRENT_CELEBRATION_COOKIE, celebrationId, { httpOnly: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 365 });
+  redirect("/dashboard");
+}
+
+/** Switch the dashboard to another celebration the user belongs to. */
+export async function switchCelebration(celebrationId: string) {
+  const user = await requireUserForAction();
+  const mine = await listMyCelebrations(user.id);
+  if (!mine.some((m) => m.id === celebrationId)) return;
+  (await cookies()).set(CURRENT_CELEBRATION_COOKIE, celebrationId, { httpOnly: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 365 });
+  redirect("/dashboard");
 }

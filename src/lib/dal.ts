@@ -1,6 +1,6 @@
 import "server-only";
 import { and, eq } from "drizzle-orm";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { forbidden, notFound, redirect, unauthorized } from "next/navigation";
 import { cache } from "react";
 import { db } from "@/db";
@@ -77,11 +77,23 @@ export async function requireCelebrationAccess(
   return { user, role };
 }
 
-/** The celebration the dashboard is working on: the user's first celebration, or onboarding if they have none. */
+/** Cookie remembering which celebration the dashboard is working on, for people who help with several. */
+export const CURRENT_CELEBRATION_COOKIE = "evm_celebration";
+
+/**
+ * The celebration the dashboard is working on: the one picked in the switcher if the user still belongs
+ * to it, otherwise their first. Sends people with none to onboarding.
+ */
 export async function requireCurrentCelebration() {
   const user = await requireUser();
-  const [first] = await listMyCelebrations(user.id);
-  if (!first) redirect("/onboarding");
-  const role = first.role;
-  return { user, celebrationId: first.id, role };
+  const current = await pickCurrentCelebration(user.id);
+  if (!current) redirect("/onboarding");
+  return { user, celebrationId: current.id, role: current.role };
+}
+
+/** The celebration picked in the switcher (if still a member), else the user's first; null if none. */
+export async function pickCurrentCelebration(userId: string) {
+  const mine = await listMyCelebrations(userId);
+  const picked = (await cookies()).get(CURRENT_CELEBRATION_COOKIE)?.value;
+  return mine.find((m) => m.id === picked) ?? mine[0] ?? null;
 }

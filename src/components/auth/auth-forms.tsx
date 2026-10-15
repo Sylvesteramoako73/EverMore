@@ -81,6 +81,8 @@ function Divider() {
 
 export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
   const router = useRouter();
+  // e.g. an invitation to co-host: come back to it after confirming the email.
+  const returnTo = safeNext(useSearchParams().get("next"), "/onboarding");
   const { pending, setPending, message, setMessage } = useSubmit();
   const [errors, setErrors] = useState<Errors>({});
 
@@ -99,7 +101,7 @@ export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
 
     setPending(true);
     setMessage(null);
-    const { error } = await authClient.signUp.email({ name, email, password, callbackURL: "/onboarding" });
+    const { error } = await authClient.signUp.email({ name, email, password, callbackURL: returnTo });
     setPending(false);
     if (error) {
       // Don't reveal whether an address is registered beyond what the provider returns.
@@ -113,7 +115,7 @@ export function SignUpForm({ googleEnabled }: { googleEnabled: boolean }) {
     <div className="space-y-6">
       {googleEnabled && (
         <>
-          <GoogleButton next="/onboarding" />
+          <GoogleButton next={returnTo} />
           <Divider />
         </>
       )}

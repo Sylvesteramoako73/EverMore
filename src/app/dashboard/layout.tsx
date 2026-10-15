@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { ExternalLink } from "lucide-react";
 import { Suspense } from "react";
 import { Logo } from "@/components/brand";
-import { DashboardNav, SignOutButton } from "@/components/dashboard/nav";
+import { CelebrationSwitcher, DashboardNav, SignOutButton } from "@/components/dashboard/nav";
+import { listMyCelebrations } from "@/lib/dal";
 import { loadDashboard, waitingCounts } from "./data";
 
 export const metadata: Metadata = { title: { default: "Dashboard", template: "%s · EverMore dashboard" }, robots: { index: false } };
@@ -42,8 +43,10 @@ async function NavWithBadges() {
 }
 
 async function PageLink() {
-  const { celebration } = await loadDashboard();
+  const { celebration, user } = await loadDashboard();
   const live = celebration.status === "published";
+  const mine = await listMyCelebrations(user.id);
+  if (mine.length > 1) return <CelebrationSwitcher current={celebration.id} options={mine.map((m) => ({ id: m.id, title: m.title, live: m.status === "published" }))} />;
   return (
     <a
       href={`/${celebration.slug}`}

@@ -4,6 +4,7 @@ import { Camera, Home, LogOut, MailCheck, MessageSquareHeart, PenLine, Settings,
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTransition } from "react";
+import { switchCelebration } from "@/app/actions/dashboard";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
@@ -71,5 +72,28 @@ export function SignOutButton() {
     >
       <LogOut className="h-4 w-4" aria-hidden /> {pending ? "Signing out…" : "Sign out"}
     </button>
+  );
+}
+
+/** For people who manage more than one celebration (e.g. planners). */
+export function CelebrationSwitcher({ current, options }: { current: string; options: { id: string; title: string; live: boolean }[] }) {
+  const [pending, start] = useTransition();
+  return (
+    <label className="flex min-w-0 items-center gap-2 text-sm">
+      <span className="sr-only">Celebration</span>
+      <select
+        value={current}
+        disabled={pending}
+        onChange={(e) => {
+          const id = e.target.value;
+          start(async () => { await switchCelebration(id); });
+        }}
+        className="h-9 max-w-[16rem] truncate rounded-full border border-border bg-white px-3 text-navy"
+      >
+        {options.map((o) => (
+          <option key={o.id} value={o.id}>{o.title}{o.live ? "" : " (draft)"}</option>
+        ))}
+      </select>
+    </label>
   );
 }

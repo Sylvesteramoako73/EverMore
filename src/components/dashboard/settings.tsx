@@ -3,6 +3,7 @@
 import { Plus, X } from "lucide-react";
 import { useActionState, useState } from "react";
 import { saveGuestFeatures } from "@/app/actions/celebration";
+import { inviteHelper } from "@/app/actions/dashboard";
 import { Field, FormAlert, SubmitButton } from "@/components/forms";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -140,6 +141,28 @@ export function GuestFeaturesForm({ values }: { values: GuestFeatureValues }) {
       </fieldset>
 
       <SubmitButton pending="Saving…">Save guest settings</SubmitButton>
+    </form>
+  );
+}
+
+export function InviteHelperForm({ plannerAllowed }: { plannerAllowed: boolean }) {
+  const [state, action] = useActionState<FormState, FormData>(inviteHelper, undefined);
+  const e = state?.errors ?? {};
+  return (
+    <form action={action} className="space-y-4" noValidate>
+      <FormAlert state={state} />
+      <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
+        <Field label="Their email" errors={e.email}>
+          <Input name="email" type="email" autoComplete="off" defaultValue={state?.ok ? "" : (state?.values?.email ?? "")} key={state?.ok ? "sent" : "form"} />
+        </Field>
+        <Field label="Role" errors={e.role}>
+          <select name="role" defaultValue="cohost" className="h-10 rounded-lg border border-input bg-white px-3 text-sm">
+            <option value="cohost">Co-host (partner, family)</option>
+            {plannerAllowed && <option value="planner">Planner</option>}
+          </select>
+        </Field>
+      </div>
+      <SubmitButton pending="Sending…">Send invitation</SubmitButton>
     </form>
   );
 }

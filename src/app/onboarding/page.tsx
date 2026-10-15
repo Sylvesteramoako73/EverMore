@@ -10,7 +10,7 @@ import { ThemePicker } from "@/components/couple/theme-picker";
 import { ColoursEditor } from "@/components/couple/detail-forms";
 import { BasicsStep, ContinueButton, DetailsStep } from "@/components/couple/wizard-steps";
 import { Skeleton } from "@/components/ui/skeleton";
-import { listMyCelebrations, requireUser } from "@/lib/dal";
+import { pickCurrentCelebration, requireUser } from "@/lib/dal";
 import { appUrl } from "@/lib/env";
 import { entitlements } from "@/lib/plans";
 import { getOccasion, type OccasionKind } from "@/lib/occasions";
@@ -63,7 +63,7 @@ function WizardSkeleton() {
 async function Wizard({ searchParams }: PageProps<"/onboarding">) {
   const user = await requireUser();
   const sp = await searchParams;
-  const [mine] = await listMyCelebrations(user.id);
+  const mine = await pickCurrentCelebration(user.id);
   const celebration = mine ? await getCelebration(mine.id) : null;
 
   // You can revisit any step you've reached, but not skip ahead of it.

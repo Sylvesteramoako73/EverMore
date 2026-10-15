@@ -96,6 +96,25 @@ test("a host manages guests, replies and messages from the dashboard", async ({ 
 
   expect(slug).toMatch(/^abena-and-yaw/);
 
+  // Invite a co-host. Without an email provider the link is shown to the host.
+  await page.getByLabel("Their email").fill(uniqueEmail("cohost"));
+  await page.getByRole("button", { name: "Send invitation" }).click();
+  const notice = page.getByText(/share this link with them: /);
+  await expect(notice).toBeVisible({ timeout: 20_000 });
+  const join = new URL((await notice.innerText()).match(/https?:\/\/\S+/)![0]);
+  await expect(page.getByText("waiting to accept")).toBeVisible();
+
+  const helperCtx = await browser.newContext({ ...testInfo.project.use });
+  const helper = await helperCtx.newPage();
+  await signUpAndVerify(helper, uniqueEmail(`helper-${testInfo.project.name}`), "Kwesi Mensah");
+  await helper.goto(join.pathname);
+  await expect(helper.getByRole("heading", { name: "Help manage Abena & Yaw" })).toBeVisible();
+  await helper.getByRole("button", { name: /Accept as Kwesi Mensah/ }).click();
+  await expect(helper).toHaveURL(/\/dashboard$/, { timeout: 20_000 });
+  await helper.goto("/dashboard/guests");
+  await expect(helper.getByText("Auntie Esi & family", { exact: true })).toBeVisible();
+  await helperCtx.close();
+
   // Optional: screenshots for a visual check (SHOTS=<dir>).
   if (process.env.SHOTS) {
     for (const p of ["", "/guests", "/rsvps", "/messages", "/settings"]) {

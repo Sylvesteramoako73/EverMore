@@ -3,7 +3,7 @@
 import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { requireCurrentCelebration, requireUserForAction, listMyCelebrations } from "@/lib/dal";
+import { pickCurrentCelebration, requireCurrentCelebration, requireUserForAction } from "@/lib/dal";
 import { isValidTimeZone } from "@/lib/dates";
 import { entitlements } from "@/lib/plans";
 import { getTheme } from "@/lib/themes";
@@ -60,7 +60,7 @@ export async function saveBasics(_prev: FormState, formData: FormData): Promise<
   const parsed = basicsSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values: formValues(formData) };
 
-  const [existing] = await listMyCelebrations(user.id);
+  const existing = await pickCurrentCelebration(user.id);
   if (existing) {
     await updateCelebration(existing.id, parsed.data);
   } else {

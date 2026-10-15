@@ -14,6 +14,8 @@ const google =
 
 export const isGoogleEnabled = Boolean(google);
 
+const devSlack = isProduction ? 1 : 10;
+
 export const auth = betterAuth({
   appName: "EverMore",
   baseURL: env.APP_URL,
@@ -58,11 +60,12 @@ export const auth = betterAuth({
     enabled: true,
     window: 60,
     max: 100,
+    // Strict in production; ten times looser locally so testing sign-ups doesn't lock you out.
     customRules: {
-      "/sign-in/email": { window: 60, max: 5 },
-      "/sign-up/email": { window: 60 * 10, max: 5 },
-      "/request-password-reset": { window: 60 * 10, max: 3 },
-      "/send-verification-email": { window: 60 * 10, max: 3 },
+      "/sign-in/email": { window: 60, max: 5 * devSlack },
+      "/sign-up/email": { window: 60 * 10, max: 5 * devSlack },
+      "/request-password-reset": { window: 60 * 10, max: 3 * devSlack },
+      "/send-verification-email": { window: 60 * 10, max: 3 * devSlack },
     },
   },
   advanced: {

@@ -39,10 +39,12 @@ export const emails = {
       "This link expires in 1 hour. If you didn't ask for this, you can ignore this email and your password stays the same.",
     ], { label: "Choose a new password", url }),
 
-  partnerInvite: (to: string, inviterName: string, couple: string, url: string) =>
-    message(to, `${inviterName} invited you to your celebration website on EverMore`, `Join ${couple} on EverMore`, [
-      `${inviterName} has invited you to help manage your celebration website.`,
-      "Accept the invitation to edit details, see RSVPs and add memories together. This link expires in 7 days.",
+  memberInvite: (to: string, inviterName: string, title: string, role: "cohost" | "planner", url: string) =>
+    message(to, `${inviterName} invited you to help with ${title} on EverMore`, `Help manage ${title}`, [
+      `${inviterName} has invited you to help manage the page for ${title} as ${role === "planner" ? "a planner" : "a co-host"}.`,
+      role === "planner"
+        ? "You'll be able to manage guests, see RSVPs and approve messages and photos. This link expires in 7 days."
+        : "You'll be able to edit the page, manage guests, see RSVPs and add memories. This link expires in 7 days.",
     ], { label: "Accept invitation", url }),
 
   anniversaryReminder: (to: string, couple: string, years: number, daysBefore: number, url: string) =>

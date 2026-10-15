@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { SignUpForm } from "@/components/auth/auth-forms";
 import { isGoogleEnabled } from "@/lib/auth";
 import { AuthHeading } from "../auth-heading";
@@ -13,7 +14,9 @@ export default function SignUpPage() {
         title="Let's begin your story"
         subtitle={<>Already have an account? <Link href="/sign-in" className="text-navy underline underline-offset-4">Sign in</Link></>}
       />
-      <SignUpForm googleEnabled={isGoogleEnabled} />
+      <Suspense>
+        <SignUpForm googleEnabled={isGoogleEnabled} />
+      </Suspense>
     </>
   );
 }

@@ -97,7 +97,7 @@ export function PublishControls({ status, url, problems }: { status: "draft" | "
           <Button asChild variant="outline"><a href={url} target="_blank" rel="noopener noreferrer"><ExternalLink aria-hidden /> Open</a></Button>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button asChild><Link href="/dashboard/share">Share & QR code</Link></Button>
+          <Button asChild><Link href="/dashboard">Go to your dashboard</Link></Button>
           <Button
             variant="ghost"
             disabled={pending}
