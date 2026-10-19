@@ -4,7 +4,7 @@ import { cookies, headers } from "next/headers";
 import { forbidden, notFound, redirect, unauthorized } from "next/navigation";
 import { cache } from "react";
 import { db } from "@/db";
-import { celebration, celebrationMember } from "@/db/schema";
+import { celebration, celebrationMember, user as userTable } from "@/db/schema";
 import { auth } from "@/lib/auth";
 
 // Data Access Layer: the only place that turns a request into "who is this and what may they touch".
@@ -17,9 +17,16 @@ export type MemberRole = "owner" | "cohost" | "planner";
 export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) return null;
-  const u = session.user as typeof session.user & { role?: string; suspendedAt?: Date | null };
-  if (u.suspendedAt) return null;
-  return { id: u.id, name: u.name, email: u.email, role: u.role ?? "user", emailVerified: u.emailVerified };
+  // Role and suspension are read fresh from the database, not from the session (which is cached in a
+  // cookie for a few minutes), so making someone an admin or suspending them takes effect at once.
+  const [fresh] = await db
+    .select({ role: userTable.role, suspendedAt: userTable.suspendedAt })
+    .from(userTable)
+    .where(eq(userTable.id, session.user.id))
+    .limit(1);
+  if (!fresh || fresh.suspendedAt) return null;
+  const u = session.user;
+  return { id: u.id, name: u.name, email: u.email, role: fresh.role, emailVerified: u.emailVerified };
 });
 
 /** For pages: redirect to sign-in when signed out. */

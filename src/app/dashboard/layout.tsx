@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ExternalLink } from "lucide-react";
+import Link from "next/link";
 import { Suspense } from "react";
 import { Logo } from "@/components/brand";
 import { CelebrationSwitcher, DashboardNav, SignOutButton } from "@/components/dashboard/nav";
@@ -15,6 +16,9 @@ export default function DashboardLayout({ children }: LayoutProps<"/dashboard">)
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
           <Logo href="/dashboard" />
           <div className="flex min-w-0 items-center gap-5">
+            <Suspense>
+              <AdminLink />
+            </Suspense>
             <Suspense>
               <PageLink />
             </Suspense>
@@ -40,6 +44,13 @@ async function NavWithBadges() {
   const { celebration } = await loadDashboard();
   const waiting = await waitingCounts(celebration.id);
   return <DashboardNav badges={{ "/dashboard/messages": waiting.messages, "/dashboard/photos": waiting.photos, "/dashboard/gifts": waiting.gifts }} />;
+}
+
+/** Only the EverMore owner (admin accounts) sees this. */
+async function AdminLink() {
+  const { user } = await loadDashboard();
+  if (user.role !== "admin") return null;
+  return <Link href="/admin" className="rounded-full bg-navy px-3 py-1.5 text-xs font-semibold tracking-wider text-ivory uppercase">Admin</Link>;
 }
 
 async function PageLink() {

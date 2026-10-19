@@ -13,7 +13,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
-    "dev:next": "next dev"
+    "dev:next": "next dev",
+    "make-admin": "node scripts/make-admin.mjs"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.10",
