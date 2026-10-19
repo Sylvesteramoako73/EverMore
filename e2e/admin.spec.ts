@@ -34,6 +34,8 @@ test("only admins can open the admin area, and admins can moderate", async ({ pa
   // An ordinary user is turned away.
   await host.goto("/admin");
   await expect(host.getByRole("heading", { name: "This area is private" })).toBeVisible();
+  await host.goto("/admin/login");
+  await expect(host.getByRole("heading", { name: "Not an admin account" })).toBeVisible();
 
   // Make a second account an admin with the command-line tool.
   const adminEmail = uniqueEmail(`owner-${testInfo.project.name}`);
@@ -41,6 +43,21 @@ test("only admins can open the admin area, and admins can moderate", async ({ pa
   execFileSync("node", ["scripts/make-admin.mjs", adminEmail], { stdio: "pipe" });
   await page.goto("/admin");
   await expect(page.getByRole("heading", { name: "Platform overview" })).toBeVisible();
+
+  // Signed out, /admin leads to the admin sign-in, which goes straight back into the admin area.
+  const fresh = await (await browser.newContext({ ...testInfo.project.use })).newPage();
+  await fresh.goto("/admin");
+  await expect(fresh).toHaveURL(/\/admin\/login/);
+  await expect(fresh.getByRole("heading", { name: "Admin sign in" })).toBeVisible();
+  await fresh.getByLabel("Email").fill(adminEmail);
+  await fresh.getByLabel("Password").fill("a long enough passphrase");
+  await fresh.getByRole("button", { name: /sign in/i }).click();
+  await expect(fresh.getByRole("heading", { name: "Platform overview" })).toBeVisible({ timeout: 20_000 });
+  if (process.env.SHOTS) {
+    const out = await (await browser.newContext({ ...testInfo.project.use })).newPage();
+    await out.goto("/admin/login");
+    await out.screenshot({ path: `${process.env.SHOTS}/admin-login.png` });
+  }
 
   // Take the host's page down: the public link stops working. Then restore it.
   await page.goto(`/admin/pages?q=${encodeURIComponent(slug)}`);
@@ -66,8 +83,8 @@ test("only admins can open the admin area, and admins can moderate", async ({ pa
 
   // The actions are in the activity log.
   await page.goto("/admin/activity");
-  await expect(page.getByText("suspended an account")).toBeVisible();
-  await expect(page.getByText("took down a page")).toBeVisible();
+  await expect(page.getByText("suspended an account").first()).toBeVisible();
+  await expect(page.getByText("took down a page").first()).toBeVisible();
   if (process.env.SHOTS) {
     for (const p of ["", "/users", "/pages"]) {
       await page.goto(`/admin${p}`);

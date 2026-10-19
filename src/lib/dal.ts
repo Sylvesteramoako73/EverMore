@@ -43,8 +43,10 @@ export async function requireUserForAction(): Promise<CurrentUser> {
   return user;
 }
 
+/** For admin pages: signed-out visitors go to the admin sign-in; signed-in non-admins get a 403. */
 export async function requireAdmin(): Promise<CurrentUser> {
-  const user = await requireUser();
+  const user = await getCurrentUser();
+  if (!user) redirect("/admin/login");
   if (user.role !== "admin") forbidden();
   return user;
 }

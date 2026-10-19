@@ -148,10 +148,10 @@ export function SignUpForm({ googleEnabled, verifyEmail = true }: { googleEnable
 
 // ───────────────────────────── Sign in
 
-export function SignInForm({ googleEnabled }: { googleEnabled: boolean }) {
+export function SignInForm({ googleEnabled, defaultNext = "/dashboard" }: { googleEnabled: boolean; defaultNext?: string }) {
   const router = useRouter();
   const params = useSearchParams();
-  const next = safeNext(params.get("next"), "/dashboard");
+  const next = safeNext(params.get("next"), defaultNext);
   const { pending, setPending, message, setMessage } = useSubmit();
   const [unverified, setUnverified] = useState<string | null>(null);
 
