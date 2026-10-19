@@ -48,6 +48,22 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  // One address only in production. Sign-in cookies belong to the address you signed in on, so
+  // Vercel's extra addresses (per-deployment URLs, the team alias) would look "signed out" whenever
+  // a link took you to the main address. Send them all to APP_URL. The cron path is left alone
+  // because Vercel's scheduler calls the deployment directly.
+  async redirects() {
+    if (process.env.VERCEL_ENV !== "production" || !process.env.APP_URL) return [];
+    const canonical = new URL(process.env.APP_URL);
+    return [
+      {
+        source: "/:path((?!api/cron).*)",
+        missing: [{ type: "host", value: canonical.host }],
+        destination: `${canonical.origin}/:path`,
+        permanent: false,
+      },
+    ];
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
