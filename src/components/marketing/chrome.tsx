@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand";
 import { Button } from "@/components/ui/button";
+import { appHref } from "@/lib/hosts";
 
 const NAV = [
   { href: "/#occasions", label: "Occasions" },
@@ -27,10 +28,10 @@ export function MarketingHeader() {
         </nav>
         <div className="flex items-center gap-2">
           <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-            <Link href="/sign-in">Sign in</Link>
+            <Link href={appHref("/sign-in")}>Sign in</Link>
           </Button>
           <Button asChild size="sm">
-            <Link href="/sign-up">Create your page</Link>
+            <Link href={appHref("/sign-up")}>Create your page</Link>
           </Button>
         </div>
       </div>
@@ -47,7 +48,7 @@ export function MarketingFooter() {
           <p className="max-w-xs text-sm leading-relaxed">Your Story. Forever Connected. Pages for life&apos;s moments that welcome your guests and keep your memories.</p>
         </div>
         <FooterCol title="Product" links={[["/#how-it-works", "How it works"], ["/#designs", "Designs"], ["/#pricing", "Pricing"], ["/samples/timeless-elegance", "See a sample"]]} />
-        <FooterCol title="Hosts" links={[["/sign-up", "Create your page"], ["/sign-in", "Sign in"], ["/#faq", "FAQ"]]} />
+        <FooterCol title="Hosts" links={[[appHref("/sign-up"), "Create your page"], [appHref("/sign-in"), "Sign in"], ["/#faq", "FAQ"]]} />
         <FooterCol title="Trust" links={[["/policies#privacy", "Privacy"], ["/policies#retention", "Data retention"], ["/policies#terms", "Terms"], ["/policies#credits", "Photo credits"]]} />
       </div>
       <div className="border-t border-white/10">

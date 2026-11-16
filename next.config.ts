@@ -48,20 +48,37 @@ const nextConfig: NextConfig = {
       },
     },
   },
-  // One address only in production. Sign-in cookies belong to the address you signed in on, so
+  // Known addresses only in production. Sign-in cookies belong to the address you signed in on, so
   // Vercel's extra addresses (per-deployment URLs, the team alias) would look "signed out" whenever
   // a link took you to the main address. Send them all to APP_URL. The cron path is left alone
   // because Vercel's scheduler calls the deployment directly.
+  //
+  // When SITE_URL is set to a different address than APP_URL, the public website lives there
+  // (e.g. https://evermoregh.online) and the app lives on APP_URL (e.g. https://app.evermoregh.online):
+  // signing in, the dashboard and the admin area always move to the app address.
   async redirects() {
     if (process.env.VERCEL_ENV !== "production" || !process.env.APP_URL) return [];
-    const canonical = new URL(process.env.APP_URL);
+    const app = new URL(process.env.APP_URL);
+    const site = process.env.SITE_URL ? new URL(process.env.SITE_URL) : null;
+    const split = site !== null && site.host !== app.host;
+    const host = (url: URL) => ({ type: "host" as const, value: url.host.replace(/\./g, "\\.") });
+    const known = split ? [host(app), host(site)] : [host(app)];
+    const appOnly = "sign-in|sign-up|forgot-password|reset-password|check-email|dashboard|admin|onboarding|join";
     return [
       {
         source: "/:path((?!api/cron).*)",
-        missing: [{ type: "host", value: canonical.host }],
-        destination: `${canonical.origin}/:path`,
+        missing: known,
+        destination: `${app.origin}/:path`,
         permanent: false,
       },
+      ...(split
+        ? [
+            { source: `/:section(${appOnly})/:rest*`, has: [host(site)], destination: `${app.origin}/:section/:rest*`, permanent: false },
+            { source: "/api/auth/:rest*", has: [host(site)], destination: `${app.origin}/api/auth/:rest*`, permanent: false },
+            // The app address has no home page of its own: go straight in (signed-out visitors land on sign-in).
+            { source: "/", has: [host(app)], destination: "/dashboard", permanent: false },
+          ]
+        : []),
     ];
   },
   async headers() {
