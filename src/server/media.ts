@@ -59,8 +59,8 @@ export async function addPhoto(
   { collection, isPublic = true, uploadedBy }: { collection: Collection; isPublic?: boolean; uploadedBy: string },
 ) {
   const [{ n }] = await db.select({ n: count() }).from(media).where(eq(media.celebrationId, celebrationId));
-  const limit = entitlements(plan).maxPhotos;
-  if (n >= limit) throw new LimitError(`Your plan includes up to ${limit} photos.`);
+  const limit = entitlements().maxPhotos;
+  if (n >= limit) throw new LimitError(`A page can have up to ${limit} photos.`);
 
   const image = await processImage(file);
   const id = crypto.randomUUID();
@@ -216,7 +216,7 @@ export async function addGuestUpload(
 ) {
   const [{ n }] = await db.select({ n: count() }).from(media).where(eq(media.celebrationId, celebrationId));
   // Guests share the page's media allowance, with headroom so a busy day isn't cut short.
-  const limit = entitlements(plan).maxPhotos * 3;
+  const limit = entitlements().maxPhotos * 3;
   if (n >= limit) throw new LimitError("This page has reached its upload limit. Please send your photos to the hosts directly.");
 
   const id = crypto.randomUUID();

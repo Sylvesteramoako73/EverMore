@@ -22,8 +22,8 @@ async function ownEventIds(celebrationId: string, ids: string[]) {
 
 export async function createGuest(celebrationId: string, plan: string, input: GuestInput) {
   const [{ n }] = await db.select({ n: count() }).from(guest).where(eq(guest.celebrationId, celebrationId));
-  const max = entitlements(plan).maxGuests;
-  if (n >= max) throw new LimitError(`Your plan includes up to ${max} invitations.`);
+  const max = entitlements().maxGuests;
+  if (n >= max) throw new LimitError(`A page can have up to ${max} invitations.`);
   const eventIds = await ownEventIds(celebrationId, input.eventIds);
   return db.transaction(async (tx) => {
     const [row] = await tx
@@ -165,8 +165,8 @@ export function parseGuestCsv(text: string): { rows: ImportRow[]; problems: stri
 
 export async function importGuests(celebrationId: string, plan: string, rows: ImportRow[]) {
   const [{ n }] = await db.select({ n: count() }).from(guest).where(eq(guest.celebrationId, celebrationId));
-  const max = entitlements(plan).maxGuests;
-  if (n + rows.length > max) throw new LimitError(`This would take you past your plan's ${max} invitations.`);
+  const max = entitlements().maxGuests;
+  if (n + rows.length > max) throw new LimitError(`This would take you past the ${max} invitations a page can have.`);
   if (!rows.length) return 0;
   await db.insert(guest).values(rows.map((r) => ({ celebrationId, ...r, notes: "", inviteToken: newInviteToken() })));
   return rows.length;

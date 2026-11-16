@@ -4,7 +4,9 @@ import { Suspense } from "react";
 import { CopyButton } from "@/components/dashboard/bits";
 import { Button } from "@/components/ui/button";
 import { PageSkeleton } from "@/components/dashboard/skeleton";
+import { formatMoney } from "@/lib/money";
 import { getOccasion } from "@/lib/occasions";
+import { needsPayment, PAGE_PRICE_MINOR } from "@/lib/plans";
 import { formatLongDate, formatTime } from "@/lib/dates";
 import { listEvents } from "@/server/events";
 import { eventTotals, listRsvps, rsvpSummary } from "@/server/rsvp";
@@ -56,7 +58,9 @@ async function Overview() {
         <div className="flex flex-col gap-4 rounded-2xl border border-amber-300 bg-amber-50 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="font-semibold text-navy">Your page isn&apos;t live yet</p>
-            <p className="text-sm text-muted-foreground">Only you can see it. Publish when you&apos;re ready to share it with guests.</p>
+            <p className="text-sm text-muted-foreground">
+              Only you can see it. {needsPayment(c.plan) ? `Publishing costs ${formatMoney(PAGE_PRICE_MINOR)}, paid once for this celebration.` : "Publish when you're ready to share it with guests."}
+            </p>
           </div>
           <Button asChild><Link href="/onboarding?step=6">Review &amp; publish</Link></Button>
         </div>

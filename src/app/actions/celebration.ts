@@ -245,7 +245,7 @@ export async function chooseTheme(themeId: string): Promise<{ ok: boolean; error
   const { celebration } = await currentCelebration();
   const theme = getTheme(themeId);
   if (theme.id !== themeId) return { ok: false, error: "Unknown theme." };
-  if (theme.premium && !entitlements(celebration.plan).premiumThemes) return { ok: false, error: "This theme is part of Premium." };
+  if (theme.premium && !entitlements().premiumThemes) return { ok: false, error: "That design isn't available." };
   await updateCelebration(celebration.id, { themeId });
   refresh();
   return { ok: true };

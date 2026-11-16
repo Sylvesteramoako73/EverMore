@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { appHref, siteHref } from "@/lib/hosts";
 import { formatMoney } from "@/lib/money";
 import { getOccasion } from "@/lib/occasions";
-import { billingEnabled, PREMIUM_PRICE_MINOR } from "@/lib/plans";
+import { billingEnabled, PAGE_PRICE_MINOR } from "@/lib/plans";
 import { SAMPLE_THEMES } from "@/lib/samples";
 
 export const metadata: Metadata = { alternates: { canonical: siteHref("/") } };
@@ -68,7 +68,7 @@ export default async function HomePage() {
               photos, and keep the memories long after the day.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg" variant="gold"><Link href={appHref("/sign-up")}>Create your page, free</Link></Button>
+              <Button asChild size="lg" variant="gold"><Link href={appHref("/sign-up")}>{billingEnabled() ? "Create your page" : "Create your page, free"}</Link></Button>
               <Button asChild size="lg" variant="outline" className="border-ivory/30 bg-transparent text-ivory hover:bg-ivory/10 hover:text-ivory">
                 <Link href="#designs">See the designs</Link>
               </Button>
@@ -153,7 +153,6 @@ export default async function HomePage() {
                 <p className="mt-4 text-[0.65rem] font-semibold tracking-[0.2em] text-champagne-deep uppercase">{getOccasion(t.occasion).label}</p>
                 <div className="mt-1 flex items-start justify-between gap-2">
                   <h3 className="text-xl text-navy">{t.name}</h3>
-                  {t.premium && <span className="mt-1 shrink-0 rounded-full bg-navy px-2 py-0.5 text-[0.6rem] tracking-wider text-champagne uppercase">Premium</span>}
                 </div>
                 <p className="mt-1 text-sm leading-snug text-muted-foreground">{t.tagline}</p>
               </Link>
@@ -255,16 +254,21 @@ export default async function HomePage() {
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
           <Intro
             eyebrow="Pricing"
-            title="Start free. Upgrade if you'd like more."
+            title={billingEnabled() ? "One simple price." : "Everything included, free for now."}
             text={
               billingEnabled()
-                ? `Every celebration starts free. Premium is ${formatMoney(PREMIUM_PRICE_MINOR)}, paid once per celebration by Mobile Money or card. No subscription.`
-                : "EverMore is in early access: everyone gets all features while we finalise plans. We'll announce prices before anything changes and never charge you without your agreement."
+                ? `Build and preview your page at no cost. When you're ready to share it, publish for ${formatMoney(PAGE_PRICE_MINOR)}, paid once per celebration by Mobile Money or card. No subscription.`
+                : "EverMore is in early access: everyone gets all features while we finalise pricing. We'll announce prices before anything changes and never charge you without your agreement."
             }
           />
-          <div className="mt-12 grid gap-6 md:grid-cols-2">
-            <Plan name="Free" price={billingEnabled() ? formatMoney(0) : undefined} note="Everything you need to invite and welcome your guests." items={["A complete celebration page", "8 standard designs", "Up to 3 events", "RSVPs, guest list & QR code", "Guest photo sharing", "Guestbook"]} />
-            <Plan name="Premium" highlight price={billingEnabled() ? `${formatMoney(PREMIUM_PRICE_MINOR)} once` : undefined} note="For bigger celebrations and lasting memories." items={["Every design, including premium", "Up to 20 events", "Larger galleries & guest lists", "Co-host & planner access", "Extended memory features", "Custom domain (planned)"]} />
+          <div className="mx-auto mt-12 max-w-xl">
+            <Plan
+              name="Your celebration page"
+              highlight
+              price={billingEnabled() ? `${formatMoney(PAGE_PRICE_MINOR)} once` : undefined}
+              note="Everything you need to invite, welcome and remember."
+              items={["A complete celebration page", "Every design", "Up to 20 events", "RSVPs, guest list & QR code", "Guest photo sharing & guestbook", "Co-host & planner access", "A memory page after the day"]}
+            />
           </div>
         </div>
       </section>
@@ -295,7 +299,7 @@ export default async function HomePage() {
           <div className="relative">
             <h2 className="text-4xl sm:text-6xl">Begin your story today</h2>
             <p className="mx-auto mt-4 max-w-xl text-white/80">Your page can be ready to share in minutes.</p>
-            <Button asChild size="lg" variant="gold" className="mt-8"><Link href={appHref("/sign-up")}>Create your page, free</Link></Button>
+            <Button asChild size="lg" variant="gold" className="mt-8"><Link href={appHref("/sign-up")}>{billingEnabled() ? "Create your page" : "Create your page, free"}</Link></Button>
           </div>
         </div>
       </section>

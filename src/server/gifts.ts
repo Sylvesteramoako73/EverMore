@@ -5,7 +5,7 @@ import { db } from "@/db";
 import { fund, gift } from "@/db/schema";
 import { env, onlineGiftsEnabled } from "@/lib/env";
 import { paystack, type PaystackTransaction } from "@/server/paystack";
-import { applyUpgradeTransaction, isUpgradeReference } from "@/server/upgrades";
+import { applyPagePaymentTransaction, isPagePaymentReference } from "@/server/page-payments";
 
 export type Fund = typeof fund.$inferSelect;
 export type Gift = typeof gift.$inferSelect;
@@ -167,8 +167,8 @@ export async function handlePaystackWebhook(rawBody: string, signature: string |
   if (a.length !== b.length || !timingSafeEqual(a, b)) return false;
   const event = JSON.parse(rawBody) as { event: string; data: PaystackTransaction };
   if (event.event === "charge.success") {
-    // Premium upgrades and gifts share the webhook; the reference prefix says which one this is.
-    if (isUpgradeReference(event.data.reference)) await applyUpgradeTransaction(event.data);
+    // Hosts' page payments and gifts share the webhook; the reference prefix says which one this is.
+    if (isPagePaymentReference(event.data.reference)) await applyPagePaymentTransaction(event.data);
     else await applyTransaction(event.data);
   }
   return true;

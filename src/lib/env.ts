@@ -36,7 +36,7 @@ const schema = z.object({
   CRON_SECRET: z.string().min(16).optional(),
   GEOCODER: z.enum(["nominatim", "off"]).default("nominatim"),
   /**
-   * Paystack secret key (sk_live_… / sk_test_…). Takes the one-time Premium payment once BILLING_ENABLED
+   * Paystack secret key (sk_live_… / sk_test_…). Takes hosts' one-time page payment once BILLING_ENABLED
    * is "true", and online gifts once ONLINE_GIFTS_ENABLED is "true".
    */
   PAYSTACK_SECRET_KEY: z.string().optional(),
@@ -60,7 +60,7 @@ export const env = load();
 export const isProduction = env.NODE_ENV === "production";
 export const appUrl = (path = "") => `${env.APP_URL.replace(/\/$/, "")}${path}`;
 
-/** A Paystack key is in place (needed for Premium upgrades and online gifts). */
+/** A Paystack key is in place (needed for hosts' page payments and online gifts). */
 export const paymentsEnabled = () => Boolean(env.PAYSTACK_SECRET_KEY);
 
 /** Guests can give by Mobile Money or card online, instead of sending MoMo to the host directly. */

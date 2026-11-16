@@ -18,14 +18,14 @@ export type InviteRole = "cohost" | "planner";
 export async function inviteMember(celebrationId: string, invitedBy: { id: string; name: string }, email: string, role: InviteRole) {
   const [c] = await db.select({ title: celebration.title, plan: celebration.plan }).from(celebration).where(eq(celebration.id, celebrationId));
   if (!c) throw new Error("Celebration not found");
-  const limits = entitlements(c.plan);
-  if (role === "planner" && !limits.plannerMembers) throw new LimitError("Planner access is part of Premium.");
+  const limits = entitlements();
+  if (role === "planner" && !limits.plannerMembers) throw new LimitError("Planner access isn't available.");
 
   const [[members], [pending]] = await Promise.all([
     db.select({ n: count() }).from(celebrationMember).where(eq(celebrationMember.celebrationId, celebrationId)),
     db.select({ n: count() }).from(memberInvite).where(and(eq(memberInvite.celebrationId, celebrationId), isNull(memberInvite.acceptedAt), gt(memberInvite.expiresAt, new Date()))),
   ]);
-  if (members.n + pending.n >= limits.maxMembers) throw new LimitError(`Your plan allows up to ${limits.maxMembers} people to manage this page, including you.`);
+  if (members.n + pending.n >= limits.maxMembers) throw new LimitError(`Up to ${limits.maxMembers} people can manage a page, including you.`);
 
   const [already] = await db
     .select({ id: user.id })
