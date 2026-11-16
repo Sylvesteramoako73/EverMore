@@ -13,7 +13,7 @@ const { celebration, planPayment } = await import("@/db/schema");
 const { PAGE_PRICE_MINOR } = await import("@/lib/plans");
 const { getCelebration, publishCelebration } = await import("@/server/celebrations");
 const { handlePaystackWebhook } = await import("@/server/gifts");
-const { applyPagePaymentTransaction, isPagePaymentReference, paidPagePayment, startPagePayment } = await import("@/server/page-payments");
+const { applyPagePaymentTransaction, isPagePaymentReference, paidPagePayment, recheckPendingPagePayment, startPagePayment } = await import("@/server/page-payments");
 const { makeCelebration } = await import("./helpers");
 
 let n = 0;
@@ -89,5 +89,20 @@ describe("paying to publish", () => {
     const { owner, celebration: c } = await makeCelebration();
     await db.update(celebration).set({ plan: "premium" }).where(eq(celebration.id, c.id));
     await expect(startPagePayment(c.id, owner, "https://evermore.test/dashboard/payment/return")).rejects.toThrow("already paid");
+  });
+
+  it("picks up a payment the host never came back from, by asking Paystack again", async () => {
+    const { c, ref } = await pendingPayment();
+    const fetchMock = vi.fn<(url: string | URL | Request) => Promise<Response>>(async () => new Response(JSON.stringify({ status: true, data: success(ref) }), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+    try {
+      expect((await recheckPendingPagePayment(c.id))?.status).toBe("paid");
+      expect(String(fetchMock.mock.calls[0]?.[0])).toBe(`https://api.paystack.co/transaction/verify/${ref}`);
+      expect(await getCelebration(c.id)).toMatchObject({ plan: "premium", status: "published" });
+      // Nothing left to ask about.
+      expect(await recheckPendingPagePayment(c.id)).toBeNull();
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });
