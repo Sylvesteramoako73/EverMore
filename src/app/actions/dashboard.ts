@@ -29,7 +29,7 @@ import { createFund, deleteFund, deleteGift, parseAmount, setGiftStatus, updateF
 import { appUrl, onlineGiftsEnabled } from "@/lib/env";
 import { MOMO_NETWORKS } from "@/lib/money";
 import { deleteRsvp } from "@/server/rsvp";
-import { startUpgrade } from "@/server/upgrades";
+import { startPagePayment } from "@/server/page-payments";
 
 const uuid = z.uuid();
 
@@ -323,18 +323,18 @@ export async function saveReminders(_prev: FormState, formData: FormData): Promi
   return { ok: true, message: parsed.data.emailEnabled ? "Reminders saved." : "Reminders turned off." };
 }
 
-// ───────────────────────────── Premium
+// ───────────────────────────── Paying to publish
 
-/** Send the host to Paystack to pay for Premium. Owners and co-hosts only. */
-export async function startPremiumUpgrade() {
+/** Send the host to Paystack to pay for their page. Owners and co-hosts only. */
+export async function payForPage() {
   const { user, celebration, role } = await current();
-  if (role === "planner") redirect("/dashboard/upgrade?result=not-allowed");
+  if (role === "planner") redirect("/dashboard/payment?result=not-allowed");
   let checkout: string;
   try {
-    checkout = await startUpgrade(celebration.id, { id: user.id, email: user.email }, appUrl("/dashboard/upgrade/return"));
-    await audit({ actorUserId: user.id, action: "plan.upgrade_started", targetType: "celebration", targetId: celebration.id, celebrationId: celebration.id });
+    checkout = await startPagePayment(celebration.id, { id: user.id, email: user.email }, appUrl("/dashboard/payment/return"));
+    await audit({ actorUserId: user.id, action: "page.payment_started", targetType: "celebration", targetId: celebration.id, celebrationId: celebration.id });
   } catch {
-    redirect("/dashboard/upgrade?result=error");
+    redirect("/dashboard/payment?result=error");
   }
   redirect(checkout);
 }

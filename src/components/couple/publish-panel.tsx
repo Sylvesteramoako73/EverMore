@@ -72,7 +72,8 @@ export function PublishSettingsForm({
   );
 }
 
-export function PublishControls({ status, url, problems }: { status: "draft" | "published" | "archived"; url: string; problems: string[] }) {
+/** `payment` is the price to show (e.g. "GH₵ 69") when the page must be paid for before it can go live. */
+export function PublishControls({ status, url, problems, payment }: { status: "draft" | "published" | "archived"; url: string; problems: string[]; payment?: string }) {
   const [pending, start] = useTransition();
   const [result, setResult] = useState<string[] | null>(null);
   const [copied, setCopied] = useState(false);
@@ -121,21 +122,29 @@ export function PublishControls({ status, url, problems }: { status: "draft" | "
         </div>
       )}
       <div className="flex flex-wrap gap-2">
-        <Button
-          size="lg"
-          disabled={pending}
-          onClick={() =>
-            start(async () => {
-              const res = await publish();
-              setResult(res.ok ? [] : res.problems);
-            })
-          }
-        >
-          {pending ? "Publishing…" : "Publish my page"}
-        </Button>
+        {payment ? (
+          <Button asChild size="lg"><Link href="/dashboard/payment">Pay {payment} and publish</Link></Button>
+        ) : (
+          <Button
+            size="lg"
+            disabled={pending}
+            onClick={() =>
+              start(async () => {
+                const res = await publish();
+                setResult(res.ok ? [] : res.problems);
+              })
+            }
+          >
+            {pending ? "Publishing…" : "Publish my page"}
+          </Button>
+        )}
         <Button asChild size="lg" variant="outline"><a href={url} target="_blank" rel="noopener noreferrer">Preview</a></Button>
       </div>
-      <p className="text-sm text-muted-foreground">Not ready? Everything is saved as a draft. Only you can see it until you publish.</p>
+      <p className="text-sm text-muted-foreground">
+        {payment
+          ? `Building and previewing is free. Publishing costs ${payment}, paid once for this celebration. Only you can see the page until then.`
+          : "Not ready? Everything is saved as a draft. Only you can see it until you publish."}
+      </p>
     </div>
   );
 }

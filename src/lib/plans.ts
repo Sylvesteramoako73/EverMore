@@ -1,7 +1,6 @@
-// Plan entitlements, defined in one place. Check features with `entitlements(plan)` rather than
-// comparing plan names around the codebase. Limits are product hypotheses and easy to change here.
-
-export type PlanId = "free" | "premium";
+// One price, no free version: a host builds and previews a page for nothing, and pays once per
+// celebration to publish it. Every page gets the same features and limits. Check them with
+// `entitlements()` rather than hard-coding numbers around the codebase.
 
 export type Entitlements = {
   maxEvents: number;
@@ -12,24 +11,23 @@ export type Entitlements = {
   plannerMembers: boolean;
 };
 
-const PLANS: Record<PlanId, Entitlements> = {
-  free: { maxEvents: 3, maxPhotos: 40, maxGuests: 150, maxMembers: 2, premiumThemes: false, plannerMembers: false },
-  premium: { maxEvents: 20, maxPhotos: 600, maxGuests: 1500, maxMembers: 4, premiumThemes: true, plannerMembers: true },
-};
+const LIMITS: Entitlements = { maxEvents: 20, maxPhotos: 600, maxGuests: 1500, maxMembers: 4, premiumThemes: true, plannerMembers: true };
+
+export function entitlements(): Entitlements {
+  return LIMITS;
+}
+
+/** What publishing a celebration costs, in pesewas, paid once. */
+export const PAGE_PRICE_MINOR = 69_00;
+export const PAGE_PRICE_CURRENCY = "GHS";
+
+/** The `plan` column records payment: "free" until the page is paid for, then this value. */
+export const PAID_PLAN = "premium";
 
 /**
- * Billing is not implemented yet. Until BILLING_ENABLED=true, every celebration gets premium entitlements
- * (a launch period), so no feature is blocked behind a payment flow that doesn't exist.
+ * Charging is on when BILLING_ENABLED=true. Until then pages publish without payment (early access).
  */
 export const billingEnabled = () => process.env.BILLING_ENABLED === "true";
 
-export function entitlements(plan: string): Entitlements {
-  if (!billingEnabled()) return PLANS.premium;
-  return PLANS[(plan as PlanId) in PLANS ? (plan as PlanId) : "free"];
-}
-
-export const PLAN_LIST = PLANS;
-
-/** Premium is a single payment per celebration, in pesewas. */
-export const PREMIUM_PRICE_MINOR = 69_00;
-export const PREMIUM_CURRENCY = "GHS";
+/** This page can't be live until its host pays. */
+export const needsPayment = (plan: string) => billingEnabled() && plan !== PAID_PLAN;

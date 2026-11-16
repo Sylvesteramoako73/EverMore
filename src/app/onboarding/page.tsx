@@ -12,7 +12,8 @@ import { BasicsStep, ContinueButton, DetailsStep } from "@/components/couple/wiz
 import { Skeleton } from "@/components/ui/skeleton";
 import { pickCurrentCelebration, requireUser } from "@/lib/dal";
 import { appUrl } from "@/lib/env";
-import { entitlements } from "@/lib/plans";
+import { formatMoney } from "@/lib/money";
+import { entitlements, needsPayment, PAGE_PRICE_MINOR } from "@/lib/plans";
 import { getOccasion, type OccasionKind } from "@/lib/occasions";
 import { THEMES, themesFor } from "@/lib/themes";
 import { timeZones } from "@/lib/timezones";
@@ -148,7 +149,7 @@ async function Wizard({ searchParams }: PageProps<"/onboarding">) {
             themes={themesFor(celebration.kind, getOccasion(celebration.kind).recommendedThemes)}
             current={celebration.themeId}
             slug={celebration.slug}
-            premiumAllowed={entitlements(celebration.plan).premiumThemes}
+            premiumAllowed={entitlements().premiumThemes}
           />
           <section className="max-w-3xl space-y-4 border-t border-border pt-10">
             <div>
@@ -234,7 +235,7 @@ async function PublishStep({ celebrationId }: { celebrationId: string }) {
           <dt className="text-muted-foreground">Design</dt>
           <dd>{THEMES.find((t) => t.id === celebration.themeId)?.name}</dd>
         </dl>
-        <PublishControls status={celebration.status} url={url} problems={problems} />
+        <PublishControls status={celebration.status} url={url} problems={problems} payment={needsPayment(celebration.plan) ? formatMoney(PAGE_PRICE_MINOR) : undefined} />
       </section>
       <section className="space-y-4">
         <h2 className="text-2xl text-navy">Address & privacy</h2>

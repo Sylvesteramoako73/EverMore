@@ -3,15 +3,24 @@ import { randomBytes } from "node:crypto";
 import { and, asc, count, eq, ne, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { anniversaryPreference, event, slugRedirect, user, celebration, celebrationMember } from "@/db/schema";
+import { formatMoney } from "@/lib/money";
+import { needsPayment, PAGE_PRICE_MINOR } from "@/lib/plans";
 import { slugProblem, titleSlugBase } from "@/lib/slug";
 import type { BasicsInput } from "@/lib/validation";
 
 export type Celebration = typeof celebration.$inferSelect;
 export type CelebrationPatch = Partial<Omit<typeof celebration.$inferInsert, "id" | "slug" | "status" | "createdAt">>;
 
+/**
+ * A published page whose host hasn't paid reads as a draft: guests can't open it and the host sees
+ * "not live" until they pay. Nothing is rewritten in the database, so it is live again the moment
+ * the payment lands (or charging is switched off).
+ */
+const withPaywall = (c: Celebration): Celebration => (c.status === "published" && needsPayment(c.plan) ? { ...c, status: "draft" } : c);
+
 export async function getCelebration(id: string): Promise<Celebration | null> {
   const [row] = await db.select().from(celebration).where(eq(celebration.id, id)).limit(1);
-  return row ?? null;
+  return row ? withPaywall(row) : null;
 }
 
 /** True if `slug` is used by another celebration, either as its address or as a redirect from an old address. */
@@ -87,6 +96,8 @@ export async function publishProblems(id: string): Promise<string[]> {
 
 export async function publishCelebration(id: string): Promise<{ ok: true } | { ok: false; problems: string[] }> {
   const problems = await publishProblems(id);
+  const w = await getCelebration(id);
+  if (w && needsPayment(w.plan)) problems.push(`Pay ${formatMoney(PAGE_PRICE_MINOR)} to publish your page.`);
   if (problems.length) return { ok: false, problems };
   await db
     .update(celebration)

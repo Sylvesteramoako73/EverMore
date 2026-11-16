@@ -63,8 +63,8 @@ export class LimitError extends Error {}
 /** Add an event. The first event becomes the primary one. Enforces the plan's event limit. */
 export async function createEvent(celebrationId: string, plan: string, input: EventInput) {
   const [{ n }] = await db.select({ n: count() }).from(event).where(eq(event.celebrationId, celebrationId));
-  const max = entitlements(plan).maxEvents;
-  if (n >= max) throw new LimitError(`Your plan includes up to ${max} events.`);
+  const max = entitlements().maxEvents;
+  if (n >= max) throw new LimitError(`A page can have up to ${max} events.`);
   const coords = await resolveCoords(input);
   return db.transaction(async (tx) => {
     const [row] = await tx.insert(event).values({ celebrationId, ...columns(input, coords) }).returning({ id: event.id });

@@ -51,7 +51,6 @@ export function ThemePicker({ themes, current, slug, premiumAllowed }: { themes:
                 </span>
                 <span className="mt-3 flex items-center justify-between gap-2">
                   <span className="font-semibold text-navy">{t.name}</span>
-                  {t.premium && <span className="rounded-full border border-champagne/60 px-2 py-0.5 text-[0.65rem] text-champagne-deep uppercase">Premium</span>}
                 </span>
                 <span className="mt-1 block text-sm text-muted-foreground">{t.tagline}</span>
                 {isSelected && (

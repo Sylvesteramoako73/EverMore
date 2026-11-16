@@ -589,7 +589,7 @@ export const pageViewDaily = pgTable(
   (t) => [primaryKey({ columns: [t.celebrationId, t.day] })],
 );
 
-/** A host's one-time payment that moves a celebration to Premium. */
+/** A host's one-time payment to publish a celebration. */
 export const planPayment = pgTable(
   "plan_payment",
   {

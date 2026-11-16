@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { formatMoney } from "@/lib/money";
+import { billingEnabled, PAGE_PRICE_MINOR } from "@/lib/plans";
 import { PHOTO_CREDITS } from "@/lib/samples";
 
 export const metadata: Metadata = { title: "Privacy, retention & terms" };
@@ -23,7 +25,11 @@ export default function PoliciesPage() {
       <section id="retention" className="mt-12 scroll-mt-24 space-y-4 leading-relaxed text-navy/90">
         <h2 className="text-3xl text-navy">Retention</h2>
         <p>Your wedding page and memories stay online while your account is active and in good standing. We don&apos;t delete your page when the wedding date passes.</p>
-        <p>If paid plans are introduced, we will explain what happens to pages on each plan before any change applies, and give you time to export your data.</p>
+        {billingEnabled() ? (
+          <p>Building and previewing a page is free. Publishing a page costs {formatMoney(PAGE_PRICE_MINOR)}, paid once per celebration. A page that has not been paid for stays a draft that only you can see, and you can export your data at any time.</p>
+        ) : (
+          <p>If paid plans are introduced, we will explain what happens to pages on each plan before any change applies, and give you time to export your data.</p>
+        )}
         <p>You can export your guest list and RSVPs as a spreadsheet at any time, and delete your wedding or your whole account from your settings. Deletion removes your photos and data from our systems; backups age out within 30 days.</p>
       </section>
 

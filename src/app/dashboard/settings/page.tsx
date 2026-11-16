@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Suspense } from "react";
 import { PublishControls, PublishSettingsForm } from "@/components/couple/publish-panel";
 import { cancelInvite, removeHelper } from "@/app/actions/dashboard";
@@ -8,7 +7,7 @@ import { GuestFeaturesForm, InviteHelperForm } from "@/components/dashboard/sett
 import { PageSkeleton } from "@/components/dashboard/skeleton";
 import { appUrl } from "@/lib/env";
 import { formatMoney } from "@/lib/money";
-import { billingEnabled, entitlements, PREMIUM_PRICE_MINOR } from "@/lib/plans";
+import { entitlements, needsPayment, PAGE_PRICE_MINOR } from "@/lib/plans";
 import { listMembers, publishProblems } from "@/server/celebrations";
 import { listInvites } from "@/server/members";
 import { loadDashboard } from "../data";
@@ -42,27 +41,13 @@ async function Settings() {
 
       <section aria-labelledby="status-h" className="rounded-2xl bg-white p-6 ring-1 ring-border sm:p-8">
         <h2 id="status-h" className="mb-4 text-2xl text-navy">Status</h2>
-        <PublishControls status={c.status} url={pageUrl} problems={problems} />
+        <PublishControls status={c.status} url={pageUrl} problems={problems} payment={needsPayment(c.plan) ? formatMoney(PAGE_PRICE_MINOR) : undefined} />
       </section>
 
       <section aria-labelledby="address-h" className="rounded-2xl bg-white p-6 ring-1 ring-border sm:p-8">
         <h2 id="address-h" className="mb-4 text-2xl text-navy">Address &amp; privacy</h2>
         <PublishSettingsForm slug={c.slug} visibility={c.visibility} allowIndexing={c.allowIndexing} origin={appUrl()} />
       </section>
-
-      {billingEnabled() && (
-        <section aria-labelledby="plan-h" className="rounded-2xl bg-white p-6 ring-1 ring-border sm:p-8">
-          <h2 id="plan-h" className="text-2xl text-navy">Plan</h2>
-          {c.plan === "premium" ? (
-            <p className="mt-2 text-muted-foreground">This page is on <strong className="text-navy">Premium</strong>. Every design and the larger limits are yours for this celebration.</p>
-          ) : (
-            <p className="mt-2 text-muted-foreground">
-              This page is on the <strong className="text-navy">Free</strong> plan.{" "}
-              <Link href="/dashboard/upgrade" className="text-navy underline underline-offset-4">Upgrade to Premium for {formatMoney(PREMIUM_PRICE_MINOR)}</Link>, paid once for this celebration.
-            </p>
-          )}
-        </section>
-      )}
 
       <section id="people" aria-labelledby="people-h" className="scroll-mt-24 rounded-2xl bg-white p-6 ring-1 ring-border sm:p-8">
         <h2 id="people-h" className="text-2xl text-navy">People who manage this page</h2>
@@ -90,7 +75,7 @@ async function Settings() {
           ))}
         </ul>
         {owner ? (
-          <div className="mt-6"><InviteHelperForm plannerAllowed={entitlements(c.plan).plannerMembers} /></div>
+          <div className="mt-6"><InviteHelperForm plannerAllowed={entitlements().plannerMembers} /></div>
         ) : (
           <p className="mt-4 text-sm text-muted-foreground">Only the page owner can invite or remove people.</p>
         )}

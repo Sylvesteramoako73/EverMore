@@ -5,7 +5,7 @@ import { Suspense } from "react";
 import { Logo } from "@/components/brand";
 import { CelebrationSwitcher, DashboardNav, SignOutButton } from "@/components/dashboard/nav";
 import { listMyCelebrations } from "@/lib/dal";
-import { upgradesAvailable } from "@/server/upgrades";
+import { billingEnabled } from "@/lib/plans";
 import { loadDashboard, waitingCounts } from "./data";
 
 export const metadata: Metadata = { title: { default: "Dashboard", template: "%s · EverMore dashboard" }, robots: { index: false } };
@@ -47,7 +47,7 @@ async function NavWithBadges() {
   return (
     <DashboardNav
       badges={{ "/dashboard/messages": waiting.messages, "/dashboard/photos": waiting.photos, "/dashboard/gifts": waiting.gifts }}
-      upgrade={upgradesAvailable() && celebration.plan !== "premium"}
+      payment={billingEnabled()}
     />
   );
 }
