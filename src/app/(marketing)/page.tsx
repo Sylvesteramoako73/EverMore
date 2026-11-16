@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { appHref, siteHref } from "@/lib/hosts";
 import { formatMoney } from "@/lib/money";
 import { getOccasion } from "@/lib/occasions";
-import { billingEnabled, PAGE_PRICE_MINOR } from "@/lib/plans";
+import { PAGE_PRICE_MINOR } from "@/lib/plans";
 import { SAMPLE_THEMES } from "@/lib/samples";
 
 export const metadata: Metadata = { alternates: { canonical: siteHref("/") } };
@@ -68,7 +68,7 @@ export default async function HomePage() {
               photos, and keep the memories long after the day.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg" variant="gold"><Link href={appHref("/sign-up")}>{billingEnabled() ? "Create your page" : "Create your page, free"}</Link></Button>
+              <Button asChild size="lg" variant="gold"><Link href={appHref("/sign-up")}>Create your page</Link></Button>
               <Button asChild size="lg" variant="outline" className="border-ivory/30 bg-transparent text-ivory hover:bg-ivory/10 hover:text-ivory">
                 <Link href="#designs">See the designs</Link>
               </Button>
@@ -254,18 +254,14 @@ export default async function HomePage() {
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
           <Intro
             eyebrow="Pricing"
-            title={billingEnabled() ? "One simple price." : "Everything included, free for now."}
-            text={
-              billingEnabled()
-                ? `Build and preview your page at no cost. When you're ready to share it, publish for ${formatMoney(PAGE_PRICE_MINOR)}, paid once per celebration by Mobile Money or card. No subscription.`
-                : "EverMore is in early access: everyone gets all features while we finalise pricing. We'll announce prices before anything changes and never charge you without your agreement."
-            }
+            title="One simple price."
+            text={`Build and preview your page at no cost. When you're ready to share it, publish for ${formatMoney(PAGE_PRICE_MINOR)}, paid once per celebration by Mobile Money or card. No subscription.`}
           />
           <div className="mx-auto mt-12 max-w-xl">
             <Plan
               name="Your celebration page"
               highlight
-              price={billingEnabled() ? `${formatMoney(PAGE_PRICE_MINOR)} once` : undefined}
+              price={`${formatMoney(PAGE_PRICE_MINOR)} once`}
               note="Everything you need to invite, welcome and remember."
               items={["A complete celebration page", "Every design", "Up to 20 events", "RSVPs, guest list & QR code", "Guest photo sharing & guestbook", "Co-host & planner access", "A memory page after the day"]}
             />
@@ -299,7 +295,7 @@ export default async function HomePage() {
           <div className="relative">
             <h2 className="text-4xl sm:text-6xl">Begin your story today</h2>
             <p className="mx-auto mt-4 max-w-xl text-white/80">Your page can be ready to share in minutes.</p>
-            <Button asChild size="lg" variant="gold" className="mt-8"><Link href={appHref("/sign-up")}>{billingEnabled() ? "Create your page" : "Create your page, free"}</Link></Button>
+            <Button asChild size="lg" variant="gold" className="mt-8"><Link href={appHref("/sign-up")}>Create your page</Link></Button>
           </div>
         </div>
       </section>
