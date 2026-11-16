@@ -93,7 +93,7 @@ describe("paying to publish", () => {
 
   it("picks up a payment the host never came back from, by asking Paystack again", async () => {
     const { c, ref } = await pendingPayment();
-    const fetchMock = vi.fn(async (_url: string | URL | Request) => new Response(JSON.stringify({ status: true, data: success(ref) }), { status: 200 }));
+    const fetchMock = vi.fn<(url: string | URL | Request) => Promise<Response>>(async () => new Response(JSON.stringify({ status: true, data: success(ref) }), { status: 200 }));
     vi.stubGlobal("fetch", fetchMock);
     try {
       expect((await recheckPendingPagePayment(c.id))?.status).toBe("paid");
