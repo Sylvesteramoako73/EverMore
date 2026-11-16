@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { formatLongDate } from "@/lib/dates";
 import { formatMoney } from "@/lib/money";
 import { billingEnabled, entitlements, PAGE_PRICE_MINOR, PAID_PLAN } from "@/lib/plans";
-import { paidPagePayment, pagePaymentsAvailable } from "@/server/page-payments";
+import { getCelebration } from "@/server/celebrations";
+import { paidPagePayment, pagePaymentsAvailable, recheckPendingPagePayment } from "@/server/page-payments";
 import { loadDashboard } from "../data";
 
 export const metadata: Metadata = { title: "Payment" };
@@ -32,7 +33,11 @@ const NOTICES: Record<string, { tone: "good" | "bad" | "wait"; text: string }> =
 const TONE = { good: "bg-success/10 text-success", bad: "bg-destructive/10 text-destructive", wait: "bg-champagne/15 text-champagne-deep" } as const;
 
 async function Payment({ searchParams }: PageProps<"/dashboard/payment">) {
-  const [{ celebration: c, role }, sp] = await Promise.all([loadDashboard(), searchParams]);
+  const [dashboard, sp] = await Promise.all([loadDashboard(), searchParams]);
+  const { role } = dashboard;
+  // A payment made earlier may have been confirmed since (the host paid but never came back from checkout).
+  const settled = dashboard.celebration.plan !== PAID_PLAN ? await recheckPendingPagePayment(dashboard.celebration.id) : null;
+  const c = (settled?.status === "paid" ? await getCelebration(dashboard.celebration.id) : null) ?? dashboard.celebration;
   const paid = c.plan === PAID_PLAN;
   const live = c.status === "published";
   const notice = typeof sp.result === "string" ? NOTICES[paid && sp.result === "pending" ? "thanks" : sp.result] : undefined;

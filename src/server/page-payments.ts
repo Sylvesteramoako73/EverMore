@@ -1,6 +1,6 @@
 import "server-only";
 import { randomBytes } from "node:crypto";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, gte } from "drizzle-orm";
 import { db } from "@/db";
 import { celebration, planPayment } from "@/db/schema";
 import { paymentsEnabled } from "@/lib/env";
@@ -77,6 +77,21 @@ export async function verifyPagePayment(reference: string) {
   } catch {
     return null;
   }
+}
+
+/**
+ * Ask Paystack again about this celebration's most recent unfinished payment. Covers a host who paid
+ * but never came back from checkout (closed the tab, lost signal) when no webhook reaches us.
+ */
+export async function recheckPendingPagePayment(celebrationId: string) {
+  if (!pagePaymentsAvailable()) return null;
+  const [p] = await db
+    .select({ reference: planPayment.reference })
+    .from(planPayment)
+    .where(and(eq(planPayment.celebrationId, celebrationId), eq(planPayment.status, "pending"), gte(planPayment.createdAt, new Date(Date.now() - 2 * 86_400_000))))
+    .orderBy(desc(planPayment.createdAt))
+    .limit(1);
+  return p ? verifyPagePayment(p.reference) : null;
 }
 
 /** The payment that covered this celebration, for the receipt line on the payment page. */
