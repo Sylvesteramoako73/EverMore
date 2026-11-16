@@ -26,9 +26,10 @@ import { createMemory, deleteMemory, updateMemory } from "@/server/memories";
 import { saveReminderPreference } from "@/server/reminders";
 import { acceptInvite, inviteMember, removeMember, revokeInvite } from "@/server/members";
 import { createFund, deleteFund, deleteGift, parseAmount, setGiftStatus, updateFund } from "@/server/gifts";
-import { paymentsEnabled } from "@/lib/env";
+import { appUrl, onlineGiftsEnabled } from "@/lib/env";
 import { MOMO_NETWORKS } from "@/lib/money";
 import { deleteRsvp } from "@/server/rsvp";
+import { startUpgrade } from "@/server/upgrades";
 
 const uuid = z.uuid();
 
@@ -221,7 +222,7 @@ export async function saveFund(fundId: string | null, _prev: FormState, formData
   const { goal, ...rest } = parsed.data;
   const goalMinor = goal ? parseAmount(goal) : null;
   if (goal && !goalMinor) return { errors: { goal: ["Enter a goal in cedis, e.g. 5000."] }, values: formValues(formData) };
-  if (!rest.momoNumber && !paymentsEnabled()) return { errors: { momoNumber: ["Add the MoMo number guests should send to."] }, values: formValues(formData) };
+  if (!rest.momoNumber && !onlineGiftsEnabled()) return { errors: { momoNumber: ["Add the MoMo number guests should send to."] }, values: formValues(formData) };
   try {
     if (fundId) {
       if (!ok(fundId) || !(await updateFund(celebration.id, fundId, { ...rest, goalMinor }))) return { message: "That fund no longer exists." };
@@ -320,4 +321,20 @@ export async function saveReminders(_prev: FormState, formData: FormData): Promi
   await saveReminderPreference(celebration.id, user.id, { ...parsed.data, remindDaysBefore: days });
   refresh();
   return { ok: true, message: parsed.data.emailEnabled ? "Reminders saved." : "Reminders turned off." };
+}
+
+// ───────────────────────────── Premium
+
+/** Send the host to Paystack to pay for Premium. Owners and co-hosts only. */
+export async function startPremiumUpgrade() {
+  const { user, celebration, role } = await current();
+  if (role === "planner") redirect("/dashboard/upgrade?result=not-allowed");
+  let checkout: string;
+  try {
+    checkout = await startUpgrade(celebration.id, { id: user.id, email: user.email }, appUrl("/dashboard/upgrade/return"));
+    await audit({ actorUserId: user.id, action: "plan.upgrade_started", targetType: "celebration", targetId: celebration.id, celebrationId: celebration.id });
+  } catch {
+    redirect("/dashboard/upgrade?result=error");
+  }
+  redirect(checkout);
 }

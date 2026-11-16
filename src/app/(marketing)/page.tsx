@@ -6,7 +6,9 @@ import Link from "next/link";
 import { DesignRail } from "@/components/marketing/design-rail";
 import { Button } from "@/components/ui/button";
 import { appHref, siteHref } from "@/lib/hosts";
+import { formatMoney } from "@/lib/money";
 import { getOccasion } from "@/lib/occasions";
+import { billingEnabled, PREMIUM_PRICE_MINOR } from "@/lib/plans";
 import { SAMPLE_THEMES } from "@/lib/samples";
 
 export const metadata: Metadata = { alternates: { canonical: siteHref("/") } };
@@ -251,10 +253,18 @@ export default async function HomePage() {
       {/* ───────────── Pricing */}
       <section id="pricing" className="scroll-mt-20 bg-[#f3eee4] py-20 sm:py-28">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
-          <Intro eyebrow="Pricing" title="Start free. Upgrade if you'd like more." text="EverMore is in early access: everyone gets all features while we finalise plans. We'll announce prices before anything changes and never charge you without your agreement." />
+          <Intro
+            eyebrow="Pricing"
+            title="Start free. Upgrade if you'd like more."
+            text={
+              billingEnabled()
+                ? `Every celebration starts free. Premium is ${formatMoney(PREMIUM_PRICE_MINOR)}, paid once per celebration by Mobile Money or card. No subscription.`
+                : "EverMore is in early access: everyone gets all features while we finalise plans. We'll announce prices before anything changes and never charge you without your agreement."
+            }
+          />
           <div className="mt-12 grid gap-6 md:grid-cols-2">
-            <Plan name="Free" note="Everything you need to invite and welcome your guests." items={["A complete celebration page", "8 standard designs", "Up to 3 events", "RSVPs, guest list & QR code", "Guest photo sharing", "Guestbook"]} />
-            <Plan name="Premium" highlight note="For bigger celebrations and lasting memories." items={["Every design, including premium", "Up to 20 events", "Larger galleries & guest lists", "Co-host & planner access", "Extended memory features", "Custom domain (planned)"]} />
+            <Plan name="Free" price={billingEnabled() ? formatMoney(0) : undefined} note="Everything you need to invite and welcome your guests." items={["A complete celebration page", "8 standard designs", "Up to 3 events", "RSVPs, guest list & QR code", "Guest photo sharing", "Guestbook"]} />
+            <Plan name="Premium" highlight price={billingEnabled() ? `${formatMoney(PREMIUM_PRICE_MINOR)} once` : undefined} note="For bigger celebrations and lasting memories." items={["Every design, including premium", "Up to 20 events", "Larger galleries & guest lists", "Co-host & planner access", "Extended memory features", "Custom domain (planned)"]} />
           </div>
         </div>
       </section>
@@ -327,10 +337,11 @@ function Feature({ eyebrow, title, text, points, photos, reverse = false }: { ey
   );
 }
 
-function Plan({ name, note, items, highlight = false }: { name: string; note: string; items: string[]; highlight?: boolean }) {
+function Plan({ name, price, note, items, highlight = false }: { name: string; price?: string; note: string; items: string[]; highlight?: boolean }) {
   return (
     <div className={`rounded-3xl p-8 ${highlight ? "bg-navy text-ivory" : "bg-white ring-1 ring-navy/10"}`}>
       <h3 className="text-3xl">{name}</h3>
+      {price && <p className={`mt-3 text-2xl ${highlight ? "text-champagne" : "text-navy"}`}>{price}</p>}
       <p className={`mt-2 ${highlight ? "text-ivory/75" : "text-muted-foreground"}`}>{note}</p>
       <ul className="mt-6 space-y-2.5">
         {items.map((i) => (

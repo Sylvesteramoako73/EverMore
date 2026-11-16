@@ -7,7 +7,7 @@ import { EditFund, FundForm } from "@/components/dashboard/gifts";
 import { PageSkeleton } from "@/components/dashboard/skeleton";
 import { Button } from "@/components/ui/button";
 import { formatLongDate } from "@/lib/dates";
-import { paymentsEnabled } from "@/lib/env";
+import { onlineGiftsEnabled } from "@/lib/env";
 import { formatMoney } from "@/lib/money";
 import { fundTotals, listFunds, listGifts } from "@/server/gifts";
 import { loadDashboard } from "../data";
@@ -33,7 +33,7 @@ const SUGGESTED: Record<string, string> = {
 async function Gifts() {
   const { celebration: c } = await loadDashboard();
   const [funds, totals, gifts] = await Promise.all([listFunds(c.id), fundTotals(c.id), listGifts(c.id)]);
-  const online = paymentsEnabled();
+  const online = onlineGiftsEnabled();
   const confirmed = gifts.filter((g) => g.status === "confirmed");
   const total = confirmed.reduce((n, g) => n + g.amountMinor, 0);
   const waiting = gifts.filter((g) => g.status === "pending" && g.method === "momo_direct");

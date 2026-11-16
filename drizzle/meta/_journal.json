@@ -36,6 +36,13 @@
       "when": 1792069280341,
       "tag": "0004_colour_theme",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794837339990,
+      "tag": "0005_plan_payment",
+      "breakpoints": true
     }
   ]
 }

@@ -29,3 +29,7 @@ export function entitlements(plan: string): Entitlements {
 }
 
 export const PLAN_LIST = PLANS;
+
+/** Premium is a single payment per celebration, in pesewas. */
+export const PREMIUM_PRICE_MINOR = 69_00;
+export const PREMIUM_CURRENCY = "GHS";

@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { Logo } from "@/components/brand";
 import { CelebrationSwitcher, DashboardNav, SignOutButton } from "@/components/dashboard/nav";
 import { listMyCelebrations } from "@/lib/dal";
+import { upgradesAvailable } from "@/server/upgrades";
 import { loadDashboard, waitingCounts } from "./data";
 
 export const metadata: Metadata = { title: { default: "Dashboard", template: "%s · EverMore dashboard" }, robots: { index: false } };
@@ -43,7 +44,12 @@ export default function DashboardLayout({ children }: LayoutProps<"/dashboard">)
 async function NavWithBadges() {
   const { celebration } = await loadDashboard();
   const waiting = await waitingCounts(celebration.id);
-  return <DashboardNav badges={{ "/dashboard/messages": waiting.messages, "/dashboard/photos": waiting.photos, "/dashboard/gifts": waiting.gifts }} />;
+  return (
+    <DashboardNav
+      badges={{ "/dashboard/messages": waiting.messages, "/dashboard/photos": waiting.photos, "/dashboard/gifts": waiting.gifts }}
+      upgrade={upgradesAvailable() && celebration.plan !== "premium"}
+    />
+  );
 }
 
 /** Only the EverMore owner (admin accounts) sees this. */

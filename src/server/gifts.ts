@@ -3,7 +3,9 @@ import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { fund, gift } from "@/db/schema";
-import { env, paymentsEnabled } from "@/lib/env";
+import { env, onlineGiftsEnabled } from "@/lib/env";
+import { paystack, type PaystackTransaction } from "@/server/paystack";
+import { applyUpgradeTransaction, isUpgradeReference } from "@/server/upgrades";
 
 export type Fund = typeof fund.$inferSelect;
 export type Gift = typeof gift.$inferSelect;
@@ -105,25 +107,12 @@ export async function deleteGift(celebrationId: string, giftId: string) {
 
 // ───────────────────────────── Paystack (Mobile Money & card)
 
-const PAYSTACK = "https://api.paystack.co";
-
-async function paystack<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${PAYSTACK}${path}`, {
-    ...init,
-    headers: { Authorization: `Bearer ${env.PAYSTACK_SECRET_KEY}`, "Content-Type": "application/json", ...init?.headers },
-    signal: AbortSignal.timeout(15_000),
-  });
-  const body = (await res.json().catch(() => ({}))) as { status?: boolean; message?: string; data?: T };
-  if (!res.ok || !body.status || !body.data) throw new Error(body.message ?? `Paystack error ${res.status}`);
-  return body.data;
-}
-
 /**
  * Start an online gift: record it as pending, then ask Paystack for a checkout page where the guest
  * pays by MoMo or card. Returns the URL to send them to.
  */
 export async function startOnlineGift(celebrationId: string, input: GiftInput & { email: string }, callbackUrl: string) {
-  if (!paymentsEnabled()) throw new Error("Online payments aren't set up.");
+  if (!onlineGiftsEnabled()) throw new Error("Online payments aren't set up.");
   const reference = newReference();
   await db.insert(gift).values({ celebrationId, ...input, method: "paystack", status: "pending", reference });
   const data = await paystack<{ authorization_url: string }>("/transaction/initialize", {
@@ -140,8 +129,6 @@ export async function startOnlineGift(celebrationId: string, input: GiftInput & 
   });
   return data.authorization_url;
 }
-
-type PaystackTransaction = { status: string; reference: string; amount: number; currency: string; channel: string; authorization?: { bank?: string } };
 
 /** Mark a gift paid if Paystack agrees: right reference, success, and the amount and currency we asked for. */
 async function applyTransaction(t: PaystackTransaction) {
@@ -163,7 +150,7 @@ async function applyTransaction(t: PaystackTransaction) {
 
 /** Called when the guest returns from checkout. Never trusts the query string: asks Paystack. */
 export async function verifyOnlineGift(reference: string) {
-  if (!paymentsEnabled() || !/^evm_[a-f0-9]{24}$/.test(reference)) return null;
+  if (!onlineGiftsEnabled() || !/^evm_[a-f0-9]{24}$/.test(reference)) return null;
   try {
     return await applyTransaction(await paystack<PaystackTransaction>(`/transaction/verify/${encodeURIComponent(reference)}`));
   } catch {
@@ -179,7 +166,11 @@ export async function handlePaystackWebhook(rawBody: string, signature: string |
   const b = Buffer.from(signature);
   if (a.length !== b.length || !timingSafeEqual(a, b)) return false;
   const event = JSON.parse(rawBody) as { event: string; data: PaystackTransaction };
-  if (event.event === "charge.success") await applyTransaction(event.data);
+  if (event.event === "charge.success") {
+    // Premium upgrades and gifts share the webhook; the reference prefix says which one this is.
+    if (isUpgradeReference(event.data.reference)) await applyUpgradeTransaction(event.data);
+    else await applyTransaction(event.data);
+  }
   return true;
 }
 

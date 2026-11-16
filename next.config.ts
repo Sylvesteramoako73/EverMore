@@ -13,7 +13,7 @@ const csp = [
   "frame-src 'self' https://www.openstreetmap.org https://www.youtube-nocookie.com",
   "frame-ancestors 'self'", // the dashboard previews pages in a same-origin frame
   "base-uri 'self'",
-  "form-action 'self' https://accounts.google.com",
+  "form-action 'self' https://accounts.google.com https://checkout.paystack.com",
   "object-src 'none'",
 ].join("; ");
 
