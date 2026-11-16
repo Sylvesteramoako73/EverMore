@@ -5,7 +5,7 @@ import { db } from "@/db";
 import { pageViewDaily } from "@/db/schema";
 import { answerableEvents, celebrationPhase, primaryEvent, rsvpDeadlinePassed, visibleEvents, yearlyDate } from "@/lib/celebration-rules";
 import { plainDateInZone } from "@/lib/dates";
-import { appUrl, paymentsEnabled } from "@/lib/env";
+import { appUrl, onlineGiftsEnabled } from "@/lib/env";
 import { akanDayName, PARTY_TITLES } from "@/lib/akan";
 import { getOccasion } from "@/lib/occasions";
 import { paletteFromColours } from "@/lib/palette";
@@ -213,7 +213,7 @@ export async function loadPublicCelebration(
         momo: f.momoNumber ? { number: f.momoNumber, name: f.momoName, network: f.momoNetwork } : null,
       })),
       supporters: supporters.map(({ name, message }) => ({ name, message })),
-      online: paymentsEnabled(),
+      online: onlineGiftsEnabled(),
     },
     thankYouMessage: c.thankYouMessage,
     tableFinder: c.tableFinderEnabled && !preview,

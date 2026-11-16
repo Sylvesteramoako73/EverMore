@@ -588,3 +588,26 @@ export const pageViewDaily = pgTable(
   },
   (t) => [primaryKey({ columns: [t.celebrationId, t.day] })],
 );
+
+/** A host's one-time payment that moves a celebration to Premium. */
+export const planPayment = pgTable(
+  "plan_payment",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    celebrationId: uuid("celebration_id")
+      .notNull()
+      .references(() => celebration.id, { onDelete: "cascade" }),
+    /** Who paid. Kept if the account is later deleted. */
+    userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
+    amountMinor: integer("amount_minor").notNull(),
+    currency: text("currency").notNull().default("GHS"),
+    /** "pending" until Paystack confirms, then "paid" or "failed". */
+    status: text("status").notNull().default("pending"),
+    /** Our payment reference (Paystack) – unique so webhooks are idempotent. */
+    reference: text("reference").notNull().unique(),
+    channel: text("channel").notNull().default(""),
+    paidAt: timestamp("paid_at", { withTimezone: true }),
+    ...timestamps,
+  },
+  (t) => [index("plan_payment_celebration_idx").on(t.celebrationId, t.status)],
+);

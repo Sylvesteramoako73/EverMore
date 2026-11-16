@@ -36,10 +36,15 @@ const schema = z.object({
   CRON_SECRET: z.string().min(16).optional(),
   GEOCODER: z.enum(["nominatim", "off"]).default("nominatim"),
   /**
-   * Paystack secret key (sk_live_… / sk_test_…). When set, guests can give by Mobile Money or card online.
-   * Unset: guests see the host's MoMo details and the host confirms gifts by hand.
+   * Paystack secret key (sk_live_… / sk_test_…). Takes the one-time Premium payment once BILLING_ENABLED
+   * is "true", and online gifts once ONLINE_GIFTS_ENABLED is "true".
    */
   PAYSTACK_SECRET_KEY: z.string().optional(),
+  /**
+   * "true" lets guests give online through Paystack. The money arrives in the Paystack account behind
+   * PAYSTACK_SECRET_KEY, so leave this off unless that account pays hosts out.
+   */
+  ONLINE_GIFTS_ENABLED: z.string().optional(),
 });
 
 function load() {
@@ -55,7 +60,11 @@ export const env = load();
 export const isProduction = env.NODE_ENV === "production";
 export const appUrl = (path = "") => `${env.APP_URL.replace(/\/$/, "")}${path}`;
 
+/** A Paystack key is in place (needed for Premium upgrades and online gifts). */
 export const paymentsEnabled = () => Boolean(env.PAYSTACK_SECRET_KEY);
+
+/** Guests can give by Mobile Money or card online, instead of sending MoMo to the host directly. */
+export const onlineGiftsEnabled = () => paymentsEnabled() && env.ONLINE_GIFTS_ENABLED === "true";
 
 /** Whether new accounts must confirm their email before signing in. */
 export const emailVerificationRequired = env.ALLOW_UNVERIFIED_SIGNUPS !== "1";

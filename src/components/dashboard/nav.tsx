@@ -1,6 +1,6 @@
 "use client";
 
-import { Camera, Gift, History, Home, LogOut, MailCheck, MessageSquareHeart, PenLine, ScanLine, Settings, Users } from "lucide-react";
+import { Camera, Gift, History, Home, LogOut, MailCheck, MessageSquareHeart, PenLine, ScanLine, Settings, Sparkles, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTransition } from "react";
@@ -22,13 +22,15 @@ export const DASHBOARD_NAV = [
 ] as const;
 
 /** Sidebar on large screens, a horizontally scrolling tab bar on phones. */
-export function DashboardNav({ badges = {} }: { badges?: Partial<Record<string, number>> }) {
+const UPGRADE = { href: "/dashboard/upgrade", label: "Upgrade", icon: Sparkles } as const;
+
+export function DashboardNav({ badges = {}, upgrade = false }: { badges?: Partial<Record<string, number>>; upgrade?: boolean }) {
   const path = usePathname();
   const active = (href: string) => (href === "/dashboard" ? path === href : path.startsWith(href));
   return (
     <nav aria-label="Dashboard">
       <ul className="flex gap-1 overflow-x-auto px-4 pb-2 [scrollbar-width:none] lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0">
-        {DASHBOARD_NAV.map(({ href, label, icon: Icon }) => {
+        {[...DASHBOARD_NAV, ...(upgrade ? [UPGRADE] : [])].map(({ href, label, icon: Icon }) => {
           const n = badges[href];
           return (
             <li key={href} className="shrink-0">

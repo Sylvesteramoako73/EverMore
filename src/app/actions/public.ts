@@ -9,7 +9,7 @@ import { findTables } from "@/server/guests";
 import { getCelebration, resolveSlug } from "@/server/celebrations";
 import { fieldErrors, formValues, guestbookSchema, type FormState } from "@/lib/validation";
 import { answerableEvents } from "@/lib/celebration-rules";
-import { appUrl, paymentsEnabled } from "@/lib/env";
+import { appUrl, onlineGiftsEnabled } from "@/lib/env";
 import { listFunds, parseAmount, recordDirectGift, startOnlineGift } from "@/server/gifts";
 import { z } from "zod";
 
@@ -135,7 +135,7 @@ export async function giveGift(slug: string, inviteToken: string | null, _prev: 
   const input = { fundId: fund.id, name: d.name, email: d.email, phone: d.phone, message: d.message, anonymous: d.anonymous, amountMinor };
 
   if (d.method === "online") {
-    if (!paymentsEnabled()) return { message: "Online payment isn't available. Please send by MoMo using the details shown." };
+    if (!onlineGiftsEnabled()) return { message: "Online payment isn't available. Please send by MoMo using the details shown." };
     if (!d.email) return { errors: { email: ["Paystack sends your receipt here."] }, values: formValues(formData) };
     try {
       const url = await startOnlineGift(w.id, { ...input, email: d.email }, appUrl(`/${w.slug}/gift`));
