@@ -1,11 +1,15 @@
 import { ArrowRight, Camera, Check, Heart, MapPin, Palette, QrCode, Sparkles, Users } from "lucide-react";
+import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
 import { DesignRail } from "@/components/marketing/design-rail";
 import { Button } from "@/components/ui/button";
+import { appHref, siteHref } from "@/lib/hosts";
 import { getOccasion } from "@/lib/occasions";
 import { SAMPLE_THEMES } from "@/lib/samples";
+
+export const metadata: Metadata = { alternates: { canonical: siteHref("/") } };
 
 const P = (name: string) => `/samples/photos/${name}.webp`;
 
@@ -62,7 +66,7 @@ export default async function HomePage() {
               photos, and keep the memories long after the day.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg" variant="gold"><Link href="/sign-up">Create your page, free</Link></Button>
+              <Button asChild size="lg" variant="gold"><Link href={appHref("/sign-up")}>Create your page, free</Link></Button>
               <Button asChild size="lg" variant="outline" className="border-ivory/30 bg-transparent text-ivory hover:bg-ivory/10 hover:text-ivory">
                 <Link href="#designs">See the designs</Link>
               </Button>
@@ -281,7 +285,7 @@ export default async function HomePage() {
           <div className="relative">
             <h2 className="text-4xl sm:text-6xl">Begin your story today</h2>
             <p className="mx-auto mt-4 max-w-xl text-white/80">Your page can be ready to share in minutes.</p>
-            <Button asChild size="lg" variant="gold" className="mt-8"><Link href="/sign-up">Create your page, free</Link></Button>
+            <Button asChild size="lg" variant="gold" className="mt-8"><Link href={appHref("/sign-up")}>Create your page, free</Link></Button>
           </div>
         </div>
       </section>
@@ -333,7 +337,7 @@ function Plan({ name, note, items, highlight = false }: { name: string; note: st
           <li key={i} className="flex gap-2.5"><Check className="mt-1 h-4 w-4 shrink-0 text-champagne" aria-hidden /> {i}</li>
         ))}
       </ul>
-      <Button asChild variant={highlight ? "gold" : "default"} className="mt-8 w-full"><Link href="/sign-up">Get started</Link></Button>
+      <Button asChild variant={highlight ? "gold" : "default"} className="mt-8 w-full"><Link href={appHref("/sign-up")}>Get started</Link></Button>
     </div>
   );
 }

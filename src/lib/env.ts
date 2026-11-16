@@ -10,6 +10,11 @@ const schema = z.object({
   BETTER_AUTH_SECRET: z.string().min(32, "BETTER_AUTH_SECRET must be at least 32 characters."),
   /** Canonical public origin, e.g. https://evermore.example. Used for links, QR codes and auth callbacks. */
   APP_URL: z.url().default("http://localhost:3000"),
+  /**
+   * Optional separate address for the public website, e.g. https://evermore.example while APP_URL is
+   * https://app.evermore.example. Unset: the website and the app share APP_URL. See next.config.ts.
+   */
+  SITE_URL: z.url().optional(),
   RESEND_API_KEY: z.string().optional(),
   /**
    * Temporary escape hatch for a live site without an email provider yet: "1" lets people sign up and
