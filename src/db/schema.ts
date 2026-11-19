@@ -36,6 +36,11 @@ export const user = pgTable("user", {
   /** "user" or "admin". Never settable from sign-up input (see auth config). */
   role: text("role").notNull().default("user"),
   suspendedAt: timestamp("suspended_at", { withTimezone: true }),
+  /** Short code in the host's invite link (evermoregh.online/r/CODE). Made the first time it is needed. */
+  referralCode: text("referral_code").unique(),
+  /** Where referral rewards are paid. */
+  momoNumber: text("momo_number"),
+  momoNetwork: text("momo_network"),
   ...timestamps,
 });
 
@@ -501,6 +506,10 @@ export const fund = pgTable(
     momoNumber: text("momo_number").notNull().default(""),
     momoName: text("momo_name").notNull().default(""),
     momoNetwork: text("momo_network").notNull().default(""),
+    /** Paystack subaccount that online gifts for this fund are split to (empty until set up). */
+    paystackSubaccountCode: text("paystack_subaccount_code").notNull().default(""),
+    /** The "network|number" the subaccount was made for, to notice when the host changes them. */
+    paystackSubaccountFor: text("paystack_subaccount_for").notNull().default(""),
     position: integer("position").notNull().default(0),
     ...timestamps,
   },
@@ -610,4 +619,50 @@ export const planPayment = pgTable(
     ...timestamps,
   },
   (t) => [index("plan_payment_celebration_idx").on(t.celebrationId, t.status)],
+);
+
+
+// ─────────────────────────────────────────────── Referrals
+
+/** One row per invited person (a person can only be invited once). */
+export const referral = pgTable(
+  "referral",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    referrerId: text("referrer_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    referredUserId: text("referred_user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    /** "signed_up" until they pay; "pending" during the hold; "available" to pay out; "paid_out"; "void". */
+    status: text("status").notNull().default("signed_up"),
+    /** Reward in minor units, set when the friend's payment is confirmed. */
+    rewardMinor: integer("reward_minor").notNull().default(0),
+    /** Discount the friend was given at checkout. */
+    discountMinor: integer("discount_minor").notNull().default(0),
+    availableAt: timestamp("available_at", { withTimezone: true }),
+    payoutId: uuid("payout_id").references((): AnyPgColumn => referralPayout.id, { onDelete: "set null" }),
+    ...timestamps,
+  },
+  (t) => [uniqueIndex("referral_referred_uidx").on(t.referredUserId), index("referral_referrer_idx").on(t.referrerId, t.status)],
+);
+
+/** A request to be paid, settled by hand through Mobile Money. */
+export const referralPayout = pgTable(
+  "referral_payout",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    amountMinor: integer("amount_minor").notNull(),
+    momoNumber: text("momo_number").notNull(),
+    momoNetwork: text("momo_network").notNull(),
+    /** "requested" then "paid". */
+    status: text("status").notNull().default("requested"),
+    paidAt: timestamp("paid_at", { withTimezone: true }),
+    ...timestamps,
+  },
+  (t) => [index("referral_payout_status_idx").on(t.status, t.createdAt)],
 );

@@ -113,6 +113,8 @@ export async function deleteGift(celebrationId: string, giftId: string) {
  */
 export async function startOnlineGift(celebrationId: string, input: GiftInput & { email: string }, callbackUrl: string) {
   if (!onlineGiftsEnabled()) throw new Error("Online payments aren't set up.");
+  const [f] = await db.select({ code: fund.paystackSubaccountCode }).from(fund).where(and(eq(fund.id, input.fundId ?? ""), eq(fund.celebrationId, celebrationId))).limit(1);
+  if (!f?.code) throw new Error("Online payment isn't set up for this fund.");
   const reference = newReference();
   await db.insert(gift).values({ celebrationId, ...input, method: "paystack", status: "pending", reference });
   const data = await paystack<{ authorization_url: string }>("/transaction/initialize", {
@@ -124,6 +126,9 @@ export async function startOnlineGift(celebrationId: string, input: GiftInput & 
       reference,
       callback_url: callbackUrl,
       channels: ["mobile_money", "card"],
+      // The host's share is settled to their Mobile Money. They bear Paystack's fee, so a gift never costs us money.
+      subaccount: f.code,
+      bearer: "subaccount",
       metadata: { celebrationId, fundId: input.fundId, giver: input.name },
     }),
   });

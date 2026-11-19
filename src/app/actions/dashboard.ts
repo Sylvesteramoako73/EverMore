@@ -26,10 +26,13 @@ import { createMemory, deleteMemory, updateMemory } from "@/server/memories";
 import { saveReminderPreference } from "@/server/reminders";
 import { acceptInvite, inviteMember, removeMember, revokeInvite } from "@/server/members";
 import { createFund, deleteFund, deleteGift, parseAmount, setGiftStatus, updateFund } from "@/server/gifts";
+import { ensureFundSubaccount } from "@/server/subaccounts";
 import { appUrl, onlineGiftsEnabled } from "@/lib/env";
 import { MOMO_NETWORKS } from "@/lib/money";
 import { deleteRsvp } from "@/server/rsvp";
 import { startPagePayment } from "@/server/page-payments";
+import { attributeReferral, referralDiscountFor } from "@/server/referrals";
+import { REFERRAL_COOKIE } from "@/lib/referrals";
 
 const uuid = z.uuid();
 
@@ -223,15 +226,21 @@ export async function saveFund(fundId: string | null, _prev: FormState, formData
   const goalMinor = goal ? parseAmount(goal) : null;
   if (goal && !goalMinor) return { errors: { goal: ["Enter a goal in cedis, e.g. 5000."] }, values: formValues(formData) };
   if (!rest.momoNumber && !onlineGiftsEnabled()) return { errors: { momoNumber: ["Add the MoMo number guests should send to."] }, values: formValues(formData) };
+  let savedId: string | null = null;
   try {
     if (fundId) {
       if (!ok(fundId) || !(await updateFund(celebration.id, fundId, { ...rest, goalMinor }))) return { message: "That fund no longer exists." };
-    } else await createFund(celebration.id, { ...rest, goalMinor });
+    } else savedId = await createFund(celebration.id, { ...rest, goalMinor });
+    savedId ??= fundId;
   } catch (err) {
     return { message: err instanceof Error ? err.message : "Couldn't save the fund.", values: formValues(formData) };
   }
+  // Set up (or refresh) the Paystack subaccount that online gifts are paid into.
+  const online = savedId ? await ensureFundSubaccount(celebration.id, savedId) : { ok: true as const, state: "off" as const };
   refresh();
-  return { ok: true, message: fundId ? "Fund updated." : "Fund added. Guests will see it in the Gifts section of your page." };
+  const base = fundId ? "Fund updated." : "Fund added. Guests will see it in the Gifts section of your page.";
+  if (!online.ok) return { ok: true, message: `${base} Online payments could not be switched on yet: ${online.reason.replace(/\.$/, "")}.` };
+  return { ok: true, message: online.state === "ready" ? `${base} Online payments are on, and gifts will be paid to your Mobile Money.` : base };
 }
 
 export async function removeFund(fundId: string) {
@@ -326,9 +335,13 @@ export async function saveReminders(_prev: FormState, formData: FormData): Promi
 // ───────────────────────────── Paying to publish
 
 /** Send the host to Paystack to pay for their page. Owners and co-hosts only. */
-export async function payForPage() {
+export async function payForPage(formData?: FormData) {
   const { user, celebration, role } = await current();
   if (role === "planner") redirect("/dashboard/payment?result=not-allowed");
+  // A code typed at checkout wins over the invite link they arrived by.
+  const typed = String(formData?.get("code") ?? "").trim();
+  if (typed && !(await attributeReferral(user.id, typed)) && !(await referralDiscountFor(user.id))) redirect("/dashboard/payment?result=bad-code");
+  await attributeReferral(user.id, (await cookies()).get(REFERRAL_COOKIE)?.value);
   let checkout: string;
   try {
     checkout = await startPagePayment(celebration.id, { id: user.id, email: user.email }, appUrl("/dashboard/payment/return"));

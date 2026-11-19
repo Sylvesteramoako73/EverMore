@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity, Flag, Globe, LayoutDashboard, Users } from "lucide-react";
+import { Activity, Flag, Globe, HandCoins, LayoutDashboard, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -10,6 +10,7 @@ const NAV = [
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/pages", label: "Pages", icon: Globe },
   { href: "/admin/reports", label: "Reports", icon: Flag },
+  { href: "/admin/payouts", label: "Payouts", icon: HandCoins },
   { href: "/admin/activity", label: "Activity", icon: Activity },
 ] as const;
 

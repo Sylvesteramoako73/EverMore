@@ -117,7 +117,7 @@ function GiveForm({ fund: f, w, inviteToken, onClose }: { fund: FundView; w: Cel
     if (state?.redirectTo) window.location.href = state.redirectTo;
   }, [state?.redirectTo]);
   const e = state?.errors ?? {};
-  const online = w.gifts.online;
+  const online = w.gifts.online && f.online !== false;
   const methodRef = useRef<HTMLInputElement>(null);
 
   if (state?.ok && !state.redirectTo) {

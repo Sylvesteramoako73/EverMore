@@ -1,11 +1,11 @@
 import "server-only";
-import { sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import type { CelebrationView, EventView, ImageView, SharedItem } from "@/components/site/types";
 import { db } from "@/db";
-import { pageViewDaily } from "@/db/schema";
+import { celebrationMember, pageViewDaily } from "@/db/schema";
 import { answerableEvents, celebrationPhase, primaryEvent, rsvpDeadlinePassed, visibleEvents, yearlyDate } from "@/lib/celebration-rules";
 import { plainDateInZone } from "@/lib/dates";
-import { appUrl, onlineGiftsEnabled } from "@/lib/env";
+import { appUrl, onlineGiftsEnabled, siteUrl } from "@/lib/env";
 import { akanDayName, PARTY_TITLES } from "@/lib/akan";
 import { getOccasion } from "@/lib/occasions";
 import { paletteFromColours } from "@/lib/palette";
@@ -17,6 +17,7 @@ import { listGuestbook } from "./guestbook";
 import { listMedia, listShared, MAX_VIDEO_BYTES, mediaUrl, type Media } from "./media";
 import { listMemories } from "./memories";
 import { findInvitation } from "./rsvp";
+import { getOrCreateReferralCode } from "./referrals";
 
 export type PublicResult =
   | { kind: "ok"; view: CelebrationView; celebration: Celebration }
@@ -210,6 +211,7 @@ export async function loadPublicCelebration(
         raised: f.showProgress ? (totals.get(f.id)?.raised ?? 0) : null,
         count: totals.get(f.id)?.count ?? 0,
         currency: f.currency,
+        online: onlineGiftsEnabled() && Boolean(f.paystackSubaccountCode),
         momo: f.momoNumber ? { number: f.momoNumber, name: f.momoName, network: f.momoNetwork } : null,
       })),
       supporters: supporters.map(({ name, message }) => ({ name, message })),
@@ -250,6 +252,7 @@ export async function loadPublicCelebration(
       live: `/${c.slug}/live`,
     },
     mode: preview ? "preview" : "live",
+    inviteLink: preview ? null : await ownerInviteLink(c.id),
   };
   return { kind: "ok", view, celebration: c };
 }
@@ -285,4 +288,18 @@ export async function recordPageView(celebrationId: string, timezone: string) {
     .insert(pageViewDaily)
     .values({ celebrationId, day, views: 1 })
     .onConflictDoUpdate({ target: [pageViewDaily.celebrationId, pageViewDaily.day], set: { views: sql`${pageViewDaily.views} + 1` } });
+}
+
+/** The page owner's invite link, so guests who love the page can make their own. */
+async function ownerInviteLink(celebrationId: string) {
+  try {
+    const [owner] = await db
+      .select({ userId: celebrationMember.userId })
+      .from(celebrationMember)
+      .where(and(eq(celebrationMember.celebrationId, celebrationId), eq(celebrationMember.role, "owner")))
+      .limit(1);
+    return owner ? siteUrl(`/r/${await getOrCreateReferralCode(owner.userId)}`) : null;
+  } catch {
+    return null;
+  }
 }
