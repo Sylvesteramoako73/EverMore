@@ -63,7 +63,7 @@ const nextConfig: NextConfig = {
     const split = site !== null && site.host !== app.host;
     const host = (url: URL) => ({ type: "host" as const, value: url.host.replace(/\./g, "\\.") });
     const known = split ? [host(app), host(site)] : [host(app)];
-    const appOnly = "sign-in|sign-up|forgot-password|reset-password|check-email|dashboard|admin|onboarding|join";
+    const appOnly = "sign-in|sign-up|forgot-password|reset-password|check-email|dashboard|admin|onboarding|join|r";
     return [
       {
         source: "/:path((?!api/cron).*)",

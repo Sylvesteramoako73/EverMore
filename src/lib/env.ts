@@ -41,10 +41,13 @@ const schema = z.object({
    */
   PAYSTACK_SECRET_KEY: z.string().optional(),
   /**
-   * "true" lets guests give online through Paystack. The money arrives in the Paystack account behind
-   * PAYSTACK_SECRET_KEY, so leave this off unless that account pays hosts out.
+   * "true" lets guests give online through Paystack. Each fund gets a Paystack subaccount from the
+   * host's Mobile Money details, so the gift is split to the host at payment time and never sits in
+   * our balance. A fund without a subaccount does not offer online payment.
    */
   ONLINE_GIFTS_ENABLED: z.string().optional(),
+  /** Percentage of each online gift EverMore keeps (0 to 20). Applied to new subaccounts. Default 0. */
+  GIFT_FEE_PERCENT: z.string().optional(),
 });
 
 function load() {
@@ -61,6 +64,8 @@ export const isProduction = env.NODE_ENV === "production";
 export const appUrl = (path = "") => `${env.APP_URL.replace(/\/$/, "")}${path}`;
 
 /** A Paystack key is in place (needed for hosts' page payments and online gifts). */
+/** The public website address (falls back to the app address when there is no separate site). */
+export const siteUrl = (path = "") => `${(env.SITE_URL ?? env.APP_URL).replace(/\/$/, "")}${path}`;
 export const paymentsEnabled = () => Boolean(env.PAYSTACK_SECRET_KEY);
 
 /** Guests can give by Mobile Money or card online, instead of sending MoMo to the host directly. */

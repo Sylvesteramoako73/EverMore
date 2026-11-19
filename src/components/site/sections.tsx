@@ -401,6 +401,11 @@ export function Footer({ w }: { w: CelebrationView }) {
       <p className="w-muted mt-6 text-xs">
         Made with love on <Link href="/" className="underline underline-offset-4">EverMore</Link>
       </p>
+      {w.inviteLink && (
+        <p className="w-muted mt-2 text-xs">
+          Planning your own celebration? <a href={w.inviteLink} className="underline underline-offset-4">Create a page and save GH₵ 10</a>
+        </p>
+      )}
     </footer>
   );
 }

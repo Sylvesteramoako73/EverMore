@@ -47,7 +47,7 @@ export function FundForm({ fund, suggestedTitle, onDone }: { fund?: FundValues; 
         </label>
       </div>
       <fieldset className="space-y-4 rounded-xl bg-muted/50 p-4">
-        <legend className="px-1 text-sm font-medium text-navy">Mobile Money for direct gifts</legend>
+        <legend className="px-1 text-sm font-medium text-navy">Where gifts are paid to</legend>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="MoMo number" errors={e.momoNumber}>
             <Input name="momoNumber" type="tel" defaultValue={v.momoNumber ?? fund?.momoNumber ?? ""} />

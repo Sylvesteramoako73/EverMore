@@ -57,6 +57,8 @@ export type FundView = {
   count: number;
   currency: string;
   momo: { number: string; name: string; network: string } | null;
+  /** Online payment works for this fund (undefined on samples, where it is shown). */
+  online?: boolean;
 };
 
 export type SharedItem = ImageView & { kind: "photo" | "video"; guestName: string; downloadUrl: string };
@@ -83,6 +85,8 @@ export type OccasionView = {
 
 export type CelebrationView = {
   id: string;
+  /** The owner's invite link, shown in the page footer on live pages (null elsewhere). */
+  inviteLink?: string | null;
   slug: string;
   themeId: string;
   occasion: OccasionView;

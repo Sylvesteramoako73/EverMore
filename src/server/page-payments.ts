@@ -6,6 +6,7 @@ import { celebration, planPayment } from "@/db/schema";
 import { paymentsEnabled } from "@/lib/env";
 import { billingEnabled, PAGE_PRICE_CURRENCY, PAGE_PRICE_MINOR, PAID_PLAN } from "@/lib/plans";
 import { publishCelebration } from "@/server/celebrations";
+import { referralDiscountFor, rewardReferral } from "@/server/referrals";
 import { paystack, type PaystackTransaction } from "@/server/paystack";
 
 export type PlanPayment = typeof planPayment.$inferSelect;
@@ -26,12 +27,14 @@ export async function startPagePayment(celebrationId: string, payer: { id: strin
   if (!c) throw new Error("That page no longer exists.");
   if (c.plan === PAID_PLAN) throw new Error("This page is already paid for.");
   const reference = `evu_${randomBytes(12).toString("hex")}`;
-  await db.insert(planPayment).values({ celebrationId, userId: payer.id, amountMinor: PAGE_PRICE_MINOR, currency: PAGE_PRICE_CURRENCY, reference });
+  // A friend's invitation takes GH₵ 10 off. The amount we record is the amount Paystack must confirm.
+  const amount = PAGE_PRICE_MINOR - (await referralDiscountFor(payer.id));
+  await db.insert(planPayment).values({ celebrationId, userId: payer.id, amountMinor: amount, currency: PAGE_PRICE_CURRENCY, reference });
   const data = await paystack<{ authorization_url: string }>("/transaction/initialize", {
     method: "POST",
     body: JSON.stringify({
       email: payer.email,
-      amount: PAGE_PRICE_MINOR,
+      amount,
       currency: PAGE_PRICE_CURRENCY,
       reference,
       callback_url: callbackUrl,
@@ -56,6 +59,9 @@ export async function applyPagePaymentTransaction(t: PaystackTransaction) {
     await db.update(celebration).set({ plan: PAID_PLAN }).where(eq(celebration.id, p.celebrationId));
     // Not ready yet (no name or no event)? It stays a draft and the host publishes from the dashboard.
     await publishCelebration(p.celebrationId);
+    // Whoever invited the payer earns their reward (held for a week first).
+    // A problem here must never hold up the payment itself.
+    await rewardReferral(p.userId, PAGE_PRICE_MINOR - p.amountMinor).catch(() => {});
   }
   const [updated] = await db
     .update(planPayment)

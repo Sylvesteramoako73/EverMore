@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Check } from "lucide-react";
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { Suspense } from "react";
 import { payForPage } from "@/app/actions/dashboard";
 import { PageSkeleton } from "@/components/dashboard/skeleton";
@@ -10,6 +11,9 @@ import { formatMoney } from "@/lib/money";
 import { billingEnabled, entitlements, PAGE_PRICE_MINOR, PAID_PLAN } from "@/lib/plans";
 import { getCelebration } from "@/server/celebrations";
 import { paidPagePayment, pagePaymentsAvailable, recheckPendingPagePayment } from "@/server/page-payments";
+import { attributeReferral, referralDiscountFor } from "@/server/referrals";
+import { REFERRAL_COOKIE, REFERRAL_DISCOUNT_MINOR } from "@/lib/referrals";
+import { Input } from "@/components/ui/input";
 import { loadDashboard } from "../data";
 
 export const metadata: Metadata = { title: "Payment" };
@@ -27,6 +31,7 @@ const NOTICES: Record<string, { tone: "good" | "bad" | "wait"; text: string }> =
   failed: { tone: "bad", text: "The payment didn't go through and you haven't been charged. You can try again." },
   pending: { tone: "wait", text: "We're still waiting for the payment to be confirmed. Your page will be ready to go live as soon as it is, usually within a minute." },
   error: { tone: "bad", text: "We couldn't start the payment. Please try again in a moment." },
+  "bad-code": { tone: "bad", text: "We couldn't use that invite code. Check it with your friend and try again, or pay without it." },
   "not-allowed": { tone: "bad", text: "Only the page owner or a co-host can pay for this page." },
 };
 
@@ -43,7 +48,11 @@ async function Payment({ searchParams }: PageProps<"/dashboard/payment">) {
   const notice = typeof sp.result === "string" ? NOTICES[paid && sp.result === "pending" ? "thanks" : sp.result] : undefined;
   const receipt = paid ? await paidPagePayment(c.id) : null;
   const limits = entitlements();
-  const price = formatMoney(PAGE_PRICE_MINOR);
+  // An invite link they arrived by (or one already on their account) takes GH₵ 10 off.
+  if (!paid) await attributeReferral(dashboard.user.id, (await cookies()).get(REFERRAL_COOKIE)?.value);
+  const discount = paid ? 0 : await referralDiscountFor(dashboard.user.id);
+  const fullPrice = formatMoney(PAGE_PRICE_MINOR);
+  const price = formatMoney(PAGE_PRICE_MINOR - discount);
   const included = [
     "Your page live at its own address, with a QR code",
     "Every design",
@@ -94,7 +103,18 @@ async function Payment({ searchParams }: PageProps<"/dashboard/payment">) {
           <>
             <h2 id="pay-h" className="text-2xl text-navy">{price}, paid once</h2>
             <p className="mt-2 text-muted-foreground">Pay securely with Mobile Money or card through Paystack. Your page goes live as soon as the payment is confirmed, and stays for as long as it is online.</p>
-            <form action={payForPage} className="mt-6">
+            {discount > 0 && (
+              <p className="mt-3 rounded-xl bg-success/10 p-3 text-sm font-medium text-success">
+                A friend invited you, so you save {formatMoney(REFERRAL_DISCOUNT_MINOR)}. Instead of {fullPrice} you pay {price}.
+              </p>
+            )}
+            <form action={payForPage} className="mt-6 space-y-4">
+              {discount === 0 && (
+                <label className="block max-w-xs text-sm text-navy">
+                  Have a friend&apos;s invite code? (optional)
+                  <Input name="code" autoComplete="off" maxLength={12} placeholder="For example KWAME24" className="mt-1.5 uppercase" />
+                </label>
+              )}
               <Button type="submit" variant="gold" size="lg">Pay {price} and publish</Button>
             </form>
           </>
