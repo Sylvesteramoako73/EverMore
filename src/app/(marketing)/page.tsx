@@ -1,9 +1,11 @@
-import { ArrowRight, Camera, Check, Heart, MapPin, Palette, QrCode, Sparkles, Users } from "lucide-react";
+import { ArrowRight, Check, Heart, Lock, Smartphone, Wallet } from "lucide-react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
+import { HeroCarousel } from "@/components/marketing/hero-carousel";
 import { DesignRail } from "@/components/marketing/design-rail";
+import { IncludeList } from "@/components/marketing/include-list";
 import { Button } from "@/components/ui/button";
 import { appHref, siteHref } from "@/lib/hosts";
 import { formatMoney } from "@/lib/money";
@@ -16,14 +18,32 @@ export const metadata: Metadata = { alternates: { canonical: siteHref("/") } };
 const P = (name: string) => `/samples/photos/${name}.webp`;
 
 const OCCASIONS = [
-  { kind: "wedding", theme: "earth-and-ivory", label: "Weddings", blurb: "Traditional and white wedding, every ceremony, colour and RSVP.", photo: "wed-kente-couple", span: "md:col-span-2 md:row-span-2" },
-  { kind: "birthday", theme: "confetti", label: "Birthdays", blurb: "Wishes wall, dress code and everyone's photos.", photo: "bday-cake-group", span: "" },
-  { kind: "funeral", theme: "serene", label: "Celebrations of life", blurb: "Order of events, tributes and details, with care.", photo: "mem-candle-flowers", span: "" },
-  { kind: "outing", theme: "adventure", label: "Outings & trips", blurb: "Itinerary, meeting point and what to bring.", photo: "trip-sunset-group", span: "md:col-span-2" },
-  { kind: "naming", theme: "little-blessings", label: "Naming ceremonies", blurb: "The name, its meaning and blessings.", photo: "baby-laugh", span: "" },
-  { kind: "graduation", theme: "modern-minimalist", label: "Graduations", blurb: "Celebrate the graduate with everyone.", photo: "grad-flowers", span: "" },
-  { kind: "reunion", theme: "golden-hour", label: "Reunions", blurb: "Family and class reunions, before and after.", photo: "reunion-friends", span: "" },
-  { kind: "opening", theme: "luxury-editorial", label: "Grand openings", blurb: "Shops, restaurants, offices: open your doors in style.", photo: "open-boutique", span: "" },
+  { theme: "earth-and-ivory", kind: "wedding", label: "Weddings", photo: "home-wedding-tall" },
+  { theme: "confetti", kind: "birthday", label: "Birthdays", photo: "home-birthday-tall" },
+  { theme: "serene", kind: "funeral", label: "Celebrations of life", photo: "mem-candle-flowers" },
+  { theme: "little-blessings", kind: "naming", label: "Naming ceremonies", photo: "baby-laugh" },
+  { theme: "modern-minimalist", kind: "graduation", label: "Graduations", photo: "home-graduation-tall" },
+  { theme: "golden-hour", kind: "reunion", label: "Reunions", photo: "reunion-friends" },
+] as const;
+
+const HERO_SLIDES = [
+  { kind: "wedding", theme: "earth-and-ivory", label: "Weddings", noun: "wedding", photo: "home-wedding-couple", position: "50% 30%" },
+  { kind: "birthday", theme: "confetti", label: "Birthdays", noun: "birthday", photo: "home-birthday-wide", position: "50% 30%" },
+  { kind: "funeral", theme: "serene", label: "Celebrations of life", noun: "celebration of life", photo: "mem-church-candle", position: "50% 45%" },
+  { kind: "naming", theme: "little-blessings", label: "Naming ceremonies", noun: "naming ceremony", photo: "baby-laugh", position: "50% 40%" },
+  { kind: "graduation", theme: "modern-minimalist", label: "Graduations", noun: "graduation", photo: "home-graduation-wide", position: "50% 0%" },
+  { kind: "reunion", theme: "golden-hour", label: "Reunions", noun: "reunion", photo: "reunion-friends", position: "50% 30%" },
+  { kind: "outing", theme: "adventure", label: "Outings and trips", noun: "outing", photo: "trip-boat-sunset", position: "50% 50%" },
+  { kind: "opening", theme: "luxury-editorial", label: "Grand openings", noun: "grand opening", photo: "open-champagne", position: "50% 40%" },
+] as const;
+
+const INCLUDES = [
+  { title: "RSVPs and guest list", text: "Guests answer for each part of the day, with personal links that keep the numbers right.", photo: "wed-kente-dancer" },
+  { title: "Photos and videos from guests", text: "Everyone uploads from their phone. You approve what appears, and everyone can download.", photo: "bday-women" },
+  { title: "Colours of the day", text: "Show the colours guests can wear, with names and swatches.", photo: "flowers-table" },
+  { title: "Programme and directions", text: "Every moment with a time, venue photos, maps and one tap directions.", photo: "venue-church" },
+  { title: "Gifts and contributions", text: "Guests send by Mobile Money, or pay online when you switch it on.", photo: "wed-ring" },
+  { title: "A memory page after the day", text: "A thank you note, the photos shared, and a count of every day since.", photo: "wed-lace" },
 ] as const;
 
 const FAQ = [
@@ -54,208 +74,107 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* ───────────── Hero */}
-      <section className="relative overflow-hidden bg-navy text-ivory">
-        <div aria-hidden className="pointer-events-none absolute -top-40 left-1/3 h-[34rem] w-[34rem] rounded-full bg-champagne/20 blur-3xl" />
-        <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-4 pt-14 pb-24 sm:px-6 lg:grid-cols-[1fr_1.05fr] lg:pt-20 lg:pb-28">
-          <div className="animate-rise">
-            <p className="eyebrow !text-champagne">Weddings · Birthdays · Memorials · Grand openings · and more</p>
-            <h1 className="mt-5 text-[clamp(2.7rem,6vw,4.6rem)] leading-[1.02]">
-              Every moment that matters deserves a <em className="text-champagne">beautiful home</em>.
-            </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-ivory/80">
-              Create a stunning page for your celebration in minutes. Share it on WhatsApp, collect RSVPs, gather everyone&apos;s
-              photos, and keep the memories long after the day.
-            </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg" variant="gold"><Link href={appHref("/sign-up")}>Create your page</Link></Button>
-              <Button asChild size="lg" variant="outline" className="border-ivory/30 bg-transparent text-ivory hover:bg-ivory/10 hover:text-ivory">
-                <Link href="#designs">See the designs</Link>
-              </Button>
-            </div>
-            <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-ivory/70">
-              {["No design skills needed", "Guests need no app", "12 designs"].map((t) => (
-                <li key={t} className="flex items-center gap-1.5"><Check className="h-4 w-4 text-champagne" aria-hidden /> {t}</li>
-              ))}
-            </ul>
-          </div>
+      {/* ───────────── Hero: a photo for every occasion, one headline, one clear button */}
+      <HeroCarousel signUpHref={appHref("/sign-up")} slides={[...HERO_SLIDES]} />
 
-          {/* One couple, one story: their photo, and the page they made for their guests. */}
-          <div className="relative mx-auto w-full max-w-[520px] pb-10 pl-14 sm:pl-24" aria-hidden>
-            <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] shadow-[0_50px_100px_-40px_rgba(0,0,0,.8)] ring-1 ring-white/10">
-              <Image src={P("wed-kente-couple")} alt="" fill priority sizes="(min-width: 1024px) 440px, 80vw" className="object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-navy/70 via-transparent to-transparent" />
-              <div className="absolute right-6 bottom-6 text-right">
-                <p className="font-display text-3xl">Ama &amp; Kofi</p>
-                <p className="mt-1 text-xs tracking-[0.25em] text-ivory/80 uppercase">Wedding · 18 January</p>
-              </div>
-            </div>
-            <Phone src="/samples/screens/traditional-celebration-phone.webp" alt="" className="absolute bottom-0 left-0 w-[150px] sm:w-[200px]" />
-            <div className="absolute top-8 -right-2 flex items-center gap-3 rounded-2xl bg-white py-3 pr-5 pl-3 text-navy shadow-xl sm:-right-8">
-              <span className="grid h-9 w-9 place-items-center rounded-full bg-success/15 text-success"><Check className="h-4 w-4" /></span>
-              <span>
-                <span className="block text-xs text-muted-foreground">New RSVP</span>
-                <span className="block text-sm font-semibold">Esi is coming, +1</span>
-              </span>
-            </div>
-          </div>
-        </div>
-        {/* Scrolling ribbon of occasions */}
-        <div className="border-t border-white/10 py-4">
-          <div className="evm-marquee flex gap-10 text-sm tracking-[0.25em] whitespace-nowrap text-ivory/60 uppercase">
-            {Array.from({ length: 2 }, (_, k) => (
-              <span key={k} className="flex shrink-0 gap-10" aria-hidden={k === 1}>
-                {["Weddings", "Birthdays", "Outdoorings", "Grand openings", "Celebrations of life", "Road trips", "Reunions", "Anniversaries", "Graduations", "Baby showers"].map((o) => (
-                  <span key={o} className="flex items-center gap-10">{o}<span className="text-champagne">✦</span></span>
-                ))}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ───────────── Occasions bento */}
-      <section id="occasions" className="scroll-mt-20 py-20 sm:py-28">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <Intro eyebrow="For every occasion" title="One home for all of life's gatherings" text="Each occasion gets its own words, sections and designs, from a joyful outdooring to a dignified celebration of life." />
-          <ul className="mt-14 grid auto-rows-[220px] gap-4 md:grid-cols-4 md:auto-rows-[240px]">
+      {/* ───────────── Occasions */}
+      <section id="occasions" className="scroll-mt-20 bg-white py-20 sm:py-28">
+        <div className="mx-auto max-w-7xl px-4 sm:px-8">
+          <Intro title="Celebrate every occasion" text="Each occasion gets its own words, sections and designs, from a joyful outdooring to a dignified celebration of life." />
+          <ul className="mt-14 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 lg:grid-cols-6">
             {OCCASIONS.map((o) => (
-              <li key={o.kind} className={o.span}>
-                <Link href={`/samples/${o.theme}?occasion=${o.kind}`} className="group relative block h-full overflow-hidden rounded-3xl">
-                  <Image src={P(o.photo)} alt="" fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 p-5 text-white sm:p-6">
-                    <h3 className="text-2xl sm:text-3xl">{o.label}</h3>
-                    <p className="mt-1 max-w-sm text-sm text-white/80">{o.blurb}</p>
-                    <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-champagne">
-                      See a sample <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden />
-                    </span>
-                  </div>
+              <li key={o.kind}>
+                <Link href={`/samples/${o.theme}?occasion=${o.kind}`} className="group block text-center">
+                  <span className="relative block aspect-[3/4] overflow-hidden bg-mist">
+                    <Image src={P(o.photo)} alt="" fill sizes="(min-width: 1024px) 15vw, (min-width: 768px) 30vw, 45vw" quality={90} className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                  </span>
+                  <span className="mt-4 block text-base text-navy">{o.label}</span>
                 </Link>
               </li>
             ))}
           </ul>
-          <p className="mt-6 text-center text-sm text-muted-foreground">Also anniversaries &amp; vow renewals, baby &amp; bridal showers, housewarmings, church and community events.</p>
+          <p className="mt-10 text-center text-sm text-muted-foreground">Also outings and trips, grand openings, anniversaries, showers and church and community events.</p>
         </div>
       </section>
 
-      {/* ───────────── Designs: real screenshots */}
-      <section id="designs" className="scroll-mt-20 overflow-hidden bg-[#f3eee4] py-20 sm:py-28">
+      {/* ───────────── Designs */}
+      <section id="designs" className="scroll-mt-20 overflow-hidden bg-[#f6f3ec] py-20 sm:py-28">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <Intro eyebrow="Twelve complete designs" title="Twelve designs. Twelve different page structures." text="Not the same page in different colours: each design is built differently. A magazine with a contents page, an invitation suite of paper cards, a split screen, a bento board, a booklet, a route with stops. Here they are, exactly as guests see them." />
+          <Intro title="Choose your design" text="Twelve complete designs, each built differently: a magazine, an invitation suite, a split screen, a booklet, a route with stops. Here they are, exactly as your guests see them." />
         </div>
         <div className="mt-10">
-        <DesignRail label="Designs">
-          {SAMPLE_THEMES.map((t) => (
-            <li key={t.id} className="w-[220px] shrink-0 snap-start sm:w-[250px]">
-              <Link href={`/samples/${t.id}`} className="group block">
-                <Phone src={`/samples/screens/${t.id}-phone.webp`} alt={`${t.name} design`} className="transition-transform duration-500 group-hover:-translate-y-2" />
-                <p className="mt-4 text-[0.65rem] font-semibold tracking-[0.2em] text-champagne-deep uppercase">{getOccasion(t.occasion).label}</p>
-                <div className="mt-1 flex items-start justify-between gap-2">
-                  <h3 className="text-xl text-navy">{t.name}</h3>
-                </div>
-                <p className="mt-1 text-sm leading-snug text-muted-foreground">{t.tagline}</p>
-              </Link>
-            </li>
+          <DesignRail label="Designs">
+            {SAMPLE_THEMES.map((t) => (
+              <li key={t.id} className="w-[220px] shrink-0 snap-start sm:w-[250px]">
+                <Link href={`/samples/${t.id}`} className="group block">
+                  <Phone src={`/samples/screens/${t.id}-phone.webp`} alt={`${t.name} design`} className="transition-transform duration-500 group-hover:-translate-y-2" />
+                  <p className="mt-4 text-[0.65rem] font-semibold tracking-[0.2em] text-champagne-deep uppercase">{getOccasion(t.occasion).label}</p>
+                  <h3 className="mt-1 text-xl font-light text-navy">{t.name}</h3>
+                  <p className="mt-1 text-sm leading-snug text-muted-foreground">{t.tagline}</p>
+                </Link>
+              </li>
+            ))}
+          </DesignRail>
+        </div>
+      </section>
+
+      {/* ───────────── What every page includes */}
+      <section id="includes" className="scroll-mt-20 bg-navy py-20 text-ivory sm:py-28">
+        <div className="mx-auto max-w-6xl px-4 sm:px-8">
+          <p className="mb-10 text-center text-lg text-champagne lg:text-right">What is included</p>
+          <IncludeList items={[...INCLUDES]} />
+        </div>
+      </section>
+
+      {/* ───────────── Two ways in */}
+      <section className="bg-white py-20 sm:py-28">
+        <div className="mx-auto grid max-w-7xl gap-5 px-4 sm:px-8 md:grid-cols-2">
+          {[
+            { href: "/samples/earth-and-ivory?occasion=wedding", photo: "home-wedding-couple", title: "Plan a wedding", text: "Traditional and white wedding, every ceremony, colour and RSVP, on one page your guests will keep." },
+            { href: "/samples/serene?occasion=funeral", photo: "mem-church-candle", title: "Remember a loved one", text: "The order of events, tributes and details, shared with care and kept for the family." },
+          ].map((p) => (
+            <Link key={p.title} href={p.href} className="group relative block aspect-[3/4] overflow-hidden sm:aspect-[4/5] md:aspect-[3/4]">
+              <Image src={P(p.photo)} alt="" fill sizes="(min-width: 768px) 45vw, 100vw" className="object-cover transition-transform duration-1000 group-hover:scale-105" />
+              <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-navy/85 via-navy/15 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8">
+                <h2 className="text-3xl font-light sm:text-5xl">{p.title}</h2>
+                <p className="mt-3 max-w-md text-white/85">{p.text}</p>
+                <span className="mt-4 inline-flex items-center gap-2 text-sm">See a sample <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden /></span>
+              </div>
+            </Link>
           ))}
-        </DesignRail>
         </div>
       </section>
 
       {/* ───────────── How it works */}
-      <section id="how-it-works" className="scroll-mt-20 py-20 sm:py-28">
+      <section id="how-it-works" className="scroll-mt-20 bg-[#f6f3ec] py-20 sm:py-28">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <Intro eyebrow="How it works" title="Ready to share in three steps" />
-          <ol className="mt-14 grid gap-6 md:grid-cols-3">
+          <Intro title="Ready to share in three steps" text="Most people finish in about ten minutes. Preview it privately first, and keep editing after you publish." />
+          <ol className="mt-14 grid gap-12 md:grid-cols-3 md:gap-8">
             {[
-              { icon: Sparkles, title: "Tell us what you're celebrating", text: "Pick the occasion, then add names, dates, the programme and a few photos in a short guided form." },
-              { icon: Palette, title: "Choose a design you love", text: "Twelve designs, each with its own feel. Preview your own page live, and add your colours of the day." },
-              { icon: QrCode, title: "Share with everyone", text: "A short link and a QR code for WhatsApp, social media and printed cards. Replies and photos roll in." },
-            ].map((s, i) => (
-              <li key={s.title} className="relative rounded-3xl bg-white p-8 shadow-sm ring-1 ring-navy/5">
-                <span className="font-display text-7xl text-champagne/30" aria-hidden>{i + 1}</span>
-                <s.icon className="mt-2 h-7 w-7 text-champagne-deep" aria-hidden />
-                <h3 className="mt-4 text-2xl text-navy">{s.title}</h3>
-                <p className="mt-2 leading-relaxed text-muted-foreground">{s.text}</p>
+              ["Tell us what you are celebrating", "Pick the occasion, then add names, dates, the programme and a few photos in a short guided form."],
+              ["Choose a design you love", "Twelve designs, each with its own feel. Preview your own page and add your colours of the day."],
+              ["Share with everyone", "A short link and a QR code for WhatsApp, social media and printed cards. Replies and photos roll in."],
+            ].map(([title, text], i) => (
+              <li key={title} className="text-center">
+                <span className="font-display text-6xl font-light text-champagne" aria-hidden>{i + 1}</span>
+                <h3 className="mt-3 text-2xl font-light text-navy">{title}</h3>
+                <p className="mx-auto mt-3 max-w-xs leading-relaxed text-muted-foreground">{text}</p>
               </li>
             ))}
           </ol>
-        </div>
-      </section>
-
-      {/* ───────────── Feature stories */}
-      <section className="bg-navy py-20 text-ivory sm:py-28">
-        <div className="mx-auto max-w-6xl space-y-24 px-4 sm:px-6">
-          <Feature
-            eyebrow="Share the love"
-            title="Everyone's photos, in one place"
-            text="Guests upload the photos and videos they take, straight from their phones. Everyone can browse and download them, and you approve what appears."
-            points={["No app, no sign-up for guests", "Photos and short videos", "You approve before they appear"]}
-            photos={["bday-women", "wed-kente-embrace", "bday-friends"]}
-          />
-          <Feature
-            reverse
-            eyebrow="RSVPs that add up"
-            title="Know exactly who's coming"
-            text="Guests answer for each part of the day. Personal invitation links keep numbers right, and phone contacts are there for those who'd rather call."
-            points={["Replies per event", "Guest limits per invitation", "Meal choices and dietary needs"]}
-            photos={["wed-kente-dancer", "wed-arch", "wed-vows"]}
-          />
-          <Feature
-            eyebrow="All the details"
-            title="Colours of the day, programme and directions"
-            text="Show the colours guests can wear, a programme with every moment, venue photos, maps and one-tap directions."
-            points={["Colours with names and swatches", "Programme with icons and times", "Maps, directions and calendar links"]}
-            photos={["venue-church", "flowers-table", "trip-road"]}
-          />
-        </div>
-      </section>
-
-      {/* ───────────── After the day */}
-      <section id="after" className="scroll-mt-20 py-20 sm:py-28">
-        <div className="mx-auto grid max-w-6xl items-center gap-14 px-4 sm:px-6 lg:grid-cols-2">
-          <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem]">
-            <Image src={P("wed-lace")} alt="A groom smiling at his bride" fill sizes="(min-width: 1024px) 560px, 100vw" className="object-cover" />
-            <div className="absolute inset-x-6 bottom-6 rounded-2xl bg-white/95 p-5 shadow-xl backdrop-blur">
-              <p className="eyebrow">Example</p>
-              <p className="mt-1 font-display text-2xl text-navy">Married for 1 year, 4 months and 12 days</p>
-            </div>
-          </div>
-          <div>
-            <p className="eyebrow">More than an invitation</p>
-            <h2 className="mt-4 text-4xl leading-tight text-navy sm:text-5xl">The day ends. Your story doesn&apos;t.</h2>
-            <p className="mt-5 text-lg leading-relaxed text-muted-foreground">
-              Afterwards your page becomes a home for the memories: a thank-you note, the photos everyone shared, a timeline of milestones,
-              and gentle yearly reminders.
-            </p>
-            <ul className="mt-8 space-y-4">
-              {[
-                [Heart, "Thank your guests with a note on the page"],
-                [Camera, "Keep every photo your guests shared"],
-                [MapPin, "Look back at where it all happened"],
-                [Users, "Celebrate anniversaries and milestones together"],
-              ].map(([Icon, t]) => {
-                const I = Icon as typeof Heart;
-                return (
-                  <li key={t as string} className="flex items-center gap-3 text-navy">
-                    <span className="grid h-10 w-10 place-items-center rounded-full bg-blush"><I className="h-4 w-4" aria-hidden /></span>
-                    {t as string}
-                  </li>
-                );
-              })}
-            </ul>
-            <Button asChild variant="outline" className="mt-8"><Link href="/samples/earth-and-ivory?after=1">See a page after the day</Link></Button>
+          <div className="mt-14 text-center">
+            <Button asChild size="lg" className="h-12 px-8 text-base"><Link href={appHref("/sign-up")}>Create your page</Link></Button>
           </div>
         </div>
       </section>
 
       {/* ───────────── Pricing */}
-      <section id="pricing" className="scroll-mt-20 bg-[#f3eee4] py-20 sm:py-28">
+      <section id="pricing" className="scroll-mt-20 bg-white py-20 sm:py-28">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
           <Intro
-            eyebrow="Pricing"
-            title="One simple price."
-            text={`Build and preview your page at no cost. When you're ready to share it, publish for ${formatMoney(PAGE_PRICE_MINOR)}, paid once per celebration by Mobile Money or card. No subscription.`}
+            title="One simple price"
+            text={`Build and preview your page at no cost. When you are ready to share it, publish for ${formatMoney(PAGE_PRICE_MINOR)}, paid once per celebration by Mobile Money or card. No subscription.`}
           />
           <div className="mx-auto mt-12 max-w-xl">
             <Plan
@@ -263,16 +182,16 @@ export default async function HomePage() {
               highlight
               price={`${formatMoney(PAGE_PRICE_MINOR)} once`}
               note="Everything you need to invite, welcome and remember."
-              items={["A complete celebration page", "Every design", "Up to 20 events", "RSVPs, guest list & QR code", "Guest photo sharing & guestbook", "Co-host & planner access", "A memory page after the day"]}
+              items={["A complete celebration page", "Every design", "Up to 20 events", "RSVPs, guest list and QR code", "Guest photo sharing and guestbook", "Co-host and planner access", "A memory page after the day"]}
             />
           </div>
         </div>
       </section>
 
       {/* ───────────── FAQ */}
-      <section id="faq" className="scroll-mt-20 py-20 sm:py-28">
+      <section id="faq" className="scroll-mt-20 bg-[#f6f3ec] py-20 sm:py-28">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
-          <Intro eyebrow="Questions" title="Frequently asked" />
+          <Intro title="Questions, answered" />
           <div className="mt-12 divide-y divide-navy/10 border-y border-navy/10">
             {FAQ.map(([q, a]) => (
               <details key={q} className="group py-5">
@@ -287,52 +206,44 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ───────────── Closing CTA */}
-      <section className="px-4 pb-24 sm:px-6">
-        <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[2rem] px-6 py-24 text-center text-white sm:px-12">
-          <Image src={P("reunion-hug")} alt="" fill sizes="100vw" className="object-cover" />
-          <div className="absolute inset-0 bg-navy/75" />
-          <div className="relative">
-            <h2 className="text-4xl sm:text-6xl">Begin your story today</h2>
-            <p className="mx-auto mt-4 max-w-xl text-white/80">Your page can be ready to share in minutes.</p>
-            <Button asChild size="lg" variant="gold" className="mt-8"><Link href={appHref("/sign-up")}>Create your page</Link></Button>
-          </div>
+      {/* ───────────── Closing call, then the reassurance strip */}
+      <section className="relative isolate overflow-hidden py-28 text-center text-white sm:py-36">
+        <Image src={P("reunion-hug")} alt="" fill sizes="100vw" className="-z-20 object-cover" />
+        <div aria-hidden className="absolute inset-0 -z-10 bg-navy/80" />
+        <div className="px-4">
+          <h2 className="text-4xl font-light sm:text-6xl">Begin your story today</h2>
+          <p className="mx-auto mt-4 max-w-xl text-white/85">Your page can be ready to share in minutes.</p>
+          <Button asChild size="lg" variant="gold" className="mt-8 h-12 px-8 text-base"><Link href={appHref("/sign-up")}>Create your page</Link></Button>
         </div>
+      </section>
+      <section aria-label="Why EverMore" className="bg-white py-14">
+        <ul className="mx-auto grid max-w-6xl gap-10 px-4 text-center sm:grid-cols-2 sm:px-8 lg:grid-cols-4">
+          {[
+            [Wallet, "One price, paid once", `${formatMoney(PAGE_PRICE_MINOR)} by Mobile Money or card. No subscription.`],
+            [Smartphone, "Guests need no app", "They open your link or scan the QR code in any browser."],
+            [Lock, "Private if you want it", "Public, unlisted or invitation only. You choose who sees it."],
+            [Heart, "Yours after the day", "Your page becomes a home for the memories."],
+          ].map(([Icon, title, text]) => {
+            const I = Icon as typeof Heart;
+            return (
+              <li key={title as string}>
+                <I className="mx-auto h-7 w-7 text-champagne-deep" aria-hidden />
+                <h3 className="mt-4 text-lg text-navy">{title as string}</h3>
+                <p className="mx-auto mt-2 max-w-[16rem] text-sm leading-relaxed text-muted-foreground">{text as string}</p>
+              </li>
+            );
+          })}
+        </ul>
       </section>
     </>
   );
 }
 
-function Intro({ eyebrow, title, text }: { eyebrow: string; title: string; text?: string }) {
+function Intro({ title, text }: { title: string; text?: string }) {
   return (
     <div className="mx-auto max-w-2xl text-center">
-      <p className="eyebrow">{eyebrow}</p>
-      <h2 className="mt-4 text-4xl leading-tight text-navy sm:text-5xl">{title}</h2>
+      <h2 className="text-4xl leading-tight font-light text-navy sm:text-5xl">{title}</h2>
       {text && <p className="mt-5 text-lg leading-relaxed text-muted-foreground">{text}</p>}
-    </div>
-  );
-}
-
-function Feature({ eyebrow, title, text, points, photos, reverse = false }: { eyebrow: string; title: string; text: string; points: string[]; photos: string[]; reverse?: boolean }) {
-  return (
-    <div className="grid items-center gap-12 lg:grid-cols-2">
-      <div className={reverse ? "lg:order-2" : ""}>
-        <p className="eyebrow !text-champagne">{eyebrow}</p>
-        <h2 className="mt-4 text-4xl leading-tight sm:text-5xl">{title}</h2>
-        <p className="mt-5 text-lg leading-relaxed text-ivory/75">{text}</p>
-        <ul className="mt-6 space-y-2.5">
-          {points.map((p) => (
-            <li key={p} className="flex items-center gap-2.5"><Check className="h-4 w-4 text-champagne" aria-hidden /> {p}</li>
-          ))}
-        </ul>
-      </div>
-      <div className="grid h-[360px] grid-cols-2 grid-rows-2 gap-3 sm:h-[460px]" aria-hidden>
-        {photos.slice(0, 3).map((ph, i) => (
-          <div key={ph} className={`relative overflow-hidden rounded-2xl ${i === 0 ? "row-span-2" : ""}`}>
-            <Image src={P(ph)} alt="" fill sizes="(min-width: 1024px) 280px, 45vw" className="object-cover" />
-          </div>
-        ))}
-      </div>
     </div>
   );
 }

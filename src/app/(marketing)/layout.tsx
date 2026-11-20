@@ -1,3 +1,4 @@
+import { WhatsAppButton } from "@/components/marketing/whatsapp-button";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing/chrome";
 
 export default function MarketingLayout({ children }: LayoutProps<"/">) {
@@ -8,6 +9,7 @@ export default function MarketingLayout({ children }: LayoutProps<"/">) {
         {children}
       </main>
       <MarketingFooter />
+      <WhatsAppButton number="233557001326" />
     </>
   );
 }
