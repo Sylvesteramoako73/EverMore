@@ -4,15 +4,18 @@ const isDev = process.env.NODE_ENV !== "production";
 
 // The Leadloop website chat assistant (script, chat API and images).
 const CHAT = "https://chatbot-m8tu.onrender.com";
+// Google Analytics 4.
+const GA_SCRIPT = "https://www.googletagmanager.com";
+const GA_CONNECT = "https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com";
 
 // Next's runtime needs inline scripts/styles; 'unsafe-eval' only in development for fast refresh.
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline' ${CHAT}${isDev ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' ${CHAT} ${GA_SCRIPT}${isDev ? " 'unsafe-eval'" : ""}`,
   `style-src 'self' 'unsafe-inline' ${CHAT}`,
-  `img-src 'self' data: blob: ${CHAT}`,
+  `img-src 'self' data: blob: ${CHAT} ${GA_CONNECT}`,
   "font-src 'self' data:",
-  `connect-src 'self' ${CHAT}`,
+  `connect-src 'self' ${CHAT} ${GA_CONNECT}`,
   "frame-src 'self' https://www.openstreetmap.org https://www.youtube-nocookie.com",
   "frame-ancestors 'self'", // the dashboard previews pages in a same-origin frame
   "base-uri 'self'",

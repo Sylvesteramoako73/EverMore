@@ -1,4 +1,6 @@
 import Script from "next/script";
+import { Analytics } from "@/components/analytics";
+import { TrackClicks } from "@/components/track";
 import { WhatsAppButton } from "@/components/marketing/whatsapp-button";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing/chrome";
 
@@ -11,6 +13,8 @@ export default function MarketingLayout({ children }: LayoutProps<"/">) {
       </main>
       <MarketingFooter />
       <WhatsAppButton number="233557001326" />
+      <Analytics />
+      <TrackClicks />
       <Script
         src="https://chatbot-m8tu.onrender.com/widget/widget.js"
         data-api-url="https://chatbot-m8tu.onrender.com/api/chat"
