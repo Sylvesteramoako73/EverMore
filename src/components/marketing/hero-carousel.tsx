@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
-export type HeroSlide = { kind: string; theme: string; label: string; /** Singular, for "See a ___ sample". */ noun: string; photo: string; position?: string };
+export type HeroSlide = { kind: string; theme: string; label: string; /** Singular, for "See a ___ sample". */ noun: string; photo: string; position?: string; /** A portrait photo used instead on phones. */ mobilePhoto?: string; mobilePosition?: string };
 
 const EVERY = 6500;
 
@@ -49,17 +49,29 @@ export function HeroCarousel({ slides, signUpHref }: { slides: HeroSlide[]; sign
       className="relative flex h-[100svh] min-h-[640px] items-end justify-center overflow-hidden bg-navy text-white"
     >
       {slides.map((s, n) => (
-        <Image
-          key={s.photo}
-          src={`/samples/photos/${s.photo}.webp`}
-          alt=""
-          fill
-          priority={n === 0}
-          sizes="100vw"
-          quality={90}
-          style={{ objectPosition: s.position ?? "50% 40%" }}
-          className={`object-cover transition-opacity duration-[1400ms] ease-in-out ${n === i ? "opacity-100" : "opacity-0"}`}
-        />
+        <span key={s.photo}>
+          <Image
+            src={`/samples/photos/${s.photo}.webp`}
+            alt=""
+            fill
+            priority={n === 0}
+            sizes="100vw"
+            quality={90}
+            style={{ objectPosition: s.position ?? "50% 40%" }}
+            className={`object-cover transition-opacity duration-[1400ms] ease-in-out ${s.mobilePhoto ? "hidden md:block" : ""} ${n === i ? "opacity-100" : "opacity-0"}`}
+          />
+          {s.mobilePhoto && (
+            <Image
+              src={`/samples/photos/${s.mobilePhoto}.webp`}
+              alt=""
+              fill
+              sizes="100vw"
+              quality={90}
+              style={{ objectPosition: s.mobilePosition ?? "50% 30%" }}
+              className={`object-cover transition-opacity duration-[1400ms] ease-in-out md:hidden ${n === i ? "opacity-100" : "opacity-0"}`}
+            />
+          )}
+        </span>
       ))}
       <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(16,28,53,.5),rgba(16,28,53,0)_28%,rgba(16,28,53,0)_38%,rgba(16,28,53,.93))]" />
 
