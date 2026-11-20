@@ -1,42 +1,10 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand";
-import { Button } from "@/components/ui/button";
+import { SiteHeader } from "@/components/marketing/site-header";
 import { appHref } from "@/lib/hosts";
 
-const NAV = [
-  { href: "/#occasions", label: "Occasions" },
-  { href: "/#how-it-works", label: "How it works" },
-  { href: "/#designs", label: "Designs" },
-  { href: "/#after", label: "After the day" },
-  { href: "/#pricing", label: "Pricing" },
-  { href: "/#faq", label: "FAQ" },
-];
-
 export function MarketingHeader() {
-  return (
-    <header className="sticky top-0 z-40 border-b border-navy/5 bg-ivory/85 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-        <Logo />
-        <nav aria-label="Main" className="hidden lg:block">
-          <ul className="flex items-center gap-7 text-sm text-navy/80">
-            {NAV.map((n) => (
-              <li key={n.href}>
-                <Link href={n.href} className="transition-colors hover:text-navy">{n.label}</Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-        <div className="flex items-center gap-2">
-          <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-            <Link href={appHref("/sign-in")}>Sign in</Link>
-          </Button>
-          <Button asChild size="sm">
-            <Link href={appHref("/sign-up")}>Create your page</Link>
-          </Button>
-        </div>
-      </div>
-    </header>
-  );
+  return <SiteHeader signInHref={appHref("/sign-in")} signUpHref={appHref("/sign-up")} />;
 }
 
 export function MarketingFooter() {
