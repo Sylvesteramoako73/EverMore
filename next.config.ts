@@ -2,14 +2,17 @@ import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV !== "production";
 
+// The Leadloop website chat assistant (script, chat API and images).
+const CHAT = "https://chatbot-m8tu.onrender.com";
+
 // Next's runtime needs inline scripts/styles; 'unsafe-eval' only in development for fast refresh.
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
+  `script-src 'self' 'unsafe-inline' ${CHAT}${isDev ? " 'unsafe-eval'" : ""}`,
+  `style-src 'self' 'unsafe-inline' ${CHAT}`,
+  `img-src 'self' data: blob: ${CHAT}`,
   "font-src 'self' data:",
-  "connect-src 'self'",
+  `connect-src 'self' ${CHAT}`,
   "frame-src 'self' https://www.openstreetmap.org https://www.youtube-nocookie.com",
   "frame-ancestors 'self'", // the dashboard previews pages in a same-origin frame
   "base-uri 'self'",

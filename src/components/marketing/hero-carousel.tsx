@@ -3,7 +3,7 @@
 import { Pause, Play } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 export type HeroSlide = { kind: string; theme: string; label: string; /** Singular, for "See a ___ sample". */ noun: string; photo: string; position?: string; /** A portrait photo used instead on phones. */ mobilePhoto?: string; mobilePosition?: string };
@@ -49,7 +49,7 @@ export function HeroCarousel({ slides, signUpHref }: { slides: HeroSlide[]; sign
       className="relative flex h-[100svh] min-h-[640px] items-end justify-center overflow-hidden bg-navy text-white"
     >
       {slides.map((s, n) => (
-        <span key={s.photo}>
+        <Fragment key={s.photo}>
           <Image
             src={`/samples/photos/${s.photo}.webp`}
             alt=""
@@ -71,7 +71,7 @@ export function HeroCarousel({ slides, signUpHref }: { slides: HeroSlide[]; sign
               className={`object-cover transition-opacity duration-[1400ms] ease-in-out md:hidden ${n === i ? "opacity-100" : "opacity-0"}`}
             />
           )}
-        </span>
+        </Fragment>
       ))}
       <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(16,28,53,.5),rgba(16,28,53,0)_28%,rgba(16,28,53,0)_38%,rgba(16,28,53,.93))]" />
 
