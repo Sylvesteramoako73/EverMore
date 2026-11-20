@@ -21,7 +21,7 @@ const OCCASIONS = [
   { theme: "earth-and-ivory", kind: "wedding", label: "Weddings", photo: "home-wedding-green-tall" },
   { theme: "confetti", kind: "birthday", label: "Birthdays", photo: "home-birthday-tall" },
   { theme: "serene", kind: "funeral", label: "Celebrations of life", photo: "mem-candle-flowers" },
-  { theme: "little-blessings", kind: "naming", label: "Naming ceremonies", photo: "baby-laugh" },
+  { theme: "little-blessings", kind: "naming", label: "Naming ceremonies", photo: "home-naming-tall" },
   { theme: "modern-minimalist", kind: "graduation", label: "Graduations", photo: "home-graduation-tall" },
   { theme: "golden-hour", kind: "reunion", label: "Reunions", photo: "reunion-friends" },
 ] as const;
