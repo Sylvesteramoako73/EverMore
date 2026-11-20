@@ -86,7 +86,7 @@ export default async function HomePage() {
               <li key={o.kind}>
                 <Link href={`/samples/${o.theme}?occasion=${o.kind}`} className="group block text-center">
                   <span className="relative block aspect-[3/4] overflow-hidden bg-mist">
-                    <Image src={P(o.photo)} alt="" fill sizes="(min-width: 1024px) 15vw, (min-width: 768px) 30vw, 45vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <Image src={P(o.photo)} alt="" fill sizes="(min-width: 1024px) 15vw, (min-width: 768px) 30vw, 45vw" quality={90} className="object-cover transition-transform duration-700 group-hover:scale-105" />
                   </span>
                   <span className="mt-4 block text-base text-navy">{o.label}</span>
                 </Link>

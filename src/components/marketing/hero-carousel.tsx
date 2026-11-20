@@ -56,6 +56,7 @@ export function HeroCarousel({ slides, signUpHref }: { slides: HeroSlide[]; sign
           fill
           priority={n === 0}
           sizes="100vw"
+          quality={90}
           style={{ objectPosition: s.position ?? "50% 40%" }}
           className={`object-cover transition-opacity duration-[1400ms] ease-in-out ${n === i ? "opacity-100" : "opacity-0"}`}
         />
