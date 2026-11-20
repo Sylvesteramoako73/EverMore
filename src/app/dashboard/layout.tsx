@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
+import { Analytics } from "@/components/analytics";
 import { Logo } from "@/components/brand";
 import { CelebrationSwitcher, DashboardNav, SignOutButton } from "@/components/dashboard/nav";
 import { listMyCelebrations } from "@/lib/dal";
@@ -37,6 +38,7 @@ export default function DashboardLayout({ children }: LayoutProps<"/dashboard">)
           {children}
         </main>
       </div>
+      <Analytics />
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { Analytics } from "@/components/analytics";
 import { Logo } from "@/components/brand";
 
 export default function AuthLayout({ children }: LayoutProps<"/">) {
@@ -18,6 +19,7 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
         </div>
         <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center py-10">{children}</div>
       </main>
+      <Analytics />
     </div>
   );
 }
