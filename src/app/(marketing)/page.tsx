@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
+import { HeroCarousel } from "@/components/marketing/hero-carousel";
 import { DesignRail } from "@/components/marketing/design-rail";
 import { IncludeList } from "@/components/marketing/include-list";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,17 @@ const OCCASIONS = [
   { theme: "little-blessings", kind: "naming", label: "Naming ceremonies", photo: "baby-laugh" },
   { theme: "modern-minimalist", kind: "graduation", label: "Graduations", photo: "grad-flowers" },
   { theme: "golden-hour", kind: "reunion", label: "Reunions", photo: "reunion-friends" },
+] as const;
+
+const HERO_SLIDES = [
+  { kind: "wedding", theme: "earth-and-ivory", label: "Weddings", noun: "wedding", photo: "wed-beach", position: "50% 35%" },
+  { kind: "birthday", theme: "confetti", label: "Birthdays", noun: "birthday", photo: "bday-kids", position: "50% 35%" },
+  { kind: "funeral", theme: "serene", label: "Celebrations of life", noun: "celebration of life", photo: "mem-church-candle", position: "50% 45%" },
+  { kind: "naming", theme: "little-blessings", label: "Naming ceremonies", noun: "naming ceremony", photo: "baby-laugh", position: "50% 40%" },
+  { kind: "graduation", theme: "modern-minimalist", label: "Graduations", noun: "graduation", photo: "grad-celebrate", position: "50% 30%" },
+  { kind: "reunion", theme: "golden-hour", label: "Reunions", noun: "reunion", photo: "reunion-friends", position: "50% 30%" },
+  { kind: "outing", theme: "adventure", label: "Outings and trips", noun: "outing", photo: "trip-boat-sunset", position: "50% 50%" },
+  { kind: "opening", theme: "luxury-editorial", label: "Grand openings", noun: "grand opening", photo: "open-champagne", position: "50% 40%" },
 ] as const;
 
 const INCLUDES = [
@@ -62,21 +74,8 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* ───────────── Hero: one photo, one line, one button */}
-      <section className="relative flex h-[100svh] min-h-[640px] items-end justify-center overflow-hidden bg-navy text-white">
-        <Image src={P("wed-beach")} alt="" fill priority sizes="100vw" className="object-cover object-[50%_35%]" />
-        <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(16,28,53,.5),rgba(16,28,53,0)_28%,rgba(16,28,53,0)_42%,rgba(16,28,53,.92))]" />
-        <div className="animate-rise relative px-4 pb-[8svh] text-center">
-          <h1 className="font-light">
-            <span className="block text-[clamp(1.4rem,3vw,2.2rem)]">Every moment that matters</span>
-            <span className="mt-1 block text-[clamp(2.6rem,7vw,5.4rem)] leading-[1.04] [text-shadow:0_2px_30px_rgba(16,28,53,.55)]">Deserves A Beautiful Home.</span>
-          </h1>
-          <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Button asChild size="lg" variant="gold" className="h-12 px-8 text-base"><Link href={appHref("/sign-up")}>Create your page</Link></Button>
-            <Link href="#designs" className="text-sm tracking-wide text-white underline decoration-white/40 underline-offset-8 hover:decoration-white">See the designs</Link>
-          </div>
-        </div>
-      </section>
+      {/* ───────────── Hero: a photo for every occasion, one headline, one clear button */}
+      <HeroCarousel signUpHref={appHref("/sign-up")} slides={[...HERO_SLIDES]} />
 
       {/* ───────────── Occasions */}
       <section id="occasions" className="scroll-mt-20 bg-white py-20 sm:py-28">
