@@ -18,20 +18,20 @@ export const metadata: Metadata = { alternates: { canonical: siteHref("/") } };
 const P = (name: string) => `/samples/photos/${name}.webp`;
 
 const OCCASIONS = [
-  { theme: "earth-and-ivory", kind: "wedding", label: "Weddings", photo: "wed-kente-couple" },
-  { theme: "confetti", kind: "birthday", label: "Birthdays", photo: "bday-cake-group" },
+  { theme: "earth-and-ivory", kind: "wedding", label: "Weddings", photo: "home-wedding-tall" },
+  { theme: "confetti", kind: "birthday", label: "Birthdays", photo: "home-birthday-tall" },
   { theme: "serene", kind: "funeral", label: "Celebrations of life", photo: "mem-candle-flowers" },
   { theme: "little-blessings", kind: "naming", label: "Naming ceremonies", photo: "baby-laugh" },
-  { theme: "modern-minimalist", kind: "graduation", label: "Graduations", photo: "grad-flowers" },
+  { theme: "modern-minimalist", kind: "graduation", label: "Graduations", photo: "home-graduation-tall" },
   { theme: "golden-hour", kind: "reunion", label: "Reunions", photo: "reunion-friends" },
 ] as const;
 
 const HERO_SLIDES = [
-  { kind: "wedding", theme: "earth-and-ivory", label: "Weddings", noun: "wedding", photo: "wed-beach", position: "50% 35%" },
-  { kind: "birthday", theme: "confetti", label: "Birthdays", noun: "birthday", photo: "bday-kids", position: "50% 35%" },
+  { kind: "wedding", theme: "earth-and-ivory", label: "Weddings", noun: "wedding", photo: "home-wedding-couple", position: "50% 30%" },
+  { kind: "birthday", theme: "confetti", label: "Birthdays", noun: "birthday", photo: "home-birthday-wide", position: "50% 30%" },
   { kind: "funeral", theme: "serene", label: "Celebrations of life", noun: "celebration of life", photo: "mem-church-candle", position: "50% 45%" },
   { kind: "naming", theme: "little-blessings", label: "Naming ceremonies", noun: "naming ceremony", photo: "baby-laugh", position: "50% 40%" },
-  { kind: "graduation", theme: "modern-minimalist", label: "Graduations", noun: "graduation", photo: "grad-celebrate", position: "50% 30%" },
+  { kind: "graduation", theme: "modern-minimalist", label: "Graduations", noun: "graduation", photo: "home-graduation-wide", position: "50% 0%" },
   { kind: "reunion", theme: "golden-hour", label: "Reunions", noun: "reunion", photo: "reunion-friends", position: "50% 30%" },
   { kind: "outing", theme: "adventure", label: "Outings and trips", noun: "outing", photo: "trip-boat-sunset", position: "50% 50%" },
   { kind: "opening", theme: "luxury-editorial", label: "Grand openings", noun: "grand opening", photo: "open-champagne", position: "50% 40%" },
@@ -130,7 +130,7 @@ export default async function HomePage() {
       <section className="bg-white py-20 sm:py-28">
         <div className="mx-auto grid max-w-7xl gap-5 px-4 sm:px-8 md:grid-cols-2">
           {[
-            { href: "/samples/earth-and-ivory?occasion=wedding", photo: "wed-lace", title: "Plan a wedding", text: "Traditional and white wedding, every ceremony, colour and RSVP, on one page your guests will keep." },
+            { href: "/samples/earth-and-ivory?occasion=wedding", photo: "home-wedding-couple", title: "Plan a wedding", text: "Traditional and white wedding, every ceremony, colour and RSVP, on one page your guests will keep." },
             { href: "/samples/serene?occasion=funeral", photo: "mem-church-candle", title: "Remember a loved one", text: "The order of events, tributes and details, shared with care and kept for the family." },
           ].map((p) => (
             <Link key={p.title} href={p.href} className="group relative block aspect-[3/4] overflow-hidden sm:aspect-[4/5] md:aspect-[3/4]">
