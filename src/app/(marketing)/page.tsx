@@ -30,7 +30,7 @@ const HERO_SLIDES = [
   { kind: "wedding", theme: "earth-and-ivory", label: "Weddings", noun: "wedding", photo: "home-wedding-green-wide", position: "50% 25%" },
   { kind: "birthday", theme: "confetti", label: "Birthdays", noun: "birthday", photo: "home-birthday-wide", position: "50% 30%" },
   { kind: "funeral", theme: "serene", label: "Celebrations of life", noun: "celebration of life", photo: "mem-church-candle", position: "50% 45%" },
-  { kind: "naming", theme: "little-blessings", label: "Naming ceremonies", noun: "naming ceremony", photo: "baby-laugh", position: "50% 40%" },
+  { kind: "naming", theme: "little-blessings", label: "Naming ceremonies", noun: "naming ceremony", photo: "home-naming-tall", position: "50% 30%" },
   { kind: "graduation", theme: "modern-minimalist", label: "Graduations", noun: "graduation", photo: "home-graduation-wide", position: "50% 0%" },
   { kind: "reunion", theme: "golden-hour", label: "Reunions", noun: "reunion", photo: "reunion-friends", position: "50% 30%" },
   { kind: "outing", theme: "adventure", label: "Outings and trips", noun: "outing", photo: "trip-boat-sunset", position: "50% 50%" },
