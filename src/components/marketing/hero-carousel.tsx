@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Fragment, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
-export type HeroSlide = { kind: string; theme: string; label: string; /** Singular, for "See a ___ sample". */ noun: string; photo: string; position?: string; /** A portrait photo used instead on phones. */ mobilePhoto?: string; mobilePosition?: string };
+export type HeroSlide = { kind: string; theme: string; label: string; headline: string; subline: string; /** Singular, for "See a ___ sample". */ noun: string; photo: string; position?: string; /** A portrait photo used instead on phones. */ mobilePhoto?: string; mobilePosition?: string };
 
 const EVERY = 6500;
 
@@ -16,7 +16,7 @@ const EVERY = 6500;
  * It stops while the pointer or keyboard is on it, and does not move at all for people who ask
  * their device to reduce motion.
  */
-export function HeroCarousel({ slides, signUpHref }: { slides: HeroSlide[]; signUpHref: string }) {
+export function HeroCarousel({ slides, signUpHref, priceNote }: { slides: HeroSlide[]; signUpHref: string; priceNote: string }) {
   const [i, setI] = useState(0);
   const [paused, setPaused] = useState(false);
   const [held, setHeld] = useState(false);
@@ -76,18 +76,21 @@ export function HeroCarousel({ slides, signUpHref }: { slides: HeroSlide[]; sign
       <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(16,28,53,.5),rgba(16,28,53,0)_28%,rgba(16,28,53,0)_38%,rgba(16,28,53,.93))]" />
 
       <div className="animate-rise relative w-full px-4 pb-[6svh] text-center">
-        <h1 className="font-light">
-          <span className="block text-[clamp(1.4rem,3vw,2.2rem)]">Every moment that matters</span>
-          <span className="mt-1 block text-[clamp(2.6rem,7vw,5.4rem)] leading-[1.04] [text-shadow:0_2px_30px_rgba(16,28,53,.55)]">Deserves A Beautiful Home.</span>
+        <h1 key={now.kind} className="animate-rise font-light">
+          <span className="block text-[clamp(1.1rem,2.4vw,1.6rem)] tracking-[0.2em] text-champagne uppercase">{now.label}</span>
+          <span className="mt-2 block text-[clamp(2.4rem,6.4vw,5rem)] leading-[1.05] [text-shadow:0_2px_30px_rgba(16,28,53,.55)]">{now.headline}</span>
         </h1>
-        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+        <p key={`${now.kind}-sub`} className="animate-rise mx-auto mt-4 min-h-[3.5rem] max-w-2xl text-base text-white/90 [text-shadow:0_1px_16px_rgba(16,28,53,.6)] sm:text-lg">{now.subline}</p>
+        <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
           <Button asChild size="lg" variant="gold" className="h-14 px-10 text-base shadow-xl shadow-navy/40"><Link href={signUpHref}>Create your page</Link></Button>
           <Button asChild size="lg" variant="outline" className="h-14 border-white/60 bg-white/10 px-8 text-base text-white backdrop-blur-sm hover:bg-white hover:text-navy">
             <Link href={`/samples/${now.theme}?occasion=${now.kind}`}>See a {now.noun} sample</Link>
           </Button>
         </div>
 
-        <div className="mt-8 flex items-center justify-center gap-4">
+        <p className="mt-4 text-sm text-white/80">{priceNote}</p>
+
+        <div className="mt-5 flex items-center justify-center gap-4">
           <p className="min-w-[10.5rem] text-sm tracking-[0.2em] text-white/90 uppercase" aria-live={running ? "off" : "polite"}>{now.label}</p>
           <div role="group" aria-label="Choose a photo" className="flex items-center">
             {slides.map((s, n) => (

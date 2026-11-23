@@ -27,23 +27,23 @@ const OCCASIONS = [
 ] as const;
 
 const HERO_SLIDES = [
-  { kind: "wedding", theme: "earth-and-ivory", label: "Weddings", noun: "wedding", photo: "home-wedding-green-wide", position: "50% 25%" },
-  { kind: "birthday", theme: "confetti", label: "Birthdays", noun: "birthday", photo: "home-birthday-wide", position: "50% 30%" },
-  { kind: "funeral", theme: "serene", label: "Celebrations of life", noun: "celebration of life", photo: "mem-church-candle", position: "50% 45%" },
-  { kind: "naming", theme: "little-blessings", label: "Naming ceremonies", noun: "naming ceremony", photo: "home-naming-hd", position: "50% 35%" },
-  { kind: "graduation", theme: "modern-minimalist", label: "Graduations", noun: "graduation", photo: "home-graduation-hero", position: "50% 48%", mobilePhoto: "home-graduation-hero", mobilePosition: "50% 32%" },
-  { kind: "reunion", theme: "golden-hour", label: "Reunions", noun: "reunion", photo: "reunion-friends", position: "50% 30%" },
-  { kind: "outing", theme: "adventure", label: "Outings and trips", noun: "outing", photo: "trip-boat-sunset", position: "50% 50%" },
-  { kind: "opening", theme: "luxury-editorial", label: "Grand openings", noun: "grand opening", photo: "open-champagne", position: "50% 40%" },
+  { kind: "wedding", theme: "earth-and-ivory", label: "Weddings", noun: "wedding", headline: "One page for your whole wedding.", subline: "Share your story and programme, collect RSVPs and gifts, and keep every photo your guests take.", photo: "home-wedding-green-wide", position: "50% 25%" },
+  { kind: "birthday", theme: "confetti", label: "Birthdays", noun: "birthday", headline: "A birthday page everyone will open.", subline: "Share the details, collect RSVPs and wishes, and gather the photos from the party in one place.", photo: "home-birthday-wide", position: "50% 30%" },
+  { kind: "funeral", theme: "serene", label: "Celebrations of life", noun: "celebration of life", headline: "A gentle home for a life well lived.", subline: "Share the order of service, tributes and directions, and receive contributions from family and friends.", photo: "mem-church-candle", position: "50% 45%" },
+  { kind: "naming", theme: "little-blessings", label: "Naming ceremonies", noun: "naming ceremony", headline: "Welcome your baby with one page.", subline: "Invite family with the programme and directions, collect RSVPs, and keep the blessings and photos.", photo: "home-naming-hd", position: "50% 35%" },
+  { kind: "graduation", theme: "modern-minimalist", label: "Graduations", noun: "graduation", headline: "Celebrate your graduate in one place.", subline: "Invite family and friends, share the day's details, and gather photos and gifts for the big day.", photo: "home-graduation-hero", position: "50% 48%", mobilePhoto: "home-graduation-hero", mobilePosition: "50% 32%" },
+  { kind: "reunion", theme: "golden-hour", label: "Reunions", noun: "reunion", headline: "Bring everyone back together.", subline: "Share the date and venue, see who is coming, and collect photos and memories from the day.", photo: "reunion-friends", position: "50% 30%" },
+  { kind: "outing", theme: "adventure", label: "Outings and trips", noun: "outing", headline: "Plan the trip, share the memories.", subline: "Give everyone the itinerary, meeting points and directions, then collect the photos afterwards.", photo: "trip-boat-sunset", position: "50% 50%" },
+  { kind: "opening", theme: "luxury-editorial", label: "Grand openings", noun: "grand opening", headline: "Open your doors to a full house.", subline: "Send a beautiful invitation with the programme and directions, track RSVPs and share the day's photos.", photo: "open-champagne", position: "50% 40%" },
 ] as const;
 
 const INCLUDES = [
-  { title: "RSVPs and guest list", text: "Guests answer for each part of the day, with personal links that keep the numbers right.", photo: "wed-kente-dancer" },
-  { title: "Photos and videos from guests", text: "Everyone uploads from their phone. You approve what appears, and everyone can download.", photo: "bday-women" },
+  { title: "Know exactly who is coming", text: "Guests answer for each part of the day through a personal link, so your numbers stay right.", photo: "wed-kente-dancer" },
+  { title: "Photos from every guest", text: "Everyone uploads from their phone. You approve what shows, and everyone can download.", photo: "bday-women" },
   { title: "Colours of the day", text: "Show the colours guests can wear, with names and swatches.", photo: "flowers-table" },
-  { title: "Programme and directions", text: "Every moment with a time, venue photos, maps and one tap directions.", photo: "venue-church" },
-  { title: "Gifts and contributions", text: "Guests send by Mobile Money, or pay online when you switch it on.", photo: "wed-ring" },
-  { title: "A memory page after the day", text: "A thank you note, the photos shared, and a count of every day since.", photo: "wed-lace" },
+  { title: "No more where is it", text: "Every moment with a time, venue photos, maps and one tap directions.", photo: "venue-church" },
+  { title: "Receive gifts without chasing", text: "Guests send by Mobile Money, or pay online when you switch it on.", photo: "wed-ring" },
+  { title: "A page that lasts", text: "After the day it becomes a memory page, with a thank you note, the shared photos and a count of every day since.", photo: "wed-lace" },
 ] as const;
 
 const FAQ = [
@@ -75,12 +75,12 @@ export default async function HomePage() {
   return (
     <>
       {/* ───────────── Hero: a photo for every occasion, one headline, one clear button */}
-      <HeroCarousel signUpHref={appHref("/sign-up")} slides={[...HERO_SLIDES]} />
+      <HeroCarousel signUpHref={appHref("/sign-up")} slides={[...HERO_SLIDES]} priceNote={`Build and preview free. Pay ${formatMoney(PAGE_PRICE_MINOR)} only when you publish.`} />
 
       {/* ───────────── Occasions */}
       <section id="occasions" className="scroll-mt-20 bg-white py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-8">
-          <Intro title="Celebrate every occasion" text="Each occasion gets its own words, sections and designs, from a joyful outdooring to a dignified celebration of life." />
+          <Intro title="Made for every occasion" text="Pick what you are celebrating and EverMore sets up the right sections for you, from wedding ceremonies and RSVPs to tributes and order of service." />
           <ul className="mt-14 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 lg:grid-cols-6">
             {OCCASIONS.map((o) => (
               <li key={o.kind}>
@@ -121,7 +121,7 @@ export default async function HomePage() {
       {/* ───────────── What every page includes */}
       <section id="includes" className="scroll-mt-20 bg-navy py-20 text-ivory sm:py-28">
         <div className="mx-auto max-w-6xl px-4 sm:px-8">
-          <p className="mb-10 text-center text-lg text-champagne lg:text-right">What is included</p>
+          <p className="mb-10 text-center text-lg text-champagne lg:text-right">Everything you need, on one page</p>
           <IncludeList items={[...INCLUDES]} />
         </div>
       </section>
@@ -130,7 +130,7 @@ export default async function HomePage() {
       <section className="bg-white py-20 sm:py-28">
         <div className="mx-auto grid max-w-7xl gap-5 px-4 sm:px-8 md:grid-cols-2">
           {[
-            { href: "/samples/earth-and-ivory?occasion=wedding", photo: "home-wedding-green-wide", title: "Plan a wedding", text: "Traditional and white wedding, every ceremony, colour and RSVP, on one page your guests will keep." },
+            { href: "/samples/earth-and-ivory?occasion=wedding", photo: "home-wedding-green-wide", title: "Plan a wedding", text: "Traditional and white wedding, every ceremony, colour and RSVP, with gifts and guest photos, on one page your guests will keep." },
             { href: "/samples/serene?occasion=funeral", photo: "mem-church-candle", title: "Remember a loved one", text: "The order of events, tributes and details, shared with care and kept for the family." },
           ].map((p) => (
             <Link key={p.title} href={p.href} className="group relative block aspect-[3/4] overflow-hidden sm:aspect-[4/5] md:aspect-[3/4]">
@@ -149,12 +149,12 @@ export default async function HomePage() {
       {/* ───────────── How it works */}
       <section id="how-it-works" className="scroll-mt-20 bg-[#f6f3ec] py-20 sm:py-28">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <Intro title="Ready to share in three steps" text="Most people finish in about ten minutes. Preview it privately first, and keep editing after you publish." />
+          <Intro title="From idea to invitation in ten minutes" text="Fill in a short guided form, preview it privately, then share one link with everyone." />
           <ol className="mt-14 grid gap-12 md:grid-cols-3 md:gap-8">
             {[
-              ["Tell us what you are celebrating", "Pick the occasion, then add names, dates, the programme and a few photos in a short guided form."],
-              ["Choose a design you love", "Twelve designs, each with its own feel. Preview your own page and add your colours of the day."],
-              ["Share with everyone", "A short link and a QR code for WhatsApp, social media and printed cards. Replies and photos roll in."],
+              ["Tell us about the day", "Pick the occasion, then add names, dates, the programme, venues and a few photos."],
+              ["Choose a design you love", "Twelve designs, each with its own feel. See your own page in each one before you decide."],
+              ["Share, then watch it fill up", "Send one link or QR code on WhatsApp or print it on cards. RSVPs, gifts and photos arrive in one place."],
             ].map(([title, text], i) => (
               <li key={title} className="text-center">
                 <span className="font-display text-6xl font-light text-champagne" aria-hidden>{i + 1}</span>
