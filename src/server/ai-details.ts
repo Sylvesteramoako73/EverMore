@@ -77,7 +77,7 @@ export function leniently(raw: unknown): Draft | null {
 const KEYS_HELP = `Return one JSON object with exactly these keys. Use "" (or [] or null) for anything the host did not say.
 - keyDate: main date as YYYY-MM-DD, only if the host gave a day and month.
 - dressCode: dress code or colours, only if mentioned.
-- guestMessage: a short welcome to guests, ONE sentence, naming only things the host stated (for example the occasion). No feelings or claims the host did not state, no "excited", no "journey".
+- guestMessage: a warm welcome of 2 sentences inviting guests to join the host for the occasion, mentioning the date or place only if stated. Warm wording is fine, but do not claim feelings, history or facts the host did not state.
 - story: ONLY if the host told how they met, their history or the background of the occasion. Rewrite exactly those facts in 2 to 4 plain sentences. If the host gave only logistics (date, place, time, dress code), story MUST be "".
 - announcement: practical notes the host actually wrote (parking, children, travel, accommodation). If the host did not mention any, announcement MUST be "". Never suggest or recommend anything.
 - rsvpDeadline: the date guests must reply by, as YYYY-MM-DD, only if stated.
