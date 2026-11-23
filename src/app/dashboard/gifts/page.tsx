@@ -4,10 +4,11 @@ import { Suspense } from "react";
 import { markGift, removeFund, removeGift } from "@/app/actions/dashboard";
 import { ActionButton } from "@/components/dashboard/bits";
 import { EditFund, FundForm } from "@/components/dashboard/gifts";
+import { ThankYous } from "@/components/dashboard/thank-you";
 import { PageSkeleton } from "@/components/dashboard/skeleton";
 import { Button } from "@/components/ui/button";
 import { formatLongDate } from "@/lib/dates";
-import { onlineGiftsEnabled } from "@/lib/env";
+import { aiDraftingEnabled, onlineGiftsEnabled } from "@/lib/env";
 import { formatMoney } from "@/lib/money";
 import { fundTotals, listFunds, listGifts } from "@/server/gifts";
 import { loadDashboard } from "../data";
@@ -144,6 +145,10 @@ async function Gifts() {
           </details>
         )}
       </section>
+
+      {aiDraftingEnabled() && confirmed.length > 0 && (
+        <ThankYous givers={confirmed.slice(0, 40).map((g) => ({ id: g.id, name: g.name, phone: g.phone }))} />
+      )}
 
       {gifts.length > 0 && (
         <section aria-labelledby="all-h">
