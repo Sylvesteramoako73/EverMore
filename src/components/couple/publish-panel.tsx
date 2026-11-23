@@ -1,12 +1,13 @@
 "use client";
 
-import { AlertTriangle, Check, Copy, ExternalLink, Globe, Link2, Lock } from "lucide-react";
+import { AlertTriangle, Check, Copy, ExternalLink, Globe, Link2, Lock, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { useActionState, useState, useTransition } from "react";
 import { publish, savePublishSettings, unpublish } from "@/app/actions/celebration";
 import { Field, FormAlert, SubmitButton } from "@/components/forms";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { whatsappLink } from "@/lib/share-message";
 import type { FormState } from "@/lib/validation";
 
 type Visibility = "public" | "unlisted" | "private";
@@ -73,7 +74,7 @@ export function PublishSettingsForm({
 }
 
 /** `payment` is the price to show (e.g. "GH₵ 69") when the page must be paid for before it can go live. */
-export function PublishControls({ status, url, problems, payment }: { status: "draft" | "published" | "archived"; url: string; problems: string[]; payment?: string }) {
+export function PublishControls({ status, url, problems, payment, shareText }: { status: "draft" | "published" | "archived"; url: string; problems: string[]; payment?: string; shareText?: string }) {
   const [pending, start] = useTransition();
   const [result, setResult] = useState<string[] | null>(null);
   const [copied, setCopied] = useState(false);
@@ -98,7 +99,12 @@ export function PublishControls({ status, url, problems, payment }: { status: "d
           <Button asChild variant="outline"><a href={url} target="_blank" rel="noopener noreferrer"><ExternalLink aria-hidden /> Open</a></Button>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button asChild><Link href="/dashboard">Go to your dashboard</Link></Button>
+          {shareText && (
+            <Button asChild>
+              <a href={whatsappLink(shareText)} target="_blank" rel="noopener noreferrer"><MessageCircle aria-hidden /> Send it on WhatsApp<span className="sr-only"> (opens in a new tab)</span></a>
+            </Button>
+          )}
+          <Button asChild variant={shareText ? "outline" : "default"}><Link href="/dashboard">Go to your dashboard</Link></Button>
           <Button
             variant="ghost"
             disabled={pending}

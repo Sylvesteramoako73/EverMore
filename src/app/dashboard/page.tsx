@@ -1,7 +1,10 @@
-import { ArrowRight, BookOpen, Camera, Download, Eye, MailCheck, MessageSquareHeart, Printer, QrCode, Tv, Users } from "lucide-react";
+import { ArrowRight, BookOpen, Camera, Download, Eye, ImageIcon, MailCheck, MessageSquareHeart, Printer, QrCode, Tv, Users } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { CopyButton } from "@/components/dashboard/bits";
+import { ShareMessage } from "@/components/dashboard/share-message";
+import { primaryEvent } from "@/lib/celebration-rules";
+import { shareMessage } from "@/lib/share-message";
 import { Button } from "@/components/ui/button";
 import { PageSkeleton } from "@/components/dashboard/skeleton";
 import { formatMoney } from "@/lib/money";
@@ -46,6 +49,14 @@ async function Overview() {
     { done: summary.replies > 0 || views.total > 0, label: "Share your link on WhatsApp", href: "#share" },
   ];
   const todo = steps.filter((s) => !s.done);
+  const main = primaryEvent(events, c.primaryEventId);
+  const message = shareMessage({
+    kind: c.kind,
+    title: c.title,
+    when: main ? `${formatLongDate(main.startsAt, main.timezone)} at ${formatTime(main.startsAt, main.timezone)}` : null,
+    where: main?.venueName || null,
+    url: pageUrl,
+  });
 
   return (
     <div className="space-y-8">
@@ -75,12 +86,10 @@ async function Overview() {
           <div className="mt-4 flex flex-wrap gap-2">
             <CopyButton text={pageUrl} variant="default" className="bg-champagne text-navy hover:bg-[#d3a95c]" />
             <Button asChild size="sm" variant="outline" className="border-white/20 bg-transparent text-ivory hover:bg-white/10 hover:text-ivory">
-              <a href={`https://wa.me/?text=${encodeURIComponent(`${remembrance ? "Details for" : "You're invited:"} ${c.title} ${pageUrl}`)}`} target="_blank" rel="noopener">
-                Share on WhatsApp
-              </a>
+              <a href={`/${c.slug}/qr?format=png&download=1`}><Download className="h-4 w-4" aria-hidden /> QR code</a>
             </Button>
             <Button asChild size="sm" variant="outline" className="border-white/20 bg-transparent text-ivory hover:bg-white/10 hover:text-ivory">
-              <a href={`/${c.slug}/qr?format=png&download=1`}><Download className="h-4 w-4" aria-hidden /> QR code</a>
+              <a href={`/${c.slug}/status?download=1`}><ImageIcon className="h-4 w-4" aria-hidden /> Status image</a>
             </Button>
             <Button asChild size="sm" variant="outline" className="border-white/20 bg-transparent text-ivory hover:bg-white/10 hover:text-ivory">
               <a href={`/${c.slug}/card`} target="_blank" rel="noopener"><Printer className="h-4 w-4" aria-hidden /> Printable card</a>
@@ -92,6 +101,7 @@ async function Overview() {
               <a href={`/${c.slug}/live`} target="_blank" rel="noopener"><Tv className="h-4 w-4" aria-hidden /> Slideshow for the venue</a>
             </Button>
           </div>
+          <ShareMessage initial={message} />
         </div>
         {live && (
           // eslint-disable-next-line @next/next/no-img-element -- generated SVG from our own route
