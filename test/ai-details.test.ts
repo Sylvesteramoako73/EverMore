@@ -46,14 +46,15 @@ describe("draftDetails", () => {
     expect(draft.events[1].time).toBe("");
   });
 
-  it("rejects an event time that is not HH:MM", async () => {
+  it("blanks an event time that is not HH:MM instead of passing it on", async () => {
     vi.stubGlobal("fetch", modelReplies({ events: [{ name: "Reception", time: "after church" }] }));
-    await expect(draftDetails(base)).rejects.toBeInstanceOf(DraftError);
+    const d = await draftDetails(base);
+    expect(d.events[0]).toMatchObject({ name: "Reception", time: "" });
   });
 
-  it("drops malformed model output instead of passing it on", async () => {
+  it("drops a malformed field instead of passing it on", async () => {
     vi.stubGlobal("fetch", modelReplies({ keyDate: "next Saturday" }));
-    await expect(draftDetails(base)).rejects.toBeInstanceOf(DraftError);
+    expect((await draftDetails(base)).keyDate).toBe("");
   });
 
   it("copes with a reply that is not JSON", async () => {
@@ -64,5 +65,27 @@ describe("draftDetails", () => {
   it("reports an unavailable service plainly", async () => {
     vi.stubGlobal("fetch", modelReplies({}, false));
     await expect(draftDetails(base)).rejects.toThrow(/unavailable/);
+  });
+});
+
+describe("draftDetails leniency", () => {
+  const original = env.GROQ_API_KEY;
+  beforeEach(() => { (env as { GROQ_API_KEY?: string }).GROQ_API_KEY = "test-key"; });
+  afterEach(() => { (env as { GROQ_API_KEY?: string }).GROQ_API_KEY = original; vi.unstubAllGlobals(); });
+
+  it("keeps good fields when the model sends nulls, text numbers and one bad field", async () => {
+    vi.stubGlobal("fetch", modelReplies({
+      keyDate: "2026-01-20", dressCode: null, guestMessage: "Join us.", story: null, hashtag: "#AmaAndKofi",
+      turningAge: "40", packingList: "hat, water", dateOfBirth: "20th January", events: [{ name: "Wedding", date: "2026-01-20", time: null, venueName: null }],
+    }));
+    const d = await draftDetails({ ...base, kind: "wedding" });
+    expect(d.keyDate).toBe("2026-01-20");
+    expect(d.dressCode).toBe("");
+    expect(d.guestMessage).toBe("Join us.");
+    expect(d.turningAge).toBe(40);
+    expect(d.packingList).toEqual(["hat", "water"]);
+    expect(d.dateOfBirth).toBe("");
+    expect(d.hashtag).toBe("AmaAndKofi");
+    expect(d.events[0]).toMatchObject({ name: "Wedding", date: "2026-01-20", time: "" });
   });
 });
