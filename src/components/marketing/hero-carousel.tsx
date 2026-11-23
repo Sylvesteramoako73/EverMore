@@ -73,6 +73,7 @@ export function HeroCarousel({ slides, signUpHref, priceNote, realPageHref }: { 
           )}
         </Fragment>
       ))}
+      <div aria-hidden className="absolute inset-x-0 bottom-0 h-[72%] bg-gradient-to-t from-navy/85 via-navy/55 to-transparent md:hidden" />
       <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(16,28,53,.5),rgba(16,28,53,0)_28%,rgba(16,28,53,0)_38%,rgba(16,28,53,.93))]" />
 
       <div className="animate-rise relative w-full px-4 pb-[6svh] text-center">
@@ -92,8 +93,8 @@ export function HeroCarousel({ slides, signUpHref, priceNote, realPageHref }: { 
           {realPageHref && <> <Link href={realPageHref} className="ml-1 text-white underline underline-offset-4">See a real EverMore page</Link></>}
         </p>
 
-        <div className="mt-5 flex items-center justify-center gap-4">
-          <p className="min-w-[10.5rem] text-sm tracking-[0.2em] text-white/90 uppercase" aria-live={running ? "off" : "polite"}>{now.label}</p>
+        <div className="mt-5 flex flex-col items-center justify-center gap-2 sm:flex-row sm:gap-4">
+          <p className="text-sm tracking-[0.2em] text-white/90 uppercase sm:min-w-[10.5rem]" aria-live={running ? "off" : "polite"}>{now.label}</p>
           <div role="group" aria-label="Choose a photo" className="flex items-center">
             {slides.map((s, n) => (
               <button
