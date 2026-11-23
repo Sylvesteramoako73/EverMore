@@ -27,6 +27,13 @@ function message(to: string, subject: string, title: string, paragraphs: string[
 }
 
 export const emails = {
+  welcome: (to: string, name: string, url: string) =>
+    message(to, "Your EverMore page is a few minutes away", `Welcome to EverMore, ${name}`, [
+      "Your celebration page takes about ten minutes to set up. Pick what you are celebrating, add the names, dates, programme and venues, then choose a design you love.",
+      "Building and previewing is free. You only pay GHS 69 once, when you are ready to publish and share your link.",
+      "When it is live, guests can reply to your invitation, find the venue, send gifts and share their photos, all from one link.",
+    ], { label: "Start your page", url }),
+
   verifyEmail: (to: string, name: string, url: string) =>
     message(to, "Confirm your email for EverMore", `Welcome, ${name}`, [
       "Please confirm your email address to finish creating your EverMore account.",

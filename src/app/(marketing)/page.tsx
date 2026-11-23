@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
+import { JsonLd, faqLd } from "@/components/json-ld";
 import { HeroCarousel } from "@/components/marketing/hero-carousel";
 import { DesignRail } from "@/components/marketing/design-rail";
 import { IncludeList } from "@/components/marketing/include-list";
@@ -68,6 +69,20 @@ export default async function HomePage() {
 
   return (
     <>
+      <JsonLd data={faqLd(FAQ)} />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "EverMore",
+          url: siteHref("/"),
+          logo: siteHref("/favicon.ico"),
+          email: "info@evermoregh.online",
+          telephone: "+233557001326",
+          areaServed: "GH",
+          description: "EverMore lets you create a page for your wedding, birthday, funeral, naming ceremony, graduation or other celebration, with RSVPs, gifts and guest photos.",
+        }}
+      />
       {/* ───────────── Hero: a photo for every occasion, one headline, one clear button */}
       <HeroCarousel signUpHref={appHref("/sign-up")} slides={[...HERO_SLIDES]} priceNote={`Build and preview free. Pay ${formatMoney(PAGE_PRICE_MINOR)} only when you publish.`} />
 
@@ -94,10 +109,10 @@ export default async function HomePage() {
           </ul>
           <p className="mt-10 text-center text-sm text-muted-foreground">
             Read more about{" "}
-            {[["weddings", "Weddings"], ["birthdays", "Birthdays"], ["celebrations-of-life", "Celebrations of life"], ["naming-ceremonies", "Naming ceremonies"], ["graduations", "Graduations"]].map(([slug, label], i) => (
+            {[["weddings", "Weddings"], ["birthdays", "Birthdays"], ["celebrations-of-life", "Celebrations of life"], ["naming-ceremonies", "Naming ceremonies"], ["graduations", "Graduations"], ["anniversaries", "Anniversaries"], ["baby-and-bridal-showers", "Showers"], ["reunions", "Reunions"], ["outings-and-trips", "Outings and trips"], ["grand-openings", "Grand openings"]].map(([slug, label], i) => (
               <span key={slug}>{i > 0 && ", "}<Link href={`/celebrate/${slug}`} className="text-navy underline underline-offset-4">{label}</Link></span>
             ))}
-            . Also anniversaries, showers and church and community events.
+            . Also church and community events.
           </p>
           <div className="mt-8 text-center">
             <Button asChild size="lg" variant="gold" className="h-14 px-10 text-base"><Link href={appHref("/sign-up")}>Create your page</Link></Button>
