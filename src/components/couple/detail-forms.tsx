@@ -62,7 +62,7 @@ function Footer({ autosave, status, label }: { autosave: boolean; status: Parame
 const DRAFT_LABELS: Record<string, string> = {
   keyDate: "date", dressCode: "dress code", guestMessage: "message to guests", story: "story", announcement: "notes for guests",
   hashtag: "hashtag", turningAge: "age", institution: "school", meetingPoint: "meeting point", packingList: "what to bring",
-  costNote: "costs", nameMeaning: "name meaning", parents: "parents", dateOfBirth: "date of birth", dateOfPassing: "date of passing",
+  costNote: "costs", nameMeaning: "name meaning", parents: "parents", dateOfBirth: "date of birth", dateOfPassing: "date of passing", rsvpDeadline: "reply deadline",
 };
 
 const SENTENCE_EXAMPLES: Partial<Record<OccasionKind, string>> = {

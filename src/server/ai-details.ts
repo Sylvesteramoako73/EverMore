@@ -8,7 +8,7 @@ import { getOccasion, type OccasionKind } from "@/lib/occasions";
 
 export const DRAFT_FIELDS = [
   "keyDate", "dressCode", "guestMessage", "story", "announcement", "hashtag", "turningAge", "institution",
-  "meetingPoint", "packingList", "costNote", "nameMeaning", "parents", "dateOfBirth", "dateOfPassing",
+  "meetingPoint", "packingList", "costNote", "nameMeaning", "parents", "dateOfBirth", "dateOfPassing", "rsvpDeadline",
 ] as const;
 export type DraftField = (typeof DRAFT_FIELDS)[number];
 
@@ -36,6 +36,7 @@ const draftSchema = z.object({
   parents: z.string().max(200).default(""),
   dateOfBirth: isoDate.default(""),
   dateOfPassing: isoDate.default(""),
+  rsvpDeadline: isoDate.default(""),
   events: z.array(eventSchema).max(6).default([]),
 });
 export type Draft = z.infer<typeof draftSchema>;
@@ -76,9 +77,10 @@ export function leniently(raw: unknown): Draft | null {
 const KEYS_HELP = `Return one JSON object with exactly these keys. Use "" (or [] or null) for anything the host did not say.
 - keyDate: main date as YYYY-MM-DD, only if the host gave a day and month.
 - dressCode: dress code or colours, only if mentioned.
-- guestMessage: a warm welcome to guests, 1 to 2 sentences, using only facts the host gave.
-- story: a short description of the occasion, 2 to 5 sentences, using only facts the host gave. Empty if there is too little to write from.
-- announcement: practical notes for guests (parking, children, travel), only if mentioned.
+- guestMessage: a short welcome to guests, ONE sentence, naming only things the host stated (for example the occasion). No feelings or claims the host did not state, no "excited", no "journey".
+- story: ONLY if the host told how they met, their history or the background of the occasion. Rewrite exactly those facts in 2 to 4 plain sentences. If the host gave only logistics (date, place, time, dress code), story MUST be "".
+- announcement: practical notes the host actually wrote (parking, children, travel, accommodation). If the host did not mention any, announcement MUST be "". Never suggest or recommend anything.
+- rsvpDeadline: the date guests must reply by, as YYYY-MM-DD, only if stated.
 - hashtag: a short hashtag without the # sign, letters and numbers only, built from the names or occasion.
 - turningAge: birthday only, the age being celebrated as a number, else null.
 - institution: graduation only, the school or university.
@@ -97,7 +99,7 @@ function systemPrompt(today: string) {
     "Rules you must follow:",
     "1. Use only facts the host stated. Never invent a venue, time, name, price, number, relationship or date.",
     "2. If something was not stated, leave that field empty. Empty is always better than a guess.",
-    "3. You may phrase the welcome message and story warmly, but they must contain no facts beyond what the host said.",
+    "3. Never pad. Do not add generic wedding, birthday or event wording, advice, suggestions or filler. A field the host gave no facts for stays empty. Short and true beats long and warm.",
     `4. Today is ${today}. For keyDate, if the host gave a day and month without a year, use the next time that date occurs. If they gave only a weekday or a vague time, leave it empty.`,
     "5. Write in plain, warm English in the host's own voice (first person plural or singular as fits). No exclamation marks. No dashes or hyphens used as punctuation. No emojis.",
     "6. For a celebration of life, be gentle and dignified, never cheerful or promotional.",

@@ -89,3 +89,20 @@ describe("draftDetails leniency", () => {
     expect(d.events[0]).toMatchObject({ name: "Wedding", date: "2026-01-20", time: "" });
   });
 });
+
+describe("draftDetails prompt", () => {
+  const original = env.GROQ_API_KEY;
+  beforeEach(() => { (env as { GROQ_API_KEY?: string }).GROQ_API_KEY = "test-key"; });
+  afterEach(() => { (env as { GROQ_API_KEY?: string }).GROQ_API_KEY = original; vi.unstubAllGlobals(); });
+
+  it("forbids padding and carries the reply deadline", async () => {
+    const f = modelReplies({ rsvpDeadline: "2026-11-30" });
+    vi.stubGlobal("fetch", f);
+    const d = await draftDetails(base);
+    expect(d.rsvpDeadline).toBe("2026-11-30");
+    const system = JSON.parse(f.mock.calls[0][1].body as string).messages[0].content as string;
+    expect(system).toContain("Never pad");
+    expect(system).toContain('story MUST be ""');
+    expect(system).toContain('announcement MUST be ""');
+  });
+});
