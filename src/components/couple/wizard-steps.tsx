@@ -13,9 +13,9 @@ export function BasicsStep({ values }: { values?: BasicsValues }) {
   return <BasicsForm values={values} autosave={Boolean(values)} submitLabel="Save & continue" onSaved={next} />;
 }
 
-export function DetailsStep({ kind, values, zones }: { kind: OccasionKind; values: CelebrationInfoValues; zones: string[] }) {
+export function DetailsStep({ kind, values, zones, aiEnabled }: { kind: OccasionKind; values: CelebrationInfoValues; zones: string[]; aiEnabled?: boolean }) {
   const next = useCallback(() => void goToStep(3), []);
-  return <DetailsForm kind={kind} values={values} zones={zones} submitLabel="Save & continue" onSaved={next} />;
+  return <DetailsForm kind={kind} values={values} zones={zones} submitLabel="Save & continue" onSaved={next} aiEnabled={aiEnabled} />;
 }
 
 export function ContinueButton({ step, disabled, label = "Continue", hint }: { step: number; disabled?: boolean; label?: string; hint?: string }) {

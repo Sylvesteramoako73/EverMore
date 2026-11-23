@@ -1,8 +1,9 @@
 "use client";
 
 import { PARTY_TITLES } from "@/lib/akan";
-import { Cake, Feather, Heart, Store, Users } from "lucide-react";
-import { useActionState, useEffect, useRef, useState, type ReactNode } from "react";
+import { Cake, Feather, Heart, Loader2, Sparkles, Store, Users } from "lucide-react";
+import { useActionState, useEffect, useRef, useState, useTransition, type ReactNode, type RefObject } from "react";
+import { draftFromSentence } from "@/app/actions/ai";
 import { saveBasics, saveCelebrationInfo, saveColours, saveRsvpContacts } from "@/app/actions/celebration";
 import { Field, FormAlert, SubmitButton } from "@/components/forms";
 import { Button } from "@/components/ui/button";
@@ -51,6 +52,89 @@ function Footer({ autosave, status, label }: { autosave: boolean; status: Parame
       {autosave ? <AutosaveStatus status={status} /> : <span />}
       <SubmitButton size="lg" pending="Saving…">{label}</SubmitButton>
     </div>
+  );
+}
+
+
+// ───────────────────────────── Describe your event (AI draft)
+
+const DRAFT_LABELS: Record<string, string> = {
+  keyDate: "date", dressCode: "dress code", guestMessage: "message to guests", story: "story", announcement: "notes for guests",
+  hashtag: "hashtag", turningAge: "age", institution: "school", meetingPoint: "meeting point", packingList: "what to bring",
+  costNote: "costs", nameMeaning: "name meaning", parents: "parents", dateOfBirth: "date of birth", dateOfPassing: "date of passing",
+};
+
+const SENTENCE_EXAMPLES: Partial<Record<OccasionKind, string>> = {
+  wedding: "Our traditional wedding is on 12 December in Takoradi, dress code is kente and gold, about 300 guests.",
+  birthday: "My 40th birthday on 14 March at Axim Beach Resort, white and gold dress code, about 80 guests.",
+  graduation: "I am graduating from the University of Cape Coast with a BSc in Nursing, celebration lunch on 20 June.",
+  funeral: "Celebrating the life of our father, Mr Kwame Mensah, who passed on 3 May, burial service in Sekondi.",
+  naming: "Our daughter's naming ceremony on Saturday 9 August in Kumasi, her name is Nhyira which means blessing.",
+};
+
+/** Fills only the boxes the host has left empty, so nothing they typed is ever overwritten. */
+function setIfEmpty(form: HTMLFormElement, name: string, value: string) {
+  const el = form.elements.namedItem(name);
+  if (!(el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement)) return false;
+  if (!value || el.value.trim()) return false;
+  const proto = el instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+  Object.getOwnPropertyDescriptor(proto, "value")?.set?.call(el, value);
+  // Lets React and the autosave see the change as if the host typed it.
+  el.dispatchEvent(new Event("input", { bubbles: true }));
+  el.dispatchEvent(new Event("change", { bubbles: true }));
+  return true;
+}
+
+function DescribeBox({ formRef, kind }: { formRef: RefObject<HTMLFormElement | null>; kind: OccasionKind }) {
+  const [sentence, setSentence] = useState("");
+  const [note, setNote] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
+  const [pending, start] = useTransition();
+
+  function run() {
+    setNote(null);
+    start(async () => {
+      const result = await draftFromSentence(sentence);
+      const form = formRef.current;
+      if (!result.ok || !form) return setNote({ tone: "error", text: result.ok ? "Please try again." : result.message });
+      const filled: string[] = [];
+      for (const [name, raw] of Object.entries(result.draft)) {
+        const value = Array.isArray(raw) ? raw.join("\n") : raw === null ? "" : String(raw);
+        if (setIfEmpty(form, name, value)) filled.push(DRAFT_LABELS[name] ?? name);
+      }
+      setNote(
+        filled.length
+          ? { tone: "ok", text: `Drafted: ${filled.join(", ")}. Please read each one and change anything that is not right.` }
+          : { tone: "ok", text: "Nothing new to fill in. Add more detail, or the boxes below are already filled." },
+      );
+    });
+  }
+
+  return (
+    <section aria-labelledby="describe-title" className="rounded-2xl border border-champagne bg-white p-5 sm:p-6">
+      <div className="flex items-start gap-3">
+        <Sparkles className="mt-1 h-5 w-5 shrink-0 text-champagne-deep" aria-hidden />
+        <div className="min-w-0 flex-1 space-y-3">
+          <div>
+            <h2 id="describe-title" className="text-xl text-navy">Describe your event in one sentence</h2>
+            <p className="mt-1 text-sm text-muted-foreground">We will draft the empty boxes below for you. You review everything, and we never make up a venue, time or name.</p>
+          </div>
+          <Textarea
+            value={sentence}
+            onChange={(e) => setSentence(e.target.value)}
+            rows={3}
+            maxLength={600}
+            aria-label="Your event in one sentence"
+            placeholder={SENTENCE_EXAMPLES[kind] ?? "Tell us what it is, when, where and anything guests should know."}
+          />
+          <div className="flex flex-wrap items-center gap-3">
+            <Button type="button" onClick={run} disabled={pending || sentence.trim().length < 15}>
+              {pending ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />Drafting…</>) : "Fill in my details"}
+            </Button>
+            <p aria-live="polite" className={`text-sm ${note?.tone === "error" ? "text-destructive" : "text-muted-foreground"}`}>{note?.text}</p>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -169,12 +253,14 @@ export function DetailsForm({
   zones,
   submitLabel,
   onSaved,
+  aiEnabled = false,
 }: {
   kind: OccasionKind;
   values: CelebrationInfoValues;
   zones: string[];
   submitLabel: string;
   onSaved?: () => void;
+  aiEnabled?: boolean;
 }) {
   const ref = useRef<HTMLFormElement>(null);
   const [state, action] = useActionState(saveCelebrationInfo, undefined);
@@ -198,6 +284,8 @@ export function DetailsForm({
   return (
     <form ref={ref} action={action} onChange={schedule} className="space-y-8" noValidate>
       <FormAlert state={state?.ok ? undefined : state} />
+
+      {aiEnabled && <DescribeBox formRef={ref} kind={kind} />}
 
       {kind === "funeral" && (
         <Group title="Life dates" description="Shown gently under the name. Used for remembrance reminders, if you want them.">

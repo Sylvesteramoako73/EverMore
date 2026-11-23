@@ -22,6 +22,15 @@ const schema = z.object({
    */
   ALLOW_UNVERIFIED_SIGNUPS: z.string().optional(),
   EMAIL_FROM: z.string().default("EverMore <hello@evermore.example>"),
+  /**
+   * Groq API key (free tier at https://console.groq.com). Turns on "Describe your event", which drafts
+   * the details step from one sentence. Unset: the box is not shown and nothing is sent anywhere.
+   */
+  GROQ_API_KEY: z.string().optional(),
+  /** Chat completions address. Only change it to point at a test double. */
+  GROQ_API_URL: z.url().default("https://api.groq.com/openai/v1/chat/completions"),
+  /** Model used for drafting. Groq retires models now and then, so this is a setting, not code. */
+  GROQ_MODEL: z.string().default("openai/gpt-oss-120b"),
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
   UPLOAD_DIR: z.string().default("./data/uploads"),
@@ -66,6 +75,7 @@ export const appUrl = (path = "") => `${env.APP_URL.replace(/\/$/, "")}${path}`;
 /** A Paystack key is in place (needed for hosts' page payments and online gifts). */
 /** The public website address (falls back to the app address when there is no separate site). */
 export const siteUrl = (path = "") => `${(env.SITE_URL ?? env.APP_URL).replace(/\/$/, "")}${path}`;
+export const aiDraftingEnabled = () => Boolean(env.GROQ_API_KEY);
 export const paymentsEnabled = () => Boolean(env.PAYSTACK_SECRET_KEY);
 
 /** Guests can give by Mobile Money or card online, instead of sending MoMo to the host directly. */

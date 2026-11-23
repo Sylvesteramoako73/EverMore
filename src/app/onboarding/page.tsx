@@ -11,7 +11,7 @@ import { ColoursEditor } from "@/components/couple/detail-forms";
 import { BasicsStep, ContinueButton, DetailsStep } from "@/components/couple/wizard-steps";
 import { Skeleton } from "@/components/ui/skeleton";
 import { pickCurrentCelebration, requireUser } from "@/lib/dal";
-import { appUrl } from "@/lib/env";
+import { aiDraftingEnabled, appUrl } from "@/lib/env";
 import { formatMoney } from "@/lib/money";
 import { entitlements, needsPayment, PAGE_PRICE_MINOR } from "@/lib/plans";
 import { getOccasion, type OccasionKind } from "@/lib/occasions";
@@ -119,6 +119,7 @@ async function Wizard({ searchParams }: PageProps<"/onboarding">) {
           <DetailsStep
             kind={celebration.kind}
             zones={timeZones()}
+            aiEnabled={aiDraftingEnabled()}
             values={{
               story: celebration.story,
               guestMessage: celebration.guestMessage,
