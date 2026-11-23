@@ -3,13 +3,16 @@ import { Download } from "lucide-react";
 import { Suspense } from "react";
 import { GuestForm, GuestList, ImportGuests, type GuestView } from "@/components/dashboard/guests";
 import { ReplyQueue } from "@/components/dashboard/reply-queue";
+import { EventReminderList } from "@/components/dashboard/event-reminders";
+import { reminderDayFor } from "@/server/guest-reminders";
+import { formatLongDate, formatTime } from "@/lib/dates";
 import { Button } from "@/components/ui/button";
 import { appUrl } from "@/lib/env";
 import { getOccasion } from "@/lib/occasions";
 import { listEvents } from "@/server/events";
 import { listGuests } from "@/server/guests";
 import { listRsvps } from "@/server/rsvp";
-import { loadDashboard, whatsappInvite, whatsappReminder } from "../data";
+import { loadDashboard, whatsappInvite, whatsappReminder, whatsappEventReminder } from "../data";
 import { PageSkeleton } from "@/components/dashboard/skeleton";
 
 export const metadata: Metadata = { title: "Guests" };
@@ -28,6 +31,9 @@ async function Guests() {
   const replyByGuest = new Map(rsvps.filter((r) => r.guestId).map((r) => [r.guestId!, r.answers.some((a) => a.attending) ? "yes" as const : "no" as const]));
   const remembrance = getOccasion(c.kind).after === "remembrance";
   const deadline = c.rsvpDeadline ? new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", day: "numeric", month: "long" }).format(new Date(`${c.rsvpDeadline}T12:00:00Z`)) : null;
+
+  // Events due a reminder today (3 days away, or today): guests with no email get a one tap WhatsApp instead.
+  const due = events.map((e) => ({ e, days: reminderDayFor(e.startsLocal, e.timezone, new Date()) })).filter((x) => x.days !== null).sort((a, b) => a.e.startsAt.getTime() - b.e.startsAt.getTime())[0];
 
   const views: GuestView[] = guests.map((g) => {
     const link = appUrl(`/${c.slug}?invite=${g.inviteToken}`);
@@ -68,6 +74,29 @@ async function Guests() {
         )}
       </header>
 
+      {due && c.guestRemindersEnabled && (
+        <EventReminderList
+          eventName={due.e.name}
+          days={due.days!}
+          guests={views
+            .filter((g) => g.phone && !g.email && g.reply !== "no")
+            .map((g) => ({
+              id: g.id,
+              name: g.name,
+              href: whatsappEventReminder({
+                phone: g.phone,
+                name: g.name,
+                title: c.title,
+                eventName: due.e.name,
+                when: `${formatLongDate(due.e.startsAt, due.e.timezone)}, ${formatTime(due.e.startsAt, due.e.timezone)}`,
+                link: g.link,
+                days: due.days!,
+                remembrance,
+              }),
+              remindedAt: g.remindedAt,
+            }))}
+        />
+      )}
       <ReplyQueue guests={views} />
 
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">

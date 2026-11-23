@@ -87,6 +87,7 @@ async function Settings() {
           values={{
             rsvpEnabled: c.rsvpEnabled,
             openRsvp: c.openRsvp,
+            guestRemindersEnabled: c.guestRemindersEnabled,
             defaultPartySize: c.defaultPartySize,
             mealOptions: c.mealOptions,
             askDietary: c.askDietary,

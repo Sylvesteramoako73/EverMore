@@ -189,6 +189,7 @@ export const SECTION_IDS = ["story", "schedule", "colours", "gallery", "rsvp", "
 export const guestFeaturesSchema = z.object({
   rsvpEnabled: checkbox,
   openRsvp: checkbox,
+  guestRemindersEnabled: checkbox,
   defaultPartySize: z.coerce.number().int().min(1).max(10),
   mealOptions: z
     .string()

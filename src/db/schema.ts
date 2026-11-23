@@ -151,6 +151,8 @@ export const celebration = pgTable(
     rsvpDeadline: date("rsvp_deadline"),
     /** Open RSVP: anyone with the link may reply. Otherwise only guests with an invitation link. */
     openRsvp: boolean("open_rsvp").notNull().default(true),
+    /** Email guests 3 days before and on the day of each event. On unless the host switches it off. */
+    guestRemindersEnabled: boolean("guest_reminders_enabled").notNull().default(true),
     defaultPartySize: integer("default_party_size").notNull().default(2),
     mealOptions: text("meal_options").array().notNull().default(sql`ARRAY[]::text[]`),
     askDietary: boolean("ask_dietary").notNull().default(true),
@@ -483,6 +485,23 @@ export const notification = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("notification_due_idx").on(t.status, t.scheduledFor)],
+);
+
+/** One email reminder to one guest for one event, 3 days before (3) or on the day (0). The unique key makes sending idempotent. */
+export const guestReminder = pgTable(
+  "guest_reminder",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    guestId: uuid("guest_id").notNull().references(() => guest.id, { onDelete: "cascade" }),
+    eventId: uuid("event_id").notNull().references(() => event.id, { onDelete: "cascade" }),
+    daysBefore: integer("days_before").notNull(),
+    status: text("status").notNull().default("pending"),
+    attempts: integer("attempts").notNull().default(0),
+    lastError: text("last_error"),
+    sentAt: timestamp("sent_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("guest_reminder_uq").on(t.guestId, t.eventId, t.daysBefore)],
 );
 
 // ─────────────────────────────────────────────── Gifts & contributions

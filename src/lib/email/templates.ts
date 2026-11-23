@@ -93,6 +93,31 @@ export const emails = {
       ],
       { label: "Add a memory", url },
     ),
+  /** Tells a guest an event is 3 days away, or today. */
+  guestEventReminder: (
+    to: string,
+    d: { guestName: string; title: string; eventName: string; when: string; venue: string; dressCode: string; daysBefore: 0 | 3; remembrance: boolean },
+    url: string,
+    directionsUrl: string,
+  ) => {
+    const first = d.guestName.split(/\s+/)[0] || "there";
+    const today = d.daysBefore === 0;
+    const subject = today ? `Today: ${d.eventName} for ${d.title}` : `In 3 days: ${d.eventName} for ${d.title}`;
+    const intro = d.remembrance
+      ? today
+        ? `Dear ${first}, today is ${d.eventName} for ${d.title}. We hope you can be with the family.`
+        : `Dear ${first}, ${d.eventName} for ${d.title} is in 3 days. We hope you can be with the family.`
+      : today
+        ? `Hello ${first}, today is the day. ${d.eventName} for ${d.title} is happening today.`
+        : `Hello ${first}, a reminder that ${d.eventName} for ${d.title} is in 3 days.`;
+    return message(
+      to,
+      subject,
+      today ? "Today is the day" : "3 days to go",
+      [intro, `When: ${d.when}`, d.venue ? `Where: ${d.venue}` : "", d.dressCode ? `Dress code: ${d.dressCode}` : "", `Directions: ${directionsUrl}`].filter(Boolean),
+      { label: "Open the programme", url },
+    );
+  },
   /** Nudges a host who started a page but has not published it. Stage 1, 2 or 3; the last one says it is the last. */
   unfinishedPage: (
     to: string,

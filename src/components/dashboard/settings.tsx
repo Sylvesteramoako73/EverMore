@@ -13,6 +13,7 @@ import type { FormState } from "@/lib/validation";
 export type GuestFeatureValues = {
   rsvpEnabled: boolean;
   openRsvp: boolean;
+  guestRemindersEnabled: boolean;
   defaultPartySize: number;
   mealOptions: string[];
   askDietary: boolean;
@@ -68,6 +69,12 @@ export function GuestFeaturesForm({ values }: { values: GuestFeatureValues }) {
           label="Anyone with the link can reply"
           hint="Turn off to accept replies only from personal invitation links on your guest list."
           defaultChecked={values.openRsvp}
+        />
+        <Toggle
+          name="guestRemindersEnabled"
+          label="Email guests a reminder 3 days before and on the day"
+          hint="Sent to guests who have an email saved and have not said they can't come. They include the time, venue and a link to directions."
+          defaultChecked={values.guestRemindersEnabled}
         />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="People per reply (open RSVP)" hint="The most someone can reply for without a personal link." errors={e.defaultPartySize}>
