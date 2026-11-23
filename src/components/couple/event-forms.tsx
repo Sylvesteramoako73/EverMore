@@ -76,7 +76,7 @@ export function EventForm({
     state?.values ? state.values[k] === "on" : (event?.[k] ?? fallback);
 
   return (
-    <form action={action} className="space-y-6" noValidate>
+    <form id="event-form" action={action} className="space-y-6" noValidate>
       <FormAlert state={state} />
       <Field label="Event name" hint="For example: Traditional celebration, Church ceremony, Reception." errors={e.name}>
         <Input name="name" list="event-names" defaultValue={v("name")} required />

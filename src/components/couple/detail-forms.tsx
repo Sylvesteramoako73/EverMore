@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { getOccasion, OCCASION_GROUPS, OCCASIONS, type ColourSwatch, type OccasionDetails, type OccasionKind, type RsvpContact } from "@/lib/occasions";
 import type { FormState } from "@/lib/validation";
+import { saveEventDrafts } from "@/lib/event-drafts";
 import { AutosaveStatus, useAutosave } from "./autosave";
 
 export type BasicsValues = { kind: OccasionKind; title: string; honorees: { fullName: string; displayName: string }[]; monogram: string };
@@ -85,7 +86,7 @@ function setIfEmpty(form: HTMLFormElement, name: string, value: string) {
   return true;
 }
 
-function DescribeBox({ formRef, kind }: { formRef: RefObject<HTMLFormElement | null>; kind: OccasionKind }) {
+function DescribeBox({ formRef, kind, celebrationId }: { formRef: RefObject<HTMLFormElement | null>; kind: OccasionKind; celebrationId: string }) {
   const [sentence, setSentence] = useState("");
   const [note, setNote] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
   const [pending, start] = useTransition();
@@ -101,9 +102,12 @@ function DescribeBox({ formRef, kind }: { formRef: RefObject<HTMLFormElement | n
         const value = Array.isArray(raw) ? raw.join("\n") : raw === null ? "" : String(raw);
         if (setIfEmpty(form, name, value)) filled.push(DRAFT_LABELS[name] ?? name);
       }
+      const events = result.draft.events.filter((e) => e.name || e.date || e.venueName);
+      saveEventDrafts(celebrationId, events);
+      const parts = [filled.length ? `Drafted: ${filled.join(", ")}.` : "", events.length ? `${events.length === 1 ? "1 event" : `${events.length} events`} ready to review in the programme step.` : ""].filter(Boolean);
       setNote(
-        filled.length
-          ? { tone: "ok", text: `Drafted: ${filled.join(", ")}. Please read each one and change anything that is not right.` }
+        parts.length
+          ? { tone: "ok", text: `${parts.join(" ")} Please read everything and change anything that is not right.` }
           : { tone: "ok", text: "Nothing new to fill in. Add more detail, or the boxes below are already filled." },
       );
     });
@@ -115,15 +119,15 @@ function DescribeBox({ formRef, kind }: { formRef: RefObject<HTMLFormElement | n
         <Sparkles className="mt-1 h-5 w-5 shrink-0 text-champagne-deep" aria-hidden />
         <div className="min-w-0 flex-1 space-y-3">
           <div>
-            <h2 id="describe-title" className="text-xl text-navy">Describe your event in one sentence</h2>
-            <p className="mt-1 text-sm text-muted-foreground">We will draft the empty boxes below for you. You review everything, and we never make up a venue, time or name.</p>
+            <h2 id="describe-title" className="text-xl text-navy">Describe your event, or paste your invitation</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Type a sentence, or paste the invitation you already sent on WhatsApp. We draft the empty boxes below and your programme for you to review. We never make up a venue, time or name.</p>
           </div>
           <Textarea
             value={sentence}
             onChange={(e) => setSentence(e.target.value)}
-            rows={3}
-            maxLength={600}
-            aria-label="Your event in one sentence"
+            rows={4}
+            maxLength={2500}
+            aria-label="Your event, or your pasted invitation"
             placeholder={SENTENCE_EXAMPLES[kind] ?? "Tell us what it is, when, where and anything guests should know."}
           />
           <div className="flex flex-wrap items-center gap-3">
@@ -254,6 +258,7 @@ export function DetailsForm({
   submitLabel,
   onSaved,
   aiEnabled = false,
+  celebrationId = "",
 }: {
   kind: OccasionKind;
   values: CelebrationInfoValues;
@@ -261,6 +266,7 @@ export function DetailsForm({
   submitLabel: string;
   onSaved?: () => void;
   aiEnabled?: boolean;
+  celebrationId?: string;
 }) {
   const ref = useRef<HTMLFormElement>(null);
   const [state, action] = useActionState(saveCelebrationInfo, undefined);
@@ -285,7 +291,7 @@ export function DetailsForm({
     <form ref={ref} action={action} onChange={schedule} className="space-y-8" noValidate>
       <FormAlert state={state?.ok ? undefined : state} />
 
-      {aiEnabled && <DescribeBox formRef={ref} kind={kind} />}
+      {aiEnabled && celebrationId && <DescribeBox formRef={ref} kind={kind} celebrationId={celebrationId} />}
 
       {kind === "funeral" && (
         <Group title="Life dates" description="Shown gently under the name. Used for remembrance reminders, if you want them.">

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { Logo } from "@/components/brand";
 import { EventForm, EventList } from "@/components/couple/event-forms";
+import { EventDrafts } from "@/components/couple/event-drafts";
 import { PhotoManager } from "@/components/couple/photo-manager";
 import { PublishControls, PublishSettingsForm } from "@/components/couple/publish-panel";
 import { ThemePicker } from "@/components/couple/theme-picker";
@@ -120,6 +121,7 @@ async function Wizard({ searchParams }: PageProps<"/onboarding">) {
             kind={celebration.kind}
             zones={timeZones()}
             aiEnabled={aiDraftingEnabled()}
+            celebrationId={celebration.id}
             values={{
               story: celebration.story,
               guestMessage: celebration.guestMessage,
@@ -186,6 +188,7 @@ async function EventsStep({ celebrationId, primaryEventId, timezone, editing, ki
         )}
       </div>
       <div>
+        {showForm && !target && <EventDrafts celebrationId={celebrationId} />}
         {showForm ? (
           <div className="rounded-2xl border border-border bg-white/60 p-5 sm:p-7">
             <h2 className="mb-6 text-2xl text-navy">{target ? `Edit ${target.name}` : events.length ? "Add an event" : "Add your first event"}</h2>
