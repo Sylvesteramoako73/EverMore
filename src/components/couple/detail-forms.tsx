@@ -104,10 +104,14 @@ function DescribeBox({ formRef, kind, celebrationId }: { formRef: RefObject<HTML
       }
       const events = result.draft.events.filter((e) => e.name || e.date || e.venueName);
       saveEventDrafts(celebrationId, events);
+      const askMore = [
+        !result.draft.story && !form.querySelector<HTMLTextAreaElement>("[name=story]")?.value ? "how you met or your story" : "",
+        !result.draft.announcement && !form.querySelector<HTMLTextAreaElement>("[name=announcement]")?.value ? "anything guests should know, like parking, children or accommodation" : "",
+      ].filter(Boolean);
       const parts = [filled.length ? `Drafted: ${filled.join(", ")}.` : "", events.length ? `${events.length === 1 ? "1 event" : `${events.length} events`} ready to review in the programme step.` : ""].filter(Boolean);
       setNote(
         parts.length
-          ? { tone: "ok", text: `${parts.join(" ")} Please read everything and change anything that is not right.` }
+          ? { tone: "ok", text: `${parts.join(" ")} Please read everything and change anything that is not right.${askMore.length ? ` Want more filled in? Add ${askMore.join(" and ")} to your description and press Fill in my details again.` : ""}` }
           : { tone: "ok", text: "Nothing new to fill in. Add more detail, or the boxes below are already filled." },
       );
     });
