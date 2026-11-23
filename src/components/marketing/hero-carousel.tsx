@@ -16,7 +16,7 @@ const EVERY = 6500;
  * It stops while the pointer or keyboard is on it, and does not move at all for people who ask
  * their device to reduce motion.
  */
-export function HeroCarousel({ slides, signUpHref, priceNote }: { slides: HeroSlide[]; signUpHref: string; priceNote: string }) {
+export function HeroCarousel({ slides, signUpHref, priceNote, realPageHref }: { slides: HeroSlide[]; signUpHref: string; priceNote: string; realPageHref?: string }) {
   const [i, setI] = useState(0);
   const [paused, setPaused] = useState(false);
   const [held, setHeld] = useState(false);
@@ -87,7 +87,10 @@ export function HeroCarousel({ slides, signUpHref, priceNote }: { slides: HeroSl
           </Button>
         </div>
 
-        <p className="mt-4 text-sm text-white/80">{priceNote}</p>
+        <p className="mt-4 text-sm text-white/80">
+          {priceNote}
+          {realPageHref && <> <Link href={realPageHref} className="ml-1 text-white underline underline-offset-4">See a real EverMore page</Link></>}
+        </p>
 
         <div className="mt-5 flex items-center justify-center gap-4">
           <p className="min-w-[10.5rem] text-sm tracking-[0.2em] text-white/90 uppercase" aria-live={running ? "off" : "polite"}>{now.label}</p>
