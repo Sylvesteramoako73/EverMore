@@ -77,8 +77,7 @@ export function HeroCarousel({ slides, signUpHref, priceNote }: { slides: HeroSl
 
       <div className="animate-rise relative w-full px-4 pb-[6svh] text-center">
         <h1 key={now.kind} className="animate-rise font-light">
-          <span className="block text-[clamp(1.1rem,2.4vw,1.6rem)] tracking-[0.2em] text-champagne uppercase">{now.label}</span>
-          <span className="mt-2 block text-[clamp(2.4rem,6.4vw,5rem)] leading-[1.05] [text-shadow:0_2px_30px_rgba(16,28,53,.55)]">{now.headline}</span>
+          <span className="block text-[clamp(2.4rem,6.4vw,5rem)] leading-[1.05] [text-shadow:0_2px_30px_rgba(16,28,53,.55)]">{now.headline}</span>
         </h1>
         <p key={`${now.kind}-sub`} className="animate-rise mx-auto mt-4 min-h-[3.5rem] max-w-2xl text-base text-white/90 [text-shadow:0_1px_16px_rgba(16,28,53,.6)] sm:text-lg">{now.subline}</p>
         <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
