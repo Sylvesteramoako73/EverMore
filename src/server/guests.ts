@@ -1,6 +1,6 @@
 import "server-only";
 import { randomBytes } from "node:crypto";
-import { and, asc, count, eq, ilike, inArray, ne } from "drizzle-orm";
+import { and, asc, count, eq, ilike, inArray, ne, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { event, guest, guestEvent, rsvp } from "@/db/schema";
 import { entitlements } from "@/lib/plans";
@@ -69,6 +69,16 @@ export async function regenerateInviteToken(celebrationId: string, guestId: stri
   const rows = await db
     .update(guest)
     .set({ inviteToken: newInviteToken() })
+    .where(and(eq(guest.id, guestId), eq(guest.celebrationId, celebrationId)))
+    .returning({ id: guest.id });
+  return rows.length > 0;
+}
+
+/** The couple tapped Remind for a guest. We record that they did, never that the message was delivered or read. */
+export async function markGuestReminded(celebrationId: string, guestId: string, now = new Date()) {
+  const rows = await db
+    .update(guest)
+    .set({ remindedAt: now, reminderCount: sql`${guest.reminderCount} + 1` })
     .where(and(eq(guest.id, guestId), eq(guest.celebrationId, celebrationId)))
     .returning({ id: guest.id });
   return rows.length > 0;

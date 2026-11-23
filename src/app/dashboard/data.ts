@@ -55,9 +55,13 @@ function waLink(phone: string, text: string) {
   return `https://wa.me/${to}?text=${encodeURIComponent(text)}`;
 }
 
-/** A gentle nudge for invitations without a reply. */
-export function whatsappReminder({ phone, name, title, link }: { phone: string; name: string; title: string; link: string }) {
-  return waLink(phone, `Hello ${name}, a gentle reminder to let us know if you can join us for ${title}. You can reply in a few seconds here: ${link}`);
+/** A gentle nudge for invitations without a reply. Mentions the reply deadline when there is one. */
+export function whatsappReminder({ phone, name, title, link, deadline, remembrance }: { phone: string; name: string; title: string; link: string; deadline?: string | null; remembrance?: boolean }) {
+  const by = deadline ? ` We would be grateful to hear from you by ${deadline}.` : "";
+  const text = remembrance
+    ? `Dear ${name}, a gentle note about ${title}. If you plan to be with the family, you can let us know here in a few seconds.${by} ${link}`
+    : `Hello ${name}, a gentle reminder to let us know if you can join us for ${title}.${by} You can reply in a few seconds here: ${link}`;
+  return waLink(phone, text);
 }
 
 /** A WhatsApp share link for a personal invitation. Uses the guest's number when it looks international. */

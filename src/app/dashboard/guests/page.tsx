@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Download } from "lucide-react";
 import { Suspense } from "react";
 import { GuestForm, GuestList, ImportGuests, type GuestView } from "@/components/dashboard/guests";
+import { ReplyQueue } from "@/components/dashboard/reply-queue";
 import { Button } from "@/components/ui/button";
 import { appUrl } from "@/lib/env";
 import { getOccasion } from "@/lib/occasions";
@@ -26,6 +27,7 @@ async function Guests() {
   const [guests, events, rsvps] = await Promise.all([listGuests(c.id), listEvents(c.id), listRsvps(c.id)]);
   const replyByGuest = new Map(rsvps.filter((r) => r.guestId).map((r) => [r.guestId!, r.answers.some((a) => a.attending) ? "yes" as const : "no" as const]));
   const remembrance = getOccasion(c.kind).after === "remembrance";
+  const deadline = c.rsvpDeadline ? new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", day: "numeric", month: "long" }).format(new Date(`${c.rsvpDeadline}T12:00:00Z`)) : null;
 
   const views: GuestView[] = guests.map((g) => {
     const link = appUrl(`/${c.slug}?invite=${g.inviteToken}`);
@@ -41,7 +43,9 @@ async function Guests() {
       reply: replyByGuest.get(g.id) ?? null,
       link,
       whatsapp: whatsappInvite({ phone: g.phone, name: g.name, title: c.title, link, remembrance }),
-      reminder: whatsappReminder({ phone: g.phone, name: g.name, title: c.title, link }),
+      reminder: whatsappReminder({ phone: g.phone, name: g.name, title: c.title, link, deadline, remembrance }),
+      remindedAt: g.remindedAt ? g.remindedAt.toISOString() : null,
+      remindCount: g.reminderCount,
       tableName: g.tableName,
       checkedIn: g.checkedInCount,
     };
@@ -63,6 +67,8 @@ async function Guests() {
           <Button asChild variant="outline"><a href="/dashboard/guests/export" download><Download className="h-4 w-4" aria-hidden /> Download guest list</a></Button>
         )}
       </header>
+
+      <ReplyQueue guests={views} />
 
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
         <GuestList guests={views} events={options} />
