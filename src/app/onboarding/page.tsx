@@ -16,6 +16,9 @@ import { aiDraftingEnabled, appUrl } from "@/lib/env";
 import { formatMoney } from "@/lib/money";
 import { entitlements, needsPayment, PAGE_PRICE_MINOR } from "@/lib/plans";
 import { getOccasion, type OccasionKind } from "@/lib/occasions";
+import { primaryEvent } from "@/lib/celebration-rules";
+import { formatLongDate, formatTime } from "@/lib/dates";
+import { shareMessage } from "@/lib/share-message";
 import { THEMES, themesFor } from "@/lib/themes";
 import { timeZones } from "@/lib/timezones";
 import { listEvents } from "@/server/events";
@@ -227,6 +230,14 @@ async function PublishStep({ celebrationId }: { celebrationId: string }) {
   if (!celebration) redirect("/onboarding");
   const [problems, events] = await Promise.all([publishProblems(celebrationId), listEvents(celebrationId)]);
   const url = appUrl(`/${celebration.slug}`);
+  const main = primaryEvent(events, celebration.primaryEventId);
+  const shareText = shareMessage({
+    kind: celebration.kind,
+    title: celebration.title,
+    when: main ? `${formatLongDate(main.startsAt, main.timezone)} at ${formatTime(main.startsAt, main.timezone)}` : null,
+    where: main?.venueName || null,
+    url,
+  });
   return (
     <div className="grid gap-10 lg:grid-cols-2">
       <section className="space-y-6 rounded-2xl border border-border bg-white p-6 sm:p-8">
@@ -239,7 +250,7 @@ async function PublishStep({ celebrationId }: { celebrationId: string }) {
           <dt className="text-muted-foreground">Design</dt>
           <dd>{THEMES.find((t) => t.id === celebration.themeId)?.name}</dd>
         </dl>
-        <PublishControls status={celebration.status} url={url} problems={problems} payment={needsPayment(celebration.plan) ? formatMoney(PAGE_PRICE_MINOR) : undefined} />
+        <PublishControls status={celebration.status} url={url} problems={problems} payment={needsPayment(celebration.plan) ? formatMoney(PAGE_PRICE_MINOR) : undefined} shareText={shareText} />
       </section>
       <section className="space-y-4">
         <h2 className="text-2xl text-navy">Address & privacy</h2>
