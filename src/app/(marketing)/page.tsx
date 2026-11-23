@@ -38,7 +38,10 @@ const INCLUDES = [
 ] as const;
 
 const FAQ = [
-  ["How long does it take to make a page?", "Most people finish in about ten minutes. You fill in a guided form; we design the page. You can preview it before anyone else sees it and keep editing after you publish."],
+  ["Is EverMore just an invitation card?", "No. An invitation card only tells people about the day. Your EverMore page is the invitation and everything after it: the programme, directions, RSVPs for each part of the day, gifts by Mobile Money, photos from every guest and a memory page once it is over."],
+  ["Do my guests need to download an app?", "No. Guests open your link or scan your QR code in any phone browser. There is nothing to install and no account to make."],
+  ["Is it a fundraiser?", "No. Gifts are one part of your page, and you decide whether to switch them on. Most of the page is the programme, RSVPs and photos."],
+  ["Do I need to hire someone to set it up?", "No. You fill in a short guided form and EverMore designs the page. Most people finish in about ten minutes."],
   ["What occasions can I use EverMore for?", "Weddings, birthdays, funerals and memorials, naming ceremonies and outdoorings, grand openings, outings and trips, reunions, anniversaries, showers, graduations, and anything else worth gathering for. Each gets wording, sections and designs that fit."],
   ["Do guests need an account or an app?", "No. Guests open your link or scan the QR code in any browser to see the details, find the venues and RSVP."],
   ["Can guests share their own photos?", "Yes. Guests upload photos and short videos to a shared gallery that everyone can browse and download. By default you approve each upload before it appears."],
@@ -89,7 +92,13 @@ export default async function HomePage() {
               </li>
             ))}
           </ul>
-          <p className="mt-10 text-center text-sm text-muted-foreground">Also anniversaries, showers and church and community events.</p>
+          <p className="mt-10 text-center text-sm text-muted-foreground">
+            Read more about{" "}
+            {[["weddings", "Weddings"], ["birthdays", "Birthdays"], ["celebrations-of-life", "Celebrations of life"], ["naming-ceremonies", "Naming ceremonies"], ["graduations", "Graduations"]].map(([slug, label], i) => (
+              <span key={slug}>{i > 0 && ", "}<Link href={`/celebrate/${slug}`} className="text-navy underline underline-offset-4">{label}</Link></span>
+            ))}
+            . Also anniversaries, showers and church and community events.
+          </p>
           <div className="mt-8 text-center">
             <Button asChild size="lg" variant="gold" className="h-14 px-10 text-base"><Link href={appHref("/sign-up")}>Create your page</Link></Button>
           </div>
