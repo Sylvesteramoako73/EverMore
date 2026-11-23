@@ -17,15 +17,6 @@ export const metadata: Metadata = { alternates: { canonical: siteHref("/") } };
 
 const P = (name: string) => `/samples/photos/${name}.webp`;
 
-const OCCASIONS = [
-  { theme: "earth-and-ivory", kind: "wedding", label: "Weddings", photo: "home-wedding-green-tall" },
-  { theme: "confetti", kind: "birthday", label: "Birthdays", photo: "home-birthday-tall" },
-  { theme: "serene", kind: "funeral", label: "Celebrations of life", photo: "mem-candle-flowers" },
-  { theme: "little-blessings", kind: "naming", label: "Naming ceremonies", photo: "home-naming-hd" },
-  { theme: "modern-minimalist", kind: "graduation", label: "Graduations", photo: "home-graduation-tall" },
-  { theme: "golden-hour", kind: "reunion", label: "Reunions", photo: "reunion-friends" },
-] as const;
-
 const HERO_SLIDES = [
   { kind: "wedding", theme: "earth-and-ivory", label: "Weddings", noun: "wedding", headline: "One page for your whole wedding.", subline: "Share your story and programme, collect RSVPs and gifts, and keep every photo your guests take.", photo: "home-wedding-green-wide", position: "50% 25%" },
   { kind: "birthday", theme: "confetti", label: "Birthdays", noun: "birthday", headline: "A birthday page everyone will open.", subline: "Share the details, collect RSVPs and wishes, and gather the photos from the party in one place.", photo: "home-birthday-wide", position: "50% 30%" },
@@ -77,56 +68,39 @@ export default async function HomePage() {
       {/* ───────────── Hero: a photo for every occasion, one headline, one clear button */}
       <HeroCarousel signUpHref={appHref("/sign-up")} slides={[...HERO_SLIDES]} priceNote={`Build and preview free. Pay ${formatMoney(PAGE_PRICE_MINOR)} only when you publish.`} />
 
-      {/* ───────────── What EverMore is, shown rather than described */}
-      <section aria-labelledby="what-is" className="bg-[#f6f3ec] py-20 sm:py-28">
-        <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 sm:px-8 lg:grid-cols-[1fr_auto_1fr]">
-          <div className="text-center lg:text-right">
-            <p className="text-sm tracking-[0.2em] text-champagne-deep uppercase">What EverMore is</p>
-            <h2 id="what-is" className="mt-3 text-4xl leading-tight font-light text-navy sm:text-5xl">A website for your celebration.</h2>
-            <p className="mt-5 text-lg leading-relaxed text-muted-foreground">You build it once in about ten minutes and share one link on WhatsApp. Everything about the day lives on that page, and your guests need no app.</p>
-          </div>
-          <Phone src="/samples/screens/earth-and-ivory-phone.webp" alt="A finished wedding page on a phone" className="mx-auto w-[230px] sm:w-[260px]" />
-          <ul className="space-y-5">
-            {[
-              ["Your story and programme", "Every ceremony with its time and venue."],
-              ["RSVPs and directions", "Guests reply and find the venue in one tap."],
-              ["Gifts and guest photos", "Mobile Money gifts, and photos from every phone."],
-              ["Memories afterwards", "The page stays as a keepsake of the day."],
-            ].map(([t, d]) => (
-              <li key={t} className="flex gap-3">
-                <Check className="mt-1.5 h-4 w-4 shrink-0 text-champagne-deep" aria-hidden />
-                <div><h3 className="text-xl font-light text-navy">{t}</h3><p className="text-muted-foreground">{d}</p></div>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="mx-auto mt-14 grid max-w-4xl gap-4 px-4 text-center sm:grid-cols-4 sm:px-8">
-          {[["Not just an invitation card", "It also takes RSVPs, gifts and photos."], ["Not an app to download", "Guests open a link in any browser."], ["Not only a fundraiser", "Gifts are one part of the page."], ["Not a planner you hire", "You build it yourself, with our guide."]].map(([t, d]) => (
-            <div key={t} className="rounded-2xl bg-white p-5 ring-1 ring-navy/10">
-              <p className="text-navy">{t}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{d}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ───────────── Occasions */}
-      <section id="occasions" className="scroll-mt-20 bg-white py-20 sm:py-28">
+      {/* ───────────── Create a page to celebrate any occasion */}
+      <section id="occasions" aria-labelledby="what-is" className="scroll-mt-20 bg-[#f6f3ec] py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-8">
-          <Intro title="Made for every occasion" text="Pick what you are celebrating and EverMore sets up the right sections for you, from wedding ceremonies and RSVPs to tributes and order of service." />
-          <ul className="mt-14 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 lg:grid-cols-6">
-            {OCCASIONS.map((o) => (
-              <li key={o.kind}>
-                <Link href={`/samples/${o.theme}?occasion=${o.kind}`} className="group block text-center">
-                  <span className="relative block aspect-[3/4] overflow-hidden bg-mist">
-                    <Image src={P(o.photo)} alt="" fill sizes="(min-width: 1024px) 15vw, (min-width: 768px) 30vw, 45vw" quality={90} className="object-cover transition-transform duration-700 group-hover:scale-105" />
-                  </span>
-                  <span className="mt-4 block text-base text-navy">{o.label}</span>
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-sm tracking-[0.2em] text-champagne-deep uppercase">What EverMore is</p>
+            <h2 id="what-is" className="mt-3 text-4xl leading-tight font-light text-navy sm:text-6xl">Create a page to celebrate every occasion.</h2>
+            <p className="mt-5 text-lg leading-relaxed text-muted-foreground">Choose what you are celebrating, add the details, and share one link on WhatsApp. Your page holds the programme, RSVPs, gifts and photos, and guests need no app.</p>
+          </div>
+          <ul className="mt-14 grid gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+            {HERO_SLIDES.map((o) => (
+              <li key={o.kind} className="flex flex-col">
+                <Link href={appHref("/sign-up")} className="group relative block aspect-[4/5] overflow-hidden bg-mist">
+                  <Image src={P(o.photo)} alt="" fill sizes="(min-width: 1024px) 22vw, (min-width: 640px) 45vw, 100vw" quality={90} style={{ objectPosition: o.position ?? "50% 40%" }} className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-navy/80 via-transparent to-transparent" />
+                  <span className="absolute inset-x-0 bottom-0 p-5 text-xl font-light text-white">Create a {o.noun} page</span>
                 </Link>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{o.subline}</p>
+                <Link href={`/samples/${o.theme}?occasion=${o.kind}`} className="mt-2 inline-flex items-center gap-1.5 text-sm text-navy underline-offset-4 hover:underline">See a {o.noun} sample <ArrowRight className="h-3.5 w-3.5" aria-hidden /></Link>
               </li>
             ))}
           </ul>
-          <p className="mt-10 text-center text-sm text-muted-foreground">Also outings and trips, grand openings, anniversaries, showers and church and community events.</p>
+          <p className="mt-10 text-center text-sm text-muted-foreground">Also anniversaries, showers and church and community events.</p>
+          <div className="mt-8 text-center">
+            <Button asChild size="lg" variant="gold" className="h-14 px-10 text-base"><Link href={appHref("/sign-up")}>Create your page</Link></Button>
+          </div>
+          <div className="mx-auto mt-14 grid max-w-4xl gap-4 text-center sm:grid-cols-4">
+            {[["Not just an invitation card", "It also takes RSVPs, gifts and photos."], ["Not an app to download", "Guests open a link in any browser."], ["Not only a fundraiser", "Gifts are one part of the page."], ["Not a planner you hire", "You build it yourself, with our guide."]].map(([t, d]) => (
+              <div key={t} className="rounded-2xl bg-white p-5 ring-1 ring-navy/10">
+                <p className="text-navy">{t}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{d}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
