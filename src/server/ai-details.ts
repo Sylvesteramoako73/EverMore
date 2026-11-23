@@ -13,6 +13,13 @@ export const DRAFT_FIELDS = [
 export type DraftField = (typeof DRAFT_FIELDS)[number];
 
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).or(z.literal(""));
+const eventSchema = z.object({
+  name: z.string().max(80).default(""),
+  date: isoDate.default(""),
+  time: z.string().regex(/^\d{2}:\d{2}$/).or(z.literal("")).default(""),
+  venueName: z.string().max(120).default(""),
+  venueAddress: z.string().max(300).default(""),
+});
 const draftSchema = z.object({
   keyDate: isoDate.default(""),
   dressCode: z.string().max(200).default(""),
@@ -29,20 +36,42 @@ const draftSchema = z.object({
   parents: z.string().max(200).default(""),
   dateOfBirth: isoDate.default(""),
   dateOfPassing: isoDate.default(""),
-  events: z
-    .array(
-      z.object({
-        name: z.string().max(80).default(""),
-        date: isoDate.default(""),
-        time: z.string().regex(/^\d{2}:\d{2}$/).or(z.literal("")).default(""),
-        venueName: z.string().max(120).default(""),
-        venueAddress: z.string().max(300).default(""),
-      }),
-    )
-    .max(6)
-    .default([]),
+  events: z.array(eventSchema).max(6).default([]),
 });
 export type Draft = z.infer<typeof draftSchema>;
+
+/** Models often send null, numbers as text, or one badly formed field. Keep every good field and blank the bad ones instead of failing the whole draft. */
+export function leniently(raw: unknown): Draft | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const input = raw as Record<string, unknown>;
+  const out: Record<string, unknown> = {};
+  for (const [key, schema] of Object.entries(draftSchema.shape)) {
+    let value = input[key];
+    if (value === null || value === undefined) continue;
+    if (key === "turningAge" && typeof value === "string" && /^\d+$/.test(value.trim())) value = Number(value);
+    if (key === "packingList" && typeof value === "string") value = value.split(/[\n,]/).map((x) => x.trim()).filter(Boolean);
+    if (key === "events" && Array.isArray(value)) {
+      value = value.slice(0, 6).map((e) => {
+        const row: Record<string, unknown> = {};
+        const src = e && typeof e === "object" ? (e as Record<string, unknown>) : {};
+        for (const [k, f] of Object.entries(eventSchema.shape)) {
+          const r = f.safeParse(src[k] ?? undefined);
+          if (r.success) row[k] = r.data;
+        }
+        return row;
+      });
+    }
+    const r = (schema as z.ZodTypeAny).safeParse(value);
+    if (r.success) out[key] = r.data;
+    else if (typeof value === "string" && value.length > 0) {
+      // Too long: cut it rather than lose it.
+      const max = ((schema as unknown as { unwrap?: () => z.ZodString }).unwrap?.() as z.ZodString | undefined)?.maxLength;
+      if (typeof max === "number" && value.length > max) out[key] = value.slice(0, max);
+    }
+  }
+  const parsed = draftSchema.safeParse(out);
+  return parsed.success ? parsed.data : null;
+}
 
 const KEYS_HELP = `Return one JSON object with exactly these keys. Use "" (or [] or null) for anything the host did not say.
 - keyDate: main date as YYYY-MM-DD, only if the host gave a day and month.
@@ -97,7 +126,8 @@ export async function draftDetails(input: { sentence: string; kind: OccasionKind
       body: JSON.stringify({
         model: env.GROQ_MODEL,
         temperature: 0.4,
-        max_tokens: 1800,
+        max_tokens: 4000,
+        ...(env.GROQ_MODEL.startsWith("openai/gpt-oss") ? { reasoning_effort: "low" } : {}),
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: systemPrompt(input.today) },
@@ -115,11 +145,14 @@ export async function draftDetails(input: { sentence: string; kind: OccasionKind
   try {
     const body = (await res.json()) as { choices?: { message?: { content?: string } }[] };
     raw = JSON.parse(body.choices?.[0]?.message?.content ?? "");
-  } catch {
+  } catch (e) {
+    console.error("[ai-details] unreadable reply", e);
     throw new DraftError("Something went wrong drafting that. Please try again.");
   }
-  const parsed = draftSchema.safeParse(raw);
-  if (!parsed.success) throw new DraftError("Something went wrong drafting that. Please try again.");
-  const d = parsed.data;
+  const d = leniently(raw);
+  if (!d) {
+    console.error("[ai-details] reply was not an object", typeof raw);
+    throw new DraftError("Something went wrong drafting that. Please try again.");
+  }
   return { ...d, hashtag: d.hashtag.replace(/^#/, "").replace(/[^\p{L}\p{N}_]/gu, "").slice(0, 40) };
 }

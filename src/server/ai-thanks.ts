@@ -59,7 +59,8 @@ export async function draftThanks(input: { kind: OccasionKind; title: string; na
       body: JSON.stringify({
         model: env.GROQ_MODEL,
         temperature: 0.7,
-        max_tokens: 4000,
+        max_tokens: 6000,
+        ...(env.GROQ_MODEL.startsWith("openai/gpt-oss") ? { reasoning_effort: "low" } : {}),
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: systemPrompt(occasion.after === "remembrance") },
