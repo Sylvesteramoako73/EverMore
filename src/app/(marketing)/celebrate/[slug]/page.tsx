@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { JsonLd, faqLd } from "@/components/json-ld";
 import { Button } from "@/components/ui/button";
 import { appHref, siteHref } from "@/lib/hosts";
 import { formatMoney } from "@/lib/money";
@@ -27,6 +28,7 @@ export default async function LandingPage({ params }: { params: Promise<{ slug: 
 
   return (
     <>
+      <JsonLd data={faqLd(l.faq)} />
       <section className="relative flex min-h-[78svh] items-end justify-center overflow-hidden bg-navy text-white">
         <Image src={`/samples/photos/${l.photo}.webp`} alt="" fill priority sizes="100vw" quality={90} style={{ objectPosition: l.position }} className="object-cover" />
         <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(16,28,53,.5),rgba(16,28,53,0)_30%,rgba(16,28,53,.93))]" />

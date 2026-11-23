@@ -16,6 +16,15 @@ export const isGoogleEnabled = Boolean(google);
 
 const devSlack = isProduction ? 1 : 10;
 
+// A short welcome that tells people what to do next. It must never break sign up, so failures are only logged.
+async function sendWelcome(user: { email: string; name: string }) {
+  try {
+    await sendEmail(emails.welcome(user.email, user.name, new URL("/dashboard", env.APP_URL).toString()));
+  } catch (error) {
+    console.error("[email] welcome email failed", error);
+  }
+}
+
 export const auth = betterAuth({
   appName: "EverMore",
   baseURL: env.APP_URL,
@@ -29,6 +38,16 @@ export const auth = betterAuth({
       // `input: false` means sign-up and profile updates can never set these.
       role: { type: "string", defaultValue: "user", input: false },
       suspendedAt: { type: "date", required: false, input: false },
+    },
+  },
+  // Google sign ups arrive already verified; email sign ups get the welcome once they confirm (see emailVerification).
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user) => {
+          if (user.emailVerified || !emailVerificationRequired) await sendWelcome(user);
+        },
+      },
     },
   },
   emailAndPassword: {
@@ -45,6 +64,9 @@ export const auth = betterAuth({
   emailVerification: {
     sendOnSignUp: emailVerificationRequired,
     autoSignInAfterVerification: true,
+    afterEmailVerification: async (user) => {
+      await sendWelcome(user);
+    },
     expiresIn: 60 * 60 * 24,
     sendVerificationEmail: async ({ user, url }) => {
       await sendEmail(emails.verifyEmail(user.email, user.name, url));
