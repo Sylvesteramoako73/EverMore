@@ -22,6 +22,15 @@ const schema = z.object({
    */
   ALLOW_UNVERIFIED_SIGNUPS: z.string().optional(),
   EMAIL_FROM: z.string().default("EverMore <hello@evermore.example>"),
+  /**
+   * Anthropic API key. Turns on "Describe your event", which drafts the details step from one sentence.
+   * Unset: the box is not shown and nothing is sent anywhere.
+   */
+  ANTHROPIC_API_KEY: z.string().optional(),
+  /** Messages API address. Only change it to point at a test double. */
+  ANTHROPIC_API_URL: z.url().default("https://api.anthropic.com/v1/messages"),
+  /** Model used for drafting. Defaults to a small, fast one. */
+  AI_DRAFT_MODEL: z.string().default("claude-haiku-5-5"),
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
   UPLOAD_DIR: z.string().default("./data/uploads"),
@@ -66,6 +75,7 @@ export const appUrl = (path = "") => `${env.APP_URL.replace(/\/$/, "")}${path}`;
 /** A Paystack key is in place (needed for hosts' page payments and online gifts). */
 /** The public website address (falls back to the app address when there is no separate site). */
 export const siteUrl = (path = "") => `${(env.SITE_URL ?? env.APP_URL).replace(/\/$/, "")}${path}`;
+export const aiDraftingEnabled = () => Boolean(env.ANTHROPIC_API_KEY);
 export const paymentsEnabled = () => Boolean(env.PAYSTACK_SECRET_KEY);
 
 /** Guests can give by Mobile Money or card online, instead of sending MoMo to the host directly. */
