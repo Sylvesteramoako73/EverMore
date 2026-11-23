@@ -77,6 +77,39 @@ export default async function HomePage() {
       {/* ───────────── Hero: a photo for every occasion, one headline, one clear button */}
       <HeroCarousel signUpHref={appHref("/sign-up")} slides={[...HERO_SLIDES]} priceNote={`Build and preview free. Pay ${formatMoney(PAGE_PRICE_MINOR)} only when you publish.`} />
 
+      {/* ───────────── What EverMore is, shown rather than described */}
+      <section aria-labelledby="what-is" className="bg-[#f6f3ec] py-20 sm:py-28">
+        <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 sm:px-8 lg:grid-cols-[1fr_auto_1fr]">
+          <div className="text-center lg:text-right">
+            <p className="text-sm tracking-[0.2em] text-champagne-deep uppercase">What EverMore is</p>
+            <h2 id="what-is" className="mt-3 text-4xl leading-tight font-light text-navy sm:text-5xl">A website for your celebration.</h2>
+            <p className="mt-5 text-lg leading-relaxed text-muted-foreground">You build it once in about ten minutes and share one link on WhatsApp. Everything about the day lives on that page, and your guests need no app.</p>
+          </div>
+          <Phone src="/samples/screens/earth-and-ivory-phone.webp" alt="A finished wedding page on a phone" className="mx-auto w-[230px] sm:w-[260px]" />
+          <ul className="space-y-5">
+            {[
+              ["Your story and programme", "Every ceremony with its time and venue."],
+              ["RSVPs and directions", "Guests reply and find the venue in one tap."],
+              ["Gifts and guest photos", "Mobile Money gifts, and photos from every phone."],
+              ["Memories afterwards", "The page stays as a keepsake of the day."],
+            ].map(([t, d]) => (
+              <li key={t} className="flex gap-3">
+                <Check className="mt-1.5 h-4 w-4 shrink-0 text-champagne-deep" aria-hidden />
+                <div><h3 className="text-xl font-light text-navy">{t}</h3><p className="text-muted-foreground">{d}</p></div>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="mx-auto mt-14 grid max-w-4xl gap-4 px-4 text-center sm:grid-cols-4 sm:px-8">
+          {[["Not just an invitation card", "It also takes RSVPs, gifts and photos."], ["Not an app to download", "Guests open a link in any browser."], ["Not only a fundraiser", "Gifts are one part of the page."], ["Not a planner you hire", "You build it yourself, with our guide."]].map(([t, d]) => (
+            <div key={t} className="rounded-2xl bg-white p-5 ring-1 ring-navy/10">
+              <p className="text-navy">{t}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{d}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* ───────────── Occasions */}
       <section id="occasions" className="scroll-mt-20 bg-white py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-8">
