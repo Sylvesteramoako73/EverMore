@@ -64,6 +64,16 @@ export function whatsappReminder({ phone, name, title, link, deadline, remembran
   return waLink(phone, text);
 }
 
+/** WhatsApp text for the event itself: 3 days before, or today. */
+export function whatsappEventReminder({ phone, name, title, eventName, when, link, days, remembrance }: { phone: string; name: string; title: string; eventName: string; when: string; link: string; days: 0 | 3; remembrance: boolean }) {
+  const first = name.split(/\s+/)[0] || name;
+  const lead = days === 0 ? `today is ${eventName} for ${title}` : `${eventName} for ${title} is in 3 days`;
+  const text = remembrance
+    ? `Dear ${first}, ${lead}. ${when}. We hope you can be with the family. Programme and directions: ${link}`
+    : `Hello ${first}, ${lead}. ${when}. Programme and directions: ${link}`;
+  return waLink(phone, text);
+}
+
 /** A WhatsApp share link for a personal invitation. Uses the guest's number when it looks international. */
 export function whatsappInvite({ phone, name, title, link, remembrance }: { phone: string; name: string; title: string; link: string; remembrance: boolean }) {
   // The full name reads naturally for households too ("Hello Auntie Esi & family!").

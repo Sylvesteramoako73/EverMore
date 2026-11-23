@@ -1,5 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { env, isProduction } from "@/lib/env";
+import { sendGuestReminders } from "@/server/guest-reminders";
 import { deliverDue, scheduleReminders, scheduleUnfinishedNudges } from "@/server/reminders";
 
 /**
@@ -10,7 +11,8 @@ export async function GET(request: Request) {
   if (!authorised(request.headers.get("authorization"))) return new Response("Unauthorized", { status: 401 });
   const queued = (await scheduleReminders()) + (await scheduleUnfinishedNudges());
   const sent = await deliverDue();
-  return Response.json({ queued, sent });
+  const guestsReminded = await sendGuestReminders();
+  return Response.json({ queued, sent, guestsReminded });
 }
 
 export const POST = GET;
