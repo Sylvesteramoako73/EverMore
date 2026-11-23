@@ -17,24 +17,15 @@ export const metadata: Metadata = { alternates: { canonical: siteHref("/") } };
 
 const P = (name: string) => `/samples/photos/${name}.webp`;
 
-const OCCASIONS = [
-  { theme: "earth-and-ivory", kind: "wedding", label: "Weddings", photo: "home-wedding-green-tall" },
-  { theme: "confetti", kind: "birthday", label: "Birthdays", photo: "home-birthday-tall" },
-  { theme: "serene", kind: "funeral", label: "Celebrations of life", photo: "mem-candle-flowers" },
-  { theme: "little-blessings", kind: "naming", label: "Naming ceremonies", photo: "home-naming-hd" },
-  { theme: "modern-minimalist", kind: "graduation", label: "Graduations", photo: "home-graduation-tall" },
-  { theme: "golden-hour", kind: "reunion", label: "Reunions", photo: "reunion-friends" },
-] as const;
-
 const HERO_SLIDES = [
   { kind: "wedding", theme: "earth-and-ivory", label: "Weddings", noun: "wedding", headline: "One page for your whole wedding.", subline: "Share your story and programme, collect RSVPs and gifts, and keep every photo your guests take.", photo: "home-wedding-green-wide", position: "50% 25%" },
   { kind: "birthday", theme: "confetti", label: "Birthdays", noun: "birthday", headline: "A birthday page everyone will open.", subline: "Share the details, collect RSVPs and wishes, and gather the photos from the party in one place.", photo: "home-birthday-wide", position: "50% 30%" },
-  { kind: "funeral", theme: "serene", label: "Celebrations of life", noun: "celebration of life", headline: "A gentle home for a life well lived.", subline: "Share the order of service, tributes and directions, and receive contributions from family and friends.", photo: "mem-church-candle", position: "50% 45%" },
+  { kind: "funeral", theme: "serene", label: "Celebrations of life", noun: "celebration of life", headline: "A gentle home for a life well lived.", subline: "Share the order of service, tributes and directions, and receive contributions from family and friends.", photo: "home-celebration-candle", position: "50% 55%" },
   { kind: "naming", theme: "little-blessings", label: "Naming ceremonies", noun: "naming ceremony", headline: "Welcome your baby with one page.", subline: "Invite family with the programme and directions, collect RSVPs, and keep the blessings and photos.", photo: "home-naming-hd", position: "50% 35%" },
   { kind: "graduation", theme: "modern-minimalist", label: "Graduations", noun: "graduation", headline: "Celebrate your graduate in one place.", subline: "Invite family and friends, share the day's details, and gather photos and gifts for the big day.", photo: "home-graduation-hero", position: "50% 48%", mobilePhoto: "home-graduation-hero", mobilePosition: "50% 32%" },
-  { kind: "reunion", theme: "golden-hour", label: "Reunions", noun: "reunion", headline: "Bring everyone back together.", subline: "Share the date and venue, see who is coming, and collect photos and memories from the day.", photo: "reunion-friends", position: "50% 30%" },
+  { kind: "reunion", theme: "golden-hour", label: "Reunions", noun: "reunion", headline: "Bring everyone back together.", subline: "Share the date and venue, see who is coming, and collect photos and memories from the day.", photo: "home-reunion-group", position: "50% 30%" },
   { kind: "outing", theme: "adventure", label: "Outings and trips", noun: "outing", headline: "Plan the trip, share the memories.", subline: "Give everyone the itinerary, meeting points and directions, then collect the photos afterwards.", photo: "trip-boat-sunset", position: "50% 50%" },
-  { kind: "opening", theme: "luxury-editorial", label: "Grand openings", noun: "grand opening", headline: "Open your doors to a full house.", subline: "Send a beautiful invitation with the programme and directions, track RSVPs and share the day's photos.", photo: "open-champagne", position: "50% 40%" },
+  { kind: "opening", theme: "luxury-editorial", label: "Grand openings", noun: "grand opening", headline: "Open your doors to a full house.", subline: "Send a beautiful invitation with the programme and directions, track RSVPs and share the day's photos.", photo: "home-opening-ribbon", position: "50% 35%" },
 ] as const;
 
 const INCLUDES = [
@@ -47,7 +38,10 @@ const INCLUDES = [
 ] as const;
 
 const FAQ = [
-  ["How long does it take to make a page?", "Most people finish in about ten minutes. You fill in a guided form; we design the page. You can preview it before anyone else sees it and keep editing after you publish."],
+  ["Is EverMore just an invitation card?", "No. An invitation card only tells people about the day. Your EverMore page is the invitation and everything after it: the programme, directions, RSVPs for each part of the day, gifts by Mobile Money, photos from every guest and a memory page once it is over."],
+  ["Do my guests need to download an app?", "No. Guests open your link or scan your QR code in any phone browser. There is nothing to install and no account to make."],
+  ["Is it a fundraiser?", "No. Gifts are one part of your page, and you decide whether to switch them on. Most of the page is the programme, RSVPs and photos."],
+  ["Do I need to hire someone to set it up?", "No. You fill in a short guided form and EverMore designs the page. Most people finish in about ten minutes."],
   ["What occasions can I use EverMore for?", "Weddings, birthdays, funerals and memorials, naming ceremonies and outdoorings, grand openings, outings and trips, reunions, anniversaries, showers, graduations, and anything else worth gathering for. Each gets wording, sections and designs that fit."],
   ["Do guests need an account or an app?", "No. Guests open your link or scan the QR code in any browser to see the details, find the venues and RSVP."],
   ["Can guests share their own photos?", "Yes. Guests upload photos and short videos to a shared gallery that everyone can browse and download. By default you approve each upload before it appears."],
@@ -77,23 +71,45 @@ export default async function HomePage() {
       {/* ───────────── Hero: a photo for every occasion, one headline, one clear button */}
       <HeroCarousel signUpHref={appHref("/sign-up")} slides={[...HERO_SLIDES]} priceNote={`Build and preview free. Pay ${formatMoney(PAGE_PRICE_MINOR)} only when you publish.`} />
 
-      {/* ───────────── Occasions */}
-      <section id="occasions" className="scroll-mt-20 bg-white py-20 sm:py-28">
+      {/* ───────────── Create a page to celebrate any occasion */}
+      <section id="occasions" aria-labelledby="what-is" className="scroll-mt-20 bg-[#f6f3ec] py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-8">
-          <Intro title="Made for every occasion" text="Pick what you are celebrating and EverMore sets up the right sections for you, from wedding ceremonies and RSVPs to tributes and order of service." />
-          <ul className="mt-14 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 lg:grid-cols-6">
-            {OCCASIONS.map((o) => (
-              <li key={o.kind}>
-                <Link href={`/samples/${o.theme}?occasion=${o.kind}`} className="group block text-center">
-                  <span className="relative block aspect-[3/4] overflow-hidden bg-mist">
-                    <Image src={P(o.photo)} alt="" fill sizes="(min-width: 1024px) 15vw, (min-width: 768px) 30vw, 45vw" quality={90} className="object-cover transition-transform duration-700 group-hover:scale-105" />
-                  </span>
-                  <span className="mt-4 block text-base text-navy">{o.label}</span>
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-sm tracking-[0.2em] text-champagne-deep uppercase">What EverMore is</p>
+            <h2 id="what-is" className="mt-3 text-4xl leading-tight font-light text-navy sm:text-6xl">Create a page to celebrate every occasion.</h2>
+            <p className="mt-5 text-lg leading-relaxed text-muted-foreground">Choose what you are celebrating, add the details, and share one link on WhatsApp. Your page holds the programme, RSVPs, gifts and photos, and guests need no app.</p>
+          </div>
+          <ul className="mt-14 grid gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+            {HERO_SLIDES.map((o) => (
+              <li key={o.kind} className="flex flex-col">
+                <Link href={appHref("/sign-up")} className="group relative block aspect-[4/5] overflow-hidden bg-mist">
+                  <Image src={P(o.photo)} alt="" fill sizes="(min-width: 1024px) 22vw, (min-width: 640px) 45vw, 100vw" quality={90} style={{ objectPosition: o.position ?? "50% 40%" }} className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-navy/80 via-transparent to-transparent" />
+                  <span className="absolute inset-x-0 bottom-0 p-5 text-xl font-light text-white">Create a {o.noun} page</span>
                 </Link>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{o.subline}</p>
+                <Link href={`/samples/${o.theme}?occasion=${o.kind}`} className="mt-2 inline-flex items-center gap-1.5 text-sm text-navy underline-offset-4 hover:underline">See a {o.noun} sample <ArrowRight className="h-3.5 w-3.5" aria-hidden /></Link>
               </li>
             ))}
           </ul>
-          <p className="mt-10 text-center text-sm text-muted-foreground">Also outings and trips, grand openings, anniversaries, showers and church and community events.</p>
+          <p className="mt-10 text-center text-sm text-muted-foreground">
+            Read more about{" "}
+            {[["weddings", "Weddings"], ["birthdays", "Birthdays"], ["celebrations-of-life", "Celebrations of life"], ["naming-ceremonies", "Naming ceremonies"], ["graduations", "Graduations"]].map(([slug, label], i) => (
+              <span key={slug}>{i > 0 && ", "}<Link href={`/celebrate/${slug}`} className="text-navy underline underline-offset-4">{label}</Link></span>
+            ))}
+            . Also anniversaries, showers and church and community events.
+          </p>
+          <div className="mt-8 text-center">
+            <Button asChild size="lg" variant="gold" className="h-14 px-10 text-base"><Link href={appHref("/sign-up")}>Create your page</Link></Button>
+          </div>
+          <div className="mx-auto mt-14 grid max-w-4xl gap-4 text-center sm:grid-cols-4">
+            {[["Not just an invitation card", "It also takes RSVPs, gifts and photos."], ["Not an app to download", "Guests open a link in any browser."], ["Not only a fundraiser", "Gifts are one part of the page."], ["Not a planner you hire", "You build it yourself, with our guide."]].map(([t, d]) => (
+              <div key={t} className="rounded-2xl bg-white p-5 ring-1 ring-navy/10">
+                <p className="text-navy">{t}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{d}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
