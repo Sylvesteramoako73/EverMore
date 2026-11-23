@@ -5,16 +5,16 @@ import { env } from "@/lib/env";
 const base = { sentence: "My 40th birthday on 14 March at Axim Beach Resort", kind: "birthday" as const, title: "Ama's Birthday", names: ["Ama"], today: "2026-11-23" };
 
 function modelReplies(input: unknown, ok = true) {
-  return vi.fn().mockResolvedValue({ ok, json: async () => ({ content: [{ type: "tool_use", input }] }) });
+  return vi.fn().mockResolvedValue({ ok, json: async () => ({ choices: [{ message: { content: typeof input === "string" ? input : JSON.stringify(input) } }] }) });
 }
 
 describe("draftDetails", () => {
-  const original = env.ANTHROPIC_API_KEY;
-  beforeEach(() => { (env as { ANTHROPIC_API_KEY?: string }).ANTHROPIC_API_KEY = "test-key"; });
-  afterEach(() => { (env as { ANTHROPIC_API_KEY?: string }).ANTHROPIC_API_KEY = original; vi.unstubAllGlobals(); });
+  const original = env.GROQ_API_KEY;
+  beforeEach(() => { (env as { GROQ_API_KEY?: string }).GROQ_API_KEY = "test-key"; });
+  afterEach(() => { (env as { GROQ_API_KEY?: string }).GROQ_API_KEY = original; vi.unstubAllGlobals(); });
 
   it("refuses when no key is configured", async () => {
-    (env as { ANTHROPIC_API_KEY?: string }).ANTHROPIC_API_KEY = undefined;
+    (env as { GROQ_API_KEY?: string }).GROQ_API_KEY = undefined;
     await expect(draftDetails(base)).rejects.toBeInstanceOf(DraftError);
   });
 
@@ -28,12 +28,18 @@ describe("draftDetails", () => {
     expect(draft.dressCode).toBe("");
     const sent = JSON.parse(fetchMock.mock.calls[0][1].body);
     expect(sent.messages[0].content).toContain("<host_sentence>");
-    expect(sent.system).toContain("Never invent");
-    expect(sent.tool_choice).toEqual({ type: "tool", name: "fill_details" });
+    expect(sent.messages[0].content).toContain("Never invent");
+    expect(sent.response_format).toEqual({ type: "json_object" });
+    expect(fetchMock.mock.calls[0][1].headers.authorization).toBe("Bearer test-key");
   });
 
   it("drops malformed model output instead of passing it on", async () => {
     vi.stubGlobal("fetch", modelReplies({ keyDate: "next Saturday" }));
+    await expect(draftDetails(base)).rejects.toBeInstanceOf(DraftError);
+  });
+
+  it("copes with a reply that is not JSON", async () => {
+    vi.stubGlobal("fetch", modelReplies("Sure! Here is your draft"));
     await expect(draftDetails(base)).rejects.toBeInstanceOf(DraftError);
   });
 
