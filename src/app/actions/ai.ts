@@ -12,7 +12,7 @@ export type DraftResult = { ok: true; draft: Draft } | { ok: false; message: str
 export async function draftFromSentence(sentence: string): Promise<DraftResult> {
   const user = await requireUserForAction();
   if (!aiDraftingEnabled()) return { ok: false, message: "This is not available yet." };
-  const text = String(sentence ?? "").trim().slice(0, 600);
+  const text = String(sentence ?? "").trim().slice(0, 2500);
   if (text.length < 15) return { ok: false, message: "Tell us a little more, for example the occasion, the date and where it is." };
 
   // Hosts build for free before paying, so keep the cost of each page bounded.

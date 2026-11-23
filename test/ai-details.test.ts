@@ -33,6 +33,24 @@ describe("draftDetails", () => {
     expect(fetchMock.mock.calls[0][1].headers.authorization).toBe("Bearer test-key");
   });
 
+  it("returns the parts of the day with only the times the host gave", async () => {
+    vi.stubGlobal("fetch", modelReplies({
+      events: [
+        { name: "Church ceremony", date: "2027-12-12", time: "10:00", venueName: "Holy Trinity", venueAddress: "" },
+        { name: "Reception", date: "2027-12-12", time: "", venueName: "Axim Beach Resort", venueAddress: "Axim" },
+      ],
+    }));
+    const draft = await draftDetails({ ...base, sentence: "Church at 10am at Holy Trinity then reception at Axim Beach Resort, 12 December" });
+    expect(draft.events).toHaveLength(2);
+    expect(draft.events[0].time).toBe("10:00");
+    expect(draft.events[1].time).toBe("");
+  });
+
+  it("rejects an event time that is not HH:MM", async () => {
+    vi.stubGlobal("fetch", modelReplies({ events: [{ name: "Reception", time: "after church" }] }));
+    await expect(draftDetails(base)).rejects.toBeInstanceOf(DraftError);
+  });
+
   it("drops malformed model output instead of passing it on", async () => {
     vi.stubGlobal("fetch", modelReplies({ keyDate: "next Saturday" }));
     await expect(draftDetails(base)).rejects.toBeInstanceOf(DraftError);
