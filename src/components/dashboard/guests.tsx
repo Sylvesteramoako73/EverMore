@@ -2,7 +2,7 @@
 
 import { Check, MessageCircle, MoreHorizontal, RefreshCw, Search, Trash2, Upload } from "lucide-react";
 import { useActionState, useMemo, useState, useTransition } from "react";
-import { importGuestList, newInviteLink, removeGuest, saveGuest, setInvitationSent } from "@/app/actions/dashboard";
+import { importGuestList, newInviteLink, removeGuest, saveGuest, setGuestReminded, setInvitationSent } from "@/app/actions/dashboard";
 import { Field, FormAlert, SubmitButton } from "@/components/forms";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,9 @@ export type GuestView = {
   whatsapp: string;
   /** WhatsApp reminder for guests who haven't replied. */
   reminder: string;
+  /** When the host last tapped Remind (ISO), and how many times. */
+  remindedAt: string | null;
+  remindCount: number;
   tableName: string;
   checkedIn: number;
 };
@@ -190,6 +193,7 @@ function GuestItem({ guest: g, events }: { guest: GuestView; events: EventOption
               {g.reply === "yes" ? "Coming" : g.reply === "no" ? "Can't come" : "No reply yet"}
             </span>
             {g.sent && <span className="rounded-full bg-navy/5 px-2 py-0.5 text-navy">Invitation sent</span>}
+            {g.remindCount > 0 && g.reply === null && <span className="rounded-full bg-navy/5 px-2 py-0.5 text-navy">Reminded · {g.remindCount}</span>}
             {g.tableName && <span className="rounded-full bg-blush px-2 py-0.5 text-navy">{g.tableName}</span>}
             {g.checkedIn > 0 && <span className="rounded-full bg-success/10 px-2 py-0.5 font-semibold text-success">Arrived · {g.checkedIn}</span>}
           </div>
@@ -207,7 +211,7 @@ function GuestItem({ guest: g, events }: { guest: GuestView; events: EventOption
           </Button>
           {g.sent && g.reply === null && (
             <Button asChild size="sm" variant="outline">
-              <a href={g.reminder} target="_blank" rel="noopener">Remind</a>
+              <a href={g.reminder} target="_blank" rel="noopener" onClick={() => run(() => setGuestReminded(g.id))}>Remind</a>
             </Button>
           )}
           <CopyButton text={g.link} />

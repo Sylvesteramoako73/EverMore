@@ -318,6 +318,9 @@ export const guest = pgTable(
     inviteToken: text("invite_token").notNull().unique(),
     /** Set when the couple marks the invitation as sent; never inferred. */
     invitationSentAt: timestamp("invitation_sent_at", { withTimezone: true }),
+    /** When the couple last tapped Remind for this guest, and how many times. Never inferred from delivery. */
+    remindedAt: timestamp("reminded_at", { withTimezone: true }),
+    reminderCount: integer("reminder_count").notNull().default(0),
     /** Seating: shown to the guest on their personal page and in the table finder. */
     tableName: text("table_name").notNull().default(""),
     /** Door check-in on the day: when, and how many people from this invitation arrived. */

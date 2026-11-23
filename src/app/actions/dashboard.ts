@@ -16,6 +16,7 @@ import {
   guestByToken,
   deleteGuest,
   importGuests,
+  markGuestReminded,
   markInvitationSent,
   parseGuestCsv,
   regenerateInviteToken,
@@ -82,6 +83,13 @@ export async function removeGuest(guestId: string) {
 export async function setInvitationSent(guestId: string, sent: boolean) {
   const { celebration } = await current();
   if (ok(guestId)) await markInvitationSent(celebration.id, guestId, sent);
+  refresh();
+}
+
+/** Called when the host taps Remind, just before WhatsApp opens, so the list can show who was nudged and when. */
+export async function setGuestReminded(guestId: string) {
+  const { celebration } = await current();
+  if (ok(guestId)) await markGuestReminded(celebration.id, guestId);
   refresh();
 }
 
