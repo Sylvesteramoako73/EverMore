@@ -1,10 +1,10 @@
 import "server-only";
-import { and, eq, inArray, lte, sql } from "drizzle-orm";
+import { and, eq, gte, inArray, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { anniversaryPreference, celebration, event, notification, user } from "@/db/schema";
+import { anniversaryPreference, celebration, celebrationMember, event, notification, user } from "@/db/schema";
 import { primaryEvent, yearlyDate } from "@/lib/celebration-rules";
 import { addDays, nextAnniversary, plainDateInZone } from "@/lib/dates";
-import { appUrl } from "@/lib/env";
+import { aiDraftingEnabled, appUrl } from "@/lib/env";
 import { emails } from "@/lib/email/templates";
 import { sendEmail } from "@/lib/email/send";
 
@@ -73,21 +73,108 @@ export async function scheduleReminders(now = new Date()) {
   return queued;
 }
 
+// ───────────────────────────── Unfinished pages
+
+/** Days to wait, after the host last touched the page or we last nudged, before the 1st, 2nd and 3rd email. */
+const NUDGE_GAPS_DAYS = [1, 3, 6] as const;
+/** Pages left alone longer than this are let go. */
+const NUDGE_WINDOW_DAYS = 45;
+const STEP_NAMES = ["What you are celebrating", "The details", "The programme and venues", "Photos", "Design and colours", "Review and publish"] as const;
+const DAY = 86_400_000;
+
+/**
+ * Queue a nudge for each draft page its host has left alone: at most three, spaced out, and never for a
+ * page that has been published. Idempotent through the dedupe key (one per page per stage).
+ */
+export async function scheduleUnfinishedNudges(now = new Date()) {
+  const drafts = await db
+    .select({
+      id: celebration.id,
+      title: celebration.title,
+      kind: celebration.kind,
+      step: celebration.onboardingStep,
+      updatedAt: celebration.updatedAt,
+      userId: celebrationMember.userId,
+    })
+    .from(celebration)
+    .innerJoin(celebrationMember, and(eq(celebrationMember.celebrationId, celebration.id), eq(celebrationMember.role, "owner")))
+    .where(and(eq(celebration.status, "draft"), gte(celebration.createdAt, new Date(now.getTime() - NUDGE_WINDOW_DAYS * DAY))));
+  if (!drafts.length) return 0;
+
+  const sentSoFar = await db
+    .select({ celebrationId: notification.celebrationId, createdAt: notification.createdAt })
+    .from(notification)
+    .where(and(eq(notification.kind, "unfinished"), inArray(notification.celebrationId, drafts.map((d) => d.id))));
+
+  let queued = 0;
+  for (const d of drafts) {
+    const mine = sentSoFar.filter((n) => n.celebrationId === d.id);
+    const stage = mine.length; // 0, 1 or 2 already queued
+    if (stage >= NUDGE_GAPS_DAYS.length) continue;
+    const last = Math.max(d.updatedAt.getTime(), ...mine.map((n) => n.createdAt.getTime()));
+    if (now.getTime() - last < NUDGE_GAPS_DAYS[stage] * DAY) continue;
+    const inserted = await db
+      .insert(notification)
+      .values({
+        dedupeKey: `unfinished:${d.id}:${stage + 1}`,
+        kind: "unfinished",
+        userId: d.userId,
+        celebrationId: d.id,
+        payload: { stage: stage + 1, title: d.title, pageKind: d.kind, step: d.step },
+        scheduledFor: now,
+      })
+      .onConflictDoNothing()
+      .returning({ id: notification.id });
+    queued += inserted.length;
+  }
+  return queued;
+}
+
+function unfinishedEmail(n: typeof notification.$inferSelect, to: string, name: string) {
+  const p = n.payload as { stage: 1 | 2 | 3; title: string; pageKind: string; step: number };
+  // onboardingStep is the last step finished; step 6 (review and publish) is the one left.
+  const stepsDone = Math.min(Math.max(p.step, 1), 5);
+  return emails.unfinishedPage(
+    to,
+    {
+      stage: p.stage,
+      name,
+      title: p.title,
+      kind: p.pageKind,
+      stepsDone,
+      nextStep: STEP_NAMES[Math.min(stepsDone, 5)],
+      readyToPublish: stepsDone >= 5,
+      aiTip: aiDraftingEnabled(),
+    },
+    appUrl("/onboarding"),
+  );
+}
+
 /** Send what's due. Retries failures up to three times. */
 export async function deliverDue(now = new Date(), batch = 50) {
   const due = await db
-    .select({ n: notification, email: user.email })
+    .select({ n: notification, email: user.email, name: user.name })
     .from(notification)
     .innerJoin(user, eq(user.id, notification.userId))
     .where(and(eq(notification.status, "pending"), lte(notification.scheduledFor, now)))
     .limit(batch);
 
   let sent = 0;
-  for (const { n, email } of due) {
+  for (const { n, email, name } of due) {
+    // A page that was published since the nudge was queued no longer needs it.
+    if (n.kind === "unfinished") {
+      const [c] = n.celebrationId ? await db.select({ status: celebration.status }).from(celebration).where(eq(celebration.id, n.celebrationId)) : [];
+      if (!c || c.status !== "draft") {
+        await db.update(notification).set({ status: "skipped" }).where(eq(notification.id, n.id));
+        continue;
+      }
+    }
     const p = n.payload as { title: string; name: string; years: number; daysBefore: number };
     const url = appUrl("/dashboard/memories");
     const msg =
-      n.kind === "memorial"
+      n.kind === "unfinished"
+        ? unfinishedEmail(n, email, name)
+        : n.kind === "memorial"
         ? emails.memorialReminder(email, p.name, p.years, p.daysBefore, url)
         : n.kind === "birthday"
           ? emails.birthdayReminder(email, p.name, p.years, p.daysBefore, url)

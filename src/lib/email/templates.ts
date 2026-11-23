@@ -93,6 +93,34 @@ export const emails = {
       ],
       { label: "Add a memory", url },
     ),
+  /** Nudges a host who started a page but has not published it. Stage 1, 2 or 3; the last one says it is the last. */
+  unfinishedPage: (
+    to: string,
+    d: { stage: 1 | 2 | 3; name: string; title: string; kind: string; stepsDone: number; nextStep: string; readyToPublish: boolean; aiTip: boolean },
+    url: string,
+  ) => {
+    const gentle = d.kind === "funeral";
+    const first = d.name.split(/\s+/)[0] || "there";
+    const left = d.readyToPublish
+      ? `Your page for ${d.title} is built and only needs publishing. Building and previewing was free, and publishing is GHS 69, paid once.`
+      : `You are ${d.stepsDone} of 6 steps in. Next up: ${d.nextStep}. Most people finish in about ten minutes.`;
+    const tip = d.aiTip && !d.readyToPublish ? "Short on time? Type one sentence about your event on the details step and we will draft the rest for you to review." : "";
+    const what = gentle
+      ? "Family and friends will find the order of service, the venue and directions, and a place to leave tributes, all from one link."
+      : "Guests will find the programme, the venue and directions, and can reply, send gifts and share photos, all from one link.";
+    const subject =
+      d.stage === 1 ? (gentle ? `The page for ${d.title} is waiting for you` : `Your page for ${d.title} is waiting for you`)
+      : d.stage === 2 ? (d.readyToPublish ? `${d.title} is ready to publish` : `Pick up where you left off on ${d.title}`)
+      : `A last note about your page for ${d.title}`;
+    const intro = d.stage === 3 ? `Hi ${first}, this is the last time we will email you about this page.` : `Hi ${first}, you started a page for ${d.title} on EverMore.`;
+    return message(
+      to,
+      subject,
+      d.stage === 3 ? "Your page is still saved" : "Your page is waiting",
+      [intro, left, what, tip].filter(Boolean),
+      { label: d.readyToPublish ? "Review and publish" : "Continue my page", url },
+    );
+  },
 };
 
 export function ordinal(n: number) {
