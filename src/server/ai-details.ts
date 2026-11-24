@@ -78,7 +78,7 @@ const KEYS_HELP = `Return one JSON object with exactly these keys. Use "" (or []
 - keyDate: main date as YYYY-MM-DD, only if the host gave a day and month.
 - dressCode: dress code or colours, only if mentioned.
 - guestMessage: a warm welcome of 2 sentences inviting guests to join the host for the occasion, mentioning the date or place only if stated. Warm wording is fine, but do not claim feelings, history or facts the host did not state.
-- story: ONLY if the host told how they met, their history or the background of the occasion. Rewrite exactly those facts in 2 to 4 plain sentences. If the host gave only logistics (date, place, time, dress code), story MUST be "".
+- story: ONLY if the host told how they met, their history or the background of the occasion. Rewrite exactly those facts in plain sentences. Every sentence must restate something the host said. Write one sentence per fact, and if there is only one fact, write one sentence. Never add a sentence about how a relationship grew, developed or deepened, or any feeling, unless the host wrote it. If the host gave only logistics (date, place, time, dress code), story MUST be "".
 - announcement: practical notes the host actually wrote (parking, children, travel, accommodation). If the host did not mention any, announcement MUST be "". Never suggest or recommend anything.
 - rsvpDeadline: the date guests must reply by, as YYYY-MM-DD, only if stated.
 - hashtag: a short hashtag without the # sign, letters and numbers only, built from the names or occasion.

@@ -104,5 +104,6 @@ describe("draftDetails prompt", () => {
     expect(system).toContain("Never pad");
     expect(system).toContain('story MUST be ""');
     expect(system).toContain('announcement MUST be ""');
+    expect(system).toContain("one sentence per fact");
   });
 });
