@@ -1,7 +1,9 @@
 import "server-only";
 import { and, eq, gte, inArray, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { anniversaryPreference, celebration, celebrationMember, event, notification, user } from "@/db/schema";
+import { anniversaryPreference, celebration, celebrationMember, event, guest, notification, rsvp, rsvpResponse, user } from "@/db/schema";
+import { getOccasion } from "@/lib/occasions";
+import { formatLongDate, formatTime } from "@/lib/dates";
 import { primaryEvent, yearlyDate } from "@/lib/celebration-rules";
 import { addDays, nextAnniversary, plainDateInZone } from "@/lib/dates";
 import { aiDraftingEnabled, appUrl } from "@/lib/env";
@@ -130,6 +132,64 @@ export async function scheduleUnfinishedNudges(now = new Date()) {
   return queued;
 }
 
+/**
+ * On the morning of an event, queue a short briefing for the people who run the page (owner and co-hosts):
+ * the time and place, who is coming, and the check-in link. One per page per day.
+ */
+export async function scheduleDayOfBriefings(now = new Date()) {
+  const rows = await db
+    .select({ e: event, c: celebration })
+    .from(event)
+    .innerJoin(celebration, eq(celebration.id, event.celebrationId))
+    .where(eq(celebration.status, "published"));
+  let queued = 0;
+  const done = new Set<string>();
+  for (const { e, c } of rows.sort((a, b) => a.e.startsAt.getTime() - b.e.startsAt.getTime())) {
+    const today = plainDateInZone(now, e.timezone);
+    if (e.startsLocal.slice(0, 10) !== today || done.has(c.id)) continue;
+    done.add(c.id);
+    const [guests, replies, members] = await Promise.all([
+      db.select({ id: guest.id }).from(guest).where(eq(guest.celebrationId, c.id)),
+      db
+        .select({ guestId: rsvp.guestId, attending: rsvpResponse.attending, partySize: rsvpResponse.partySize })
+        .from(rsvp)
+        .innerJoin(rsvpResponse, eq(rsvpResponse.rsvpId, rsvp.id))
+        .where(and(eq(rsvp.celebrationId, c.id), eq(rsvpResponse.eventId, e.id))),
+      db.select({ userId: celebrationMember.userId, role: celebrationMember.role }).from(celebrationMember).where(eq(celebrationMember.celebrationId, c.id)),
+    ]);
+    const coming = replies.filter((r) => r.attending).reduce((n, r) => n + r.partySize, 0);
+    const declined = replies.filter((r) => !r.attending).length;
+    const replied = new Set(replies.map((r) => r.guestId).filter(Boolean));
+    const waiting = guests.filter((g) => !replied.has(g.id)).length;
+    for (const m of members.filter((x) => x.role === "owner" || x.role === "cohost")) {
+      const inserted = await db
+        .insert(notification)
+        .values({
+          dedupeKey: `dayof:${c.id}:${m.userId}:${today}`,
+          kind: "dayof",
+          userId: m.userId,
+          celebrationId: c.id,
+          payload: {
+            title: c.title,
+            eventName: e.name,
+            when: `${formatLongDate(e.startsAt, e.timezone)}, ${formatTime(e.startsAt, e.timezone)}`,
+            venue: [e.venueName, e.venueAddress].filter(Boolean).join(", "),
+            invited: guests.length,
+            coming,
+            declined,
+            waiting,
+            remembrance: getOccasion(c.kind).after === "remembrance",
+          },
+          scheduledFor: now,
+        })
+        .onConflictDoNothing()
+        .returning({ id: notification.id });
+      queued += inserted.length;
+    }
+  }
+  return queued;
+}
+
 function unfinishedEmail(n: typeof notification.$inferSelect, to: string, name: string) {
   const p = n.payload as { stage: 1 | 2 | 3; title: string; pageKind: string; step: number };
   // onboardingStep is the last step finished; step 6 (review and publish) is the one left.
@@ -174,6 +234,8 @@ export async function deliverDue(now = new Date(), batch = 50) {
     const msg =
       n.kind === "unfinished"
         ? unfinishedEmail(n, email, name)
+        : n.kind === "dayof"
+        ? emails.hostDayOf(email, { name, ...(n.payload as Omit<Parameters<typeof emails.hostDayOf>[1], "name">) }, appUrl("/dashboard/checkin"))
         : n.kind === "memorial"
         ? emails.memorialReminder(email, p.name, p.years, p.daysBefore, url)
         : n.kind === "birthday"

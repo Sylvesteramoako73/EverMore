@@ -72,8 +72,8 @@ export function GuestFeaturesForm({ values }: { values: GuestFeatureValues }) {
         />
         <Toggle
           name="guestRemindersEnabled"
-          label="Email guests a reminder 3 days before and on the day"
-          hint="Sent to guests who have an email saved and have not said they can't come. They include the time, venue and a link to directions."
+          label="Email guests a reminder 3 days before and on the day, and a thank you after"
+          hint="Sent to guests who have an email saved and have not said they can't come. Reminders include the time, venue and a link to directions. The thank you goes out the morning after your last event and uses your thank you message."
           defaultChecked={values.guestRemindersEnabled}
         />
         <div className="grid gap-4 sm:grid-cols-2">
