@@ -33,6 +33,8 @@ const LABELS: Record<string, string> = {
   "admin.user_restored": "restored an account",
   "admin.page_taken_down": "took down a page",
   "admin.page_restored": "restored a page",
+  "admin.page_approved_free": "approved a page to go live without payment",
+  "admin.page_free_revoked": "removed free access from a page",
   "admin.report_hidden": "hid a reported message",
   "admin.report_dismissed": "dismissed a report",
 };

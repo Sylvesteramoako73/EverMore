@@ -1,6 +1,7 @@
 import "server-only";
-import { and, count, desc, eq, gte, ilike, isNotNull, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, gte, ilike, isNotNull, ne, or, sql } from "drizzle-orm";
 import { db } from "@/db";
+import { COMPLIMENTARY_PLAN } from "@/lib/plans";
 import { auditLog, celebration, celebrationMember, contentReport, gift, guestbookEntry, pageViewDaily, rsvp, session, user } from "@/db/schema";
 
 // Platform-wide queries for the owner's admin area. Every caller must check requireAdmin() first.
@@ -78,6 +79,7 @@ export async function listAllCelebrations(query = "", limit = 100) {
       status: celebration.status,
       visibility: celebration.visibility,
       themeId: celebration.themeId,
+      plan: celebration.plan,
       createdAt: celebration.createdAt,
       ownerName: user.name,
       ownerEmail: user.email,
@@ -175,3 +177,31 @@ export async function resolveReport(reportId: string, adminId: string, hideMessa
   });
 }
 
+
+/**
+ * Approve a page to go live without payment. The page is marked as complimentary (treated as paid)
+ * and published. Taken down pages are not touched: restore them first.
+ */
+export async function approvePageFree(celebrationId: string) {
+  const rows = await db
+    .update(celebration)
+    .set({
+      plan: COMPLIMENTARY_PLAN,
+      status: "published",
+      publishedAt: sql`coalesce(${celebration.publishedAt}, now())`,
+      onboardingCompletedAt: sql`coalesce(${celebration.onboardingCompletedAt}, now())`,
+    })
+    .where(and(eq(celebration.id, celebrationId), ne(celebration.status, "archived")))
+    .returning({ id: celebration.id });
+  return rows.length > 0;
+}
+
+/** Remove free access: the page goes back to needing payment (and reads as a draft until paid when charging is on). */
+export async function revokeFreeAccess(celebrationId: string) {
+  const rows = await db
+    .update(celebration)
+    .set({ plan: "free" })
+    .where(and(eq(celebration.id, celebrationId), eq(celebration.plan, COMPLIMENTARY_PLAN)))
+    .returning({ id: celebration.id });
+  return rows.length > 0;
+}

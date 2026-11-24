@@ -4,7 +4,7 @@ import { refresh } from "next/cache";
 import { forbidden } from "next/navigation";
 import { z } from "zod";
 import { getCurrentUser, requireUserForAction } from "@/lib/dal";
-import { setCelebrationTakenDown, resolveReport, setUserSuspended } from "@/server/admin";
+import { approvePageFree, revokeFreeAccess, setCelebrationTakenDown, resolveReport, setUserSuspended } from "@/server/admin";
 import { audit } from "@/server/audit";
 
 const uuid = z.uuid();
@@ -36,6 +36,23 @@ export async function takeDownPage(celebrationId: string, takenDown: boolean) {
       targetId: celebrationId,
       celebrationId,
     });
+  refresh();
+}
+
+/** Let a page go live without the host paying. Recorded in the activity log. */
+export async function approvePage(celebrationId: string) {
+  const me = await admin();
+  if (!uuid.safeParse(celebrationId).success) return;
+  if (await approvePageFree(celebrationId))
+    await audit({ actorUserId: me.id, action: "admin.page_approved_free", targetType: "celebration", targetId: celebrationId, celebrationId });
+  refresh();
+}
+
+export async function revokeApproval(celebrationId: string) {
+  const me = await admin();
+  if (!uuid.safeParse(celebrationId).success) return;
+  if (await revokeFreeAccess(celebrationId))
+    await audit({ actorUserId: me.id, action: "admin.page_free_revoked", targetType: "celebration", targetId: celebrationId, celebrationId });
   refresh();
 }
 
