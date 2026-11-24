@@ -44,13 +44,24 @@ export function ThemePicker({ themes, current, slug, premiumAllowed }: { themes:
                     });
                   }}
                 />
-                <span className="flex h-16 overflow-hidden rounded-lg" aria-hidden>
-                  {[t.colors.bg, t.colors.accent, t.colors.ink, t.colors.line].map((c, i) => (
-                    <span key={i} className="flex-1" style={{ background: c }} />
-                  ))}
+                <span className="relative block h-28 overflow-hidden rounded-lg ring-1 ring-black/10" style={{ background: t.colors.bg }} aria-hidden>
+                  <span className="absolute inset-x-0 top-0 h-12" style={{ background: t.hero === "cinematic" || t.hero === "editorial" || t.hero === "bordered" ? t.colors.band : t.colors.tint }} />
+                  <span className="absolute top-3 left-1/2 h-2 w-16 -translate-x-1/2 rounded-full" style={{ background: t.colors.accent }} />
+                  <span className="absolute top-7 left-1/2 h-1.5 w-24 -translate-x-1/2 rounded-full opacity-80" style={{ background: t.colors.bandInk }} />
+                  <span className="absolute inset-x-4 top-16 flex gap-2">
+                    {[t.colors.surface, t.colors.tint, t.colors.surface].map((c, i) => (
+                      <span key={i} className="h-8 flex-1" style={{ background: c, border: `1px solid ${t.colors.line}`, borderRadius: t.radius }} />
+                    ))}
+                  </span>
+                  <span className="absolute inset-x-4 bottom-2 flex gap-1.5">
+                    {[t.colors.ink, t.colors.accent, t.accent2, t.colors.muted].map((c, i) => (
+                      <span key={i} className="h-1.5 flex-1 rounded-full" style={{ background: c }} />
+                    ))}
+                  </span>
                 </span>
                 <span className="mt-3 flex items-center justify-between gap-2">
                   <span className="font-semibold text-navy">{t.name}</span>
+                  {t.premium && <span className="rounded-full bg-navy/10 px-2 py-0.5 text-[0.65rem] font-medium tracking-wide text-navy uppercase">Premium</span>}
                 </span>
                 <span className="mt-1 block text-sm text-muted-foreground">{t.tagline}</span>
                 {isSelected && (
