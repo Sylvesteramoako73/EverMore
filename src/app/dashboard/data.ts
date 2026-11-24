@@ -55,8 +55,20 @@ function waLink(phone: string, text: string) {
   return `https://wa.me/${to}?text=${encodeURIComponent(text)}`;
 }
 
+export type MessageLang = "en" | "tw";
+export const parseLang = (v: unknown): MessageLang => (v === "tw" ? "tw" : "en");
+
 /** A gentle nudge for invitations without a reply. Mentions the reply deadline when there is one. */
-export function whatsappReminder({ phone, name, title, link, deadline, remembrance }: { phone: string; name: string; title: string; link: string; deadline?: string | null; remembrance?: boolean }) {
+export function whatsappReminder({ phone, name, title, link, deadline, remembrance, lang = "en" }: { phone: string; name: string; title: string; link: string; deadline?: string | null; remembrance?: boolean; lang?: MessageLang }) {
+  if (lang === "tw") {
+    const by = deadline ? ` Yɛpɛ sɛ yɛte wo nka ansa na ${deadline}.` : "";
+    return waLink(
+      phone,
+      remembrance
+        ? `Nua ${name}, yɛkae wo brɛoo wɔ ${title} ho. Sɛ wobɛtumi abɛka abusuafoɔ no ho a, ka kyerɛ yɛn wɔ ha.${by} ${link}`
+        : `Hello ${name}, yɛkae wo brɛoo sɛ yɛpɛ sɛ yɛhu sɛ wobɛtumi aba ${title} anaa.${by} Wobɛtumi abua wɔ ha: ${link}`,
+    );
+  }
   const by = deadline ? ` We would be grateful to hear from you by ${deadline}.` : "";
   const text = remembrance
     ? `Dear ${name}, a gentle note about ${title}. If you plan to be with the family, you can let us know here in a few seconds.${by} ${link}`
@@ -65,8 +77,17 @@ export function whatsappReminder({ phone, name, title, link, deadline, remembran
 }
 
 /** WhatsApp text for the event itself: 3 days before, or today. */
-export function whatsappEventReminder({ phone, name, title, eventName, when, link, days, remembrance }: { phone: string; name: string; title: string; eventName: string; when: string; link: string; days: 0 | 3; remembrance: boolean }) {
+export function whatsappEventReminder({ phone, name, title, eventName, when, link, days, remembrance, lang = "en" }: { phone: string; name: string; title: string; eventName: string; when: string; link: string; days: 0 | 3; remembrance: boolean; lang?: MessageLang }) {
   const first = name.split(/\s+/)[0] || name;
+  if (lang === "tw") {
+    const lead = days === 0 ? `ɛnnɛ ne ${eventName} ma ${title}` : `aka nnansa a ${eventName} ma ${title} bɛba`;
+    return waLink(
+      phone,
+      remembrance
+        ? `Nua ${first}, ${lead}. ${when}. Yɛsrɛ sɛ wobɛba abɛka abusuafoɔ no ho. Nhyehyɛeɛ ne kwan a wobɛfa so: ${link}`
+        : `Hello ${first}, ${lead}. ${when}. Nhyehyɛeɛ ne kwan a wobɛfa so: ${link}`,
+    );
+  }
   const lead = days === 0 ? `today is ${eventName} for ${title}` : `${eventName} for ${title} is in 3 days`;
   const text = remembrance
     ? `Dear ${first}, ${lead}. ${when}. We hope you can be with the family. Programme and directions: ${link}`
@@ -75,7 +96,15 @@ export function whatsappEventReminder({ phone, name, title, eventName, when, lin
 }
 
 /** A WhatsApp share link for a personal invitation. Uses the guest's number when it looks international. */
-export function whatsappInvite({ phone, name, title, link, remembrance }: { phone: string; name: string; title: string; link: string; remembrance: boolean }) {
+export function whatsappInvite({ phone, name, title, link, remembrance, lang = "en" }: { phone: string; name: string; title: string; link: string; remembrance: boolean; lang?: MessageLang }) {
+  if (lang === "tw") {
+    return waLink(
+      phone,
+      remembrance
+        ? `Nua ${name}, ɛha ne nsɛm a ɛfa ${title} ho. Wo ankasa link ni: ${link}`
+        : `Hello ${name}, yɛfrɛ wo ma ${title}. Wobɛhunu nsɛm nyinaa wɔ ha, na wobɛtumi aka sɛ wobɛba anaa worenba wɔ wo ankasa link yi so: ${link}`,
+    );
+  }
   // The full name reads naturally for households too ("Hello Auntie Esi & family!").
   const text = remembrance
     ? `Dear ${name}, here are the details for ${title}. Your personal link: ${link}`

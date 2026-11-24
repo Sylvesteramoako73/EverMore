@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Download } from "lucide-react";
+import Link from "next/link";
 import { Suspense } from "react";
 import { GuestForm, GuestList, ImportGuests, type GuestView } from "@/components/dashboard/guests";
 import { ReplyQueue } from "@/components/dashboard/reply-queue";
@@ -12,21 +13,22 @@ import { getOccasion } from "@/lib/occasions";
 import { listEvents } from "@/server/events";
 import { listGuests } from "@/server/guests";
 import { listRsvps } from "@/server/rsvp";
-import { loadDashboard, whatsappInvite, whatsappReminder, whatsappEventReminder } from "../data";
+import { loadDashboard, parseLang, whatsappInvite, whatsappReminder, whatsappEventReminder } from "../data";
 import { PageSkeleton } from "@/components/dashboard/skeleton";
 
 export const metadata: Metadata = { title: "Guests" };
 
-export default function GuestsPage() {
+export default function GuestsPage(props: PageProps<"/dashboard/guests">) {
   return (
     <Suspense fallback={<PageSkeleton />}>
-      <Guests />
+      <Guests {...props} />
     </Suspense>
   );
 }
 
-async function Guests() {
-  const { celebration: c } = await loadDashboard();
+async function Guests({ searchParams }: PageProps<"/dashboard/guests">) {
+  const [{ celebration: c }, sp] = await Promise.all([loadDashboard(), searchParams]);
+  const lang = parseLang(sp.lang);
   const [guests, events, rsvps] = await Promise.all([listGuests(c.id), listEvents(c.id), listRsvps(c.id)]);
   const replyByGuest = new Map(rsvps.filter((r) => r.guestId).map((r) => [r.guestId!, r.answers.some((a) => a.attending) ? "yes" as const : "no" as const]));
   const remembrance = getOccasion(c.kind).after === "remembrance";
@@ -48,8 +50,8 @@ async function Guests() {
       sent: Boolean(g.invitationSentAt),
       reply: replyByGuest.get(g.id) ?? null,
       link,
-      whatsapp: whatsappInvite({ phone: g.phone, name: g.name, title: c.title, link, remembrance }),
-      reminder: whatsappReminder({ phone: g.phone, name: g.name, title: c.title, link, deadline, remembrance }),
+      whatsapp: whatsappInvite({ phone: g.phone, name: g.name, title: c.title, link, remembrance, lang }),
+      reminder: whatsappReminder({ phone: g.phone, name: g.name, title: c.title, link, deadline, remembrance, lang }),
       remindedAt: g.remindedAt ? g.remindedAt.toISOString() : null,
       remindCount: g.reminderCount,
       tableName: g.tableName,
@@ -69,9 +71,15 @@ async function Guests() {
             {views.length} invitation{views.length === 1 ? "" : "s"} · {sent} sent · {replied} replied
           </p>
         </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <div role="group" aria-label="Language of WhatsApp messages" className="inline-flex overflow-hidden rounded-full ring-1 ring-border">
+            <Link href="/dashboard/guests" aria-current={lang === "en" ? "true" : undefined} className={`px-3 py-1.5 text-sm ${lang === "en" ? "bg-navy text-white" : "bg-white text-navy"}`}>English</Link>
+            <Link href="/dashboard/guests?lang=tw" aria-current={lang === "tw" ? "true" : undefined} className={`px-3 py-1.5 text-sm ${lang === "tw" ? "bg-navy text-white" : "bg-white text-navy"}`}>Twi</Link>
+          </div>
         {views.length > 0 && (
           <Button asChild variant="outline"><a href="/dashboard/guests/export" download><Download className="h-4 w-4" aria-hidden /> Download guest list</a></Button>
         )}
+        </div>
       </header>
 
       {due && c.guestRemindersEnabled && (
@@ -92,6 +100,7 @@ async function Guests() {
                 link: g.link,
                 days: due.days!,
                 remembrance,
+                lang,
               }),
               remindedAt: g.remindedAt,
             }))}
