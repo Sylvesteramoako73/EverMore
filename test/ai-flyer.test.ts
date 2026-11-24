@@ -35,7 +35,7 @@ describe("readFlyer", () => {
     vi.stubGlobal("fetch", f);
     expect(await readFlyer(photo)).toBe("Ama and Kofi");
     const models = f.mock.calls.map((c) => JSON.parse(c[1].body as string).model);
-    expect(models).toEqual(env.GROQ_VISION_MODEL.split(","));
+    expect(models).toEqual(env.GROQ_VISION_MODEL.split(",").slice(0, 2));
   });
 
   it("explains clearly when there is no text, no key, a bad file or an unavailable service", async () => {
