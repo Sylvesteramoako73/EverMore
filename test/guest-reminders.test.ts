@@ -19,11 +19,11 @@ describe("guest reminders", () => {
   });
 
   it("mentions the deadline only when there is one, and stays gentle for remembrance", () => {
-    const plain = decodeURIComponent(whatsappReminder({ phone: "0244000000", name: "Esi", title: "Our wedding", link: "https://x.test/i/1" }));
+    const plain = decodeURIComponent(whatsappReminder({ phone: "0244000000", name: "Esi", title: "Our wedding", kind: "wedding" as const, link: "https://x.test/i/1" }));
     expect(plain).not.toContain("by ");
-    const dated = decodeURIComponent(whatsappReminder({ phone: "0244000000", name: "Esi", title: "Our wedding", link: "https://x.test/i/1", deadline: "10 March" }));
+    const dated = decodeURIComponent(whatsappReminder({ phone: "0244000000", name: "Esi", title: "Our wedding", kind: "wedding" as const, link: "https://x.test/i/1", deadline: "10 March" }));
     expect(dated).toContain("by 10 March");
-    const sad = decodeURIComponent(whatsappReminder({ phone: "0244000000", name: "Esi", title: "Life of Kofi", link: "https://x.test/i/1", remembrance: true }));
+    const sad = decodeURIComponent(whatsappReminder({ phone: "0244000000", name: "Esi", title: "Life of Kofi", kind: "wedding" as const, link: "https://x.test/i/1", remembrance: true }));
     expect(sad).toContain("Dear Esi");
     expect(sad).not.toContain("join us");
   });
