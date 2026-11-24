@@ -1,4 +1,4 @@
-import { Bodoni_Moda, Cormorant_Garamond, DM_Sans, Fraunces, Instrument_Sans, Jost, Manrope, Marcellus, Newsreader, Playfair_Display } from "next/font/google";
+import { Bodoni_Moda, Cinzel, Cormorant_Garamond, DM_Sans, EB_Garamond, Fraunces, Instrument_Sans, Italiana, Jost, Lora, Manrope, Marcellus, Newsreader, Playfair_Display } from "next/font/google";
 
 // Brand pair (preloaded everywhere): Fraunces for headings, Manrope for interface text.
 export const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap", axes: ["SOFT", "opsz"] });
@@ -14,7 +14,12 @@ export const newsreader = Newsreader({ subsets: ["latin"], style: ["normal", "it
 export const instrumentSans = Instrument_Sans({ subsets: ["latin"], variable: "--font-instrument-sans", display: "swap", preload: false });
 export const jost = Jost({ subsets: ["latin"], variable: "--font-jost", display: "swap", preload: false });
 
-export const fontVariables = [fraunces, manrope, cormorant, bodoni, playfair, marcellus, newsreader, dmSans, jost, instrumentSans]
+export const cinzel = Cinzel({ subsets: ["latin"], variable: "--font-cinzel", display: "swap", preload: false });
+export const italiana = Italiana({ subsets: ["latin"], weight: "400", variable: "--font-italiana", display: "swap", preload: false });
+export const ebGaramond = EB_Garamond({ subsets: ["latin"], style: ["normal", "italic"], variable: "--font-eb-garamond", display: "swap", preload: false });
+export const lora = Lora({ subsets: ["latin"], style: ["normal", "italic"], variable: "--font-lora", display: "swap", preload: false });
+
+export const fontVariables = [fraunces, manrope, cormorant, bodoni, playfair, marcellus, newsreader, dmSans, jost, instrumentSans, cinzel, italiana, ebGaramond, lora]
   .map((f) => f.variable)
   .join(" ");
 
@@ -30,4 +35,8 @@ export const FONT_STACKS: Record<string, string> = {
   jost: "var(--font-jost), system-ui, sans-serif",
   newsreader: "var(--font-newsreader), Georgia, serif",
   instrumentSans: "var(--font-instrument-sans), system-ui, sans-serif",
+  cinzel: "var(--font-cinzel), Georgia, serif",
+  italiana: "var(--font-italiana), Georgia, serif",
+  ebGaramond: "var(--font-eb-garamond), Georgia, serif",
+  lora: "var(--font-lora), Georgia, serif",
 };

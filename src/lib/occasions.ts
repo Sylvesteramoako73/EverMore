@@ -95,7 +95,7 @@ export const OCCASIONS: Record<OccasionKind, Occasion> = {
       keyDateLabel: "Wedding date (anniversaries are counted from it)",
     },
     eventSuggestions: ["Traditional engagement", "Traditional wedding", "Church ceremony", "Civil ceremony", "Reception", "Thanksgiving service", "After-party"],
-    recommendedThemes: ["earth-and-ivory", "timeless-elegance", "romantic-garden", "traditional-celebration", "contemporary-african-romance", "luxury-editorial"],
+    recommendedThemes: ["earth-and-ivory", "timeless-elegance", "midnight-gala", "emerald-estate", "champagne-journal", "royal-ebony", "sage-and-linen", "romantic-garden", "traditional-celebration", "contemporary-african-romance", "luxury-editorial"],
   },
   birthday: {
     kind: "birthday",
@@ -120,7 +120,7 @@ export const OCCASIONS: Record<OccasionKind, Occasion> = {
       keyDateLabel: "Date of birth (for age and yearly reminders)",
     },
     eventSuggestions: ["Birthday party", "Birthday dinner", "Thanksgiving service", "Brunch", "Surprise party"],
-    recommendedThemes: ["confetti", "golden-hour", "luxury-editorial", "modern-minimalist", "earth-and-ivory"],
+    recommendedThemes: ["confetti", "golden-hour", "midnight-gala", "champagne-journal", "grand-opening", "luxury-editorial", "modern-minimalist", "earth-and-ivory"],
   },
   funeral: {
     kind: "funeral",
@@ -145,7 +145,7 @@ export const OCCASIONS: Record<OccasionKind, Occasion> = {
       keyDateLabel: "Date of passing (for remembrance reminders)",
     },
     eventSuggestions: ["Wake-keeping", "Burial service", "Funeral service", "Final funeral rites", "Thanksgiving service", "One-week observance", "Memorial service"],
-    recommendedThemes: ["serene", "earth-and-ivory", "timeless-elegance", "modern-minimalist"],
+    recommendedThemes: ["serene", "earth-and-ivory", "royal-ebony", "sunday-white", "dusk-remembrance", "timeless-elegance", "modern-minimalist"],
   },
   outing: {
     kind: "outing",
@@ -170,7 +170,7 @@ export const OCCASIONS: Record<OccasionKind, Occasion> = {
       keyDateLabel: "Trip date",
     },
     eventSuggestions: ["Meet-up & departure", "Arrival & check-in", "Hike", "Boat cruise", "Lunch", "Games & activities", "Bonfire", "Departure home"],
-    recommendedThemes: ["adventure", "golden-hour", "modern-minimalist", "contemporary-african-romance"],
+    recommendedThemes: ["adventure", "golden-hour", "grand-opening", "modern-minimalist", "contemporary-african-romance"],
   },
   naming: {
     kind: "naming",
@@ -195,7 +195,7 @@ export const OCCASIONS: Record<OccasionKind, Occasion> = {
       keyDateLabel: "Baby's date of birth",
     },
     eventSuggestions: ["Outdooring", "Naming ceremony", "Dedication service", "Reception"],
-    recommendedThemes: ["little-blessings", "golden-hour", "earth-and-ivory", "contemporary-african-romance"],
+    recommendedThemes: ["little-blessings", "golden-hour", "sage-and-linen", "champagne-journal", "emerald-estate", "earth-and-ivory", "contemporary-african-romance"],
   },
   anniversary: {
     kind: "anniversary",
@@ -220,7 +220,7 @@ export const OCCASIONS: Record<OccasionKind, Occasion> = {
       keyDateLabel: "Original wedding date",
     },
     eventSuggestions: ["Vow renewal", "Anniversary dinner", "Thanksgiving service", "Party"],
-    recommendedThemes: ["timeless-elegance", "golden-hour", "romantic-garden", "earth-and-ivory"],
+    recommendedThemes: ["timeless-elegance", "golden-hour", "midnight-gala", "emerald-estate", "champagne-journal", "sage-and-linen", "romantic-garden", "earth-and-ivory"],
   },
   graduation: {
     kind: "graduation",
@@ -245,7 +245,7 @@ export const OCCASIONS: Record<OccasionKind, Occasion> = {
       keyDateLabel: "Graduation date",
     },
     eventSuggestions: ["Graduation ceremony", "Thanksgiving service", "Graduation party", "Dinner"],
-    recommendedThemes: ["modern-minimalist", "luxury-editorial", "golden-hour", "confetti"],
+    recommendedThemes: ["modern-minimalist", "luxury-editorial", "midnight-gala", "grand-opening", "emerald-estate", "golden-hour", "confetti"],
   },
   reunion: {
     kind: "reunion",
@@ -270,7 +270,7 @@ export const OCCASIONS: Record<OccasionKind, Occasion> = {
       keyDateLabel: "Reunion date",
     },
     eventSuggestions: ["Welcome & registration", "Get-together", "Dinner", "Games", "Thanksgiving service", "Picnic"],
-    recommendedThemes: ["golden-hour", "adventure", "modern-minimalist", "earth-and-ivory"],
+    recommendedThemes: ["golden-hour", "adventure", "grand-opening", "midnight-gala", "modern-minimalist", "earth-and-ivory"],
   },
   shower: {
     kind: "shower",
@@ -295,7 +295,7 @@ export const OCCASIONS: Record<OccasionKind, Occasion> = {
       keyDateLabel: "Date",
     },
     eventSuggestions: ["Baby shower", "Bridal shower", "Brunch", "Games"],
-    recommendedThemes: ["little-blessings", "romantic-garden", "confetti", "golden-hour"],
+    recommendedThemes: ["little-blessings", "romantic-garden", "champagne-journal", "sage-and-linen", "confetti", "golden-hour"],
   },
   opening: {
     kind: "opening",
@@ -320,7 +320,7 @@ export const OCCASIONS: Record<OccasionKind, Occasion> = {
       keyDateLabel: "Opening date",
     },
     eventSuggestions: ["Ribbon cutting", "Opening ceremony", "Blessing & prayers", "Cocktail reception", "Open house", "Launch party"],
-    recommendedThemes: ["luxury-editorial", "modern-minimalist", "golden-hour", "timeless-elegance"],
+    recommendedThemes: ["luxury-editorial", "modern-minimalist", "grand-opening", "midnight-gala", "emerald-estate", "champagne-journal", "royal-ebony", "golden-hour", "timeless-elegance"],
   },
   other: {
     kind: "other",
@@ -345,7 +345,7 @@ export const OCCASIONS: Record<OccasionKind, Occasion> = {
       keyDateLabel: "Date",
     },
     eventSuggestions: ["Celebration", "Service", "Reception", "Dinner", "Party"],
-    recommendedThemes: ["golden-hour", "modern-minimalist", "earth-and-ivory", "timeless-elegance"],
+    recommendedThemes: ["golden-hour", "modern-minimalist", "midnight-gala", "emerald-estate", "champagne-journal", "earth-and-ivory", "timeless-elegance"],
   },
 };
 
