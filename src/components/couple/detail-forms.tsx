@@ -3,7 +3,7 @@
 import { PARTY_TITLES } from "@/lib/akan";
 import { Cake, Feather, Heart, Loader2, Sparkles, Store, Users } from "lucide-react";
 import { useActionState, useEffect, useRef, useState, useTransition, type ReactNode, type RefObject } from "react";
-import { draftFromSentence, readFlyerPhoto } from "@/app/actions/ai";
+import { draftFromSentence, questionsForHost, readFlyerPhoto } from "@/app/actions/ai";
 import { saveBasics, saveCelebrationInfo, saveColours, saveRsvpContacts } from "@/app/actions/celebration";
 import { Field, FormAlert, SubmitButton } from "@/components/forms";
 import { Button } from "@/components/ui/button";
@@ -103,6 +103,23 @@ function DescribeBox({ formRef, kind, celebrationId }: { formRef: RefObject<HTML
   const [pending, start] = useTransition();
   const [reading, startReading] = useTransition();
   const photoRef = useRef<HTMLInputElement>(null);
+  const [questions, setQuestions] = useState<string[] | null>(null);
+  const [answers, setAnswers] = useState<string[]>([]);
+  const [asking, startAsking] = useTransition();
+
+  /** The description plus any answers, each answer attached to its question. */
+  const combined = [sentence.trim(), ...(questions ?? []).map((q, i) => (answers[i]?.trim() ? `${q} ${answers[i].trim()}` : "")).filter(Boolean)].filter(Boolean).join("\n\n");
+
+  function ask() {
+    setNote(null);
+    startAsking(async () => {
+      const result = await questionsForHost(sentence);
+      if (!result.ok) return setNote({ tone: "error", text: result.message });
+      if (!result.questions.length) return setNote({ tone: "ok", text: "That already covers the important details. Press Fill in my details." });
+      setQuestions(result.questions);
+      setAnswers(result.questions.map(() => ""));
+    });
+  }
 
   function readPhoto(file: File | undefined) {
     if (!file) return;
@@ -125,7 +142,7 @@ function DescribeBox({ formRef, kind, celebrationId }: { formRef: RefObject<HTML
   function run() {
     setNote(null);
     start(async () => {
-      const result = await draftFromSentence(sentence);
+      const result = await draftFromSentence(combined);
       const form = formRef.current;
       if (!result.ok || !form) return setNote({ tone: "error", text: result.ok ? "Please try again." : result.message });
       const filled: string[] = [];
@@ -165,9 +182,27 @@ function DescribeBox({ formRef, kind, celebrationId }: { formRef: RefObject<HTML
             aria-label="Your event, or your pasted invitation"
             placeholder={SENTENCE_EXAMPLES[kind] ?? "Tell us what it is, when, where and anything guests should know."}
           />
+          {questions && (
+            <div className="space-y-3 rounded-xl bg-ivory/60 p-4">
+              <p className="text-sm font-medium text-navy">Answer what you can. Skip anything you are not sure about, and we will leave it empty.</p>
+              {questions.map((q, i) => (
+                <label key={q} className="block text-sm">
+                  <span className="mb-1 block text-navy">{q}</span>
+                  <Input
+                    value={answers[i] ?? ""}
+                    maxLength={300}
+                    onChange={(e) => setAnswers((a) => a.map((x, j) => (j === i ? e.target.value : x)))}
+                  />
+                </label>
+              ))}
+            </div>
+          )}
           <div className="flex flex-wrap items-center gap-3">
-            <Button type="button" onClick={run} disabled={pending || sentence.trim().length < 15}>
+            <Button type="button" onClick={run} disabled={pending || combined.length < 15}>
               {pending ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />Drafting…</>) : "Fill in my details"}
+            </Button>
+            <Button type="button" variant="outline" onClick={ask} disabled={pending || asking}>
+              {asking ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />Thinking…</>) : questions ? "Ask me different questions" : "Ask me questions to help"}
             </Button>
             <Button type="button" variant="outline" onClick={() => photoRef.current?.click()} disabled={pending || reading}>
               {reading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />Reading photo…</>) : "Or upload a photo of your invitation"}
