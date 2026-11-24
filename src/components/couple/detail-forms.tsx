@@ -3,7 +3,7 @@
 import { PARTY_TITLES } from "@/lib/akan";
 import { Cake, Feather, Heart, Loader2, Sparkles, Store, Users } from "lucide-react";
 import { useActionState, useEffect, useRef, useState, useTransition, type ReactNode, type RefObject } from "react";
-import { draftFromSentence } from "@/app/actions/ai";
+import { draftFromSentence, readFlyerPhoto } from "@/app/actions/ai";
 import { saveBasics, saveCelebrationInfo, saveColours, saveRsvpContacts } from "@/app/actions/celebration";
 import { Field, FormAlert, SubmitButton } from "@/components/forms";
 import { Button } from "@/components/ui/button";
@@ -86,10 +86,41 @@ function setIfEmpty(form: HTMLFormElement, name: string, value: string) {
   return true;
 }
 
+/** Shrinks a photo in the browser so it uploads quickly and stays under the reader's size limit. */
+async function shrinkPhoto(file: File, maxSide = 1600): Promise<string> {
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  canvas.getContext("2d")?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL("image/jpeg", 0.85);
+}
+
 function DescribeBox({ formRef, kind, celebrationId }: { formRef: RefObject<HTMLFormElement | null>; kind: OccasionKind; celebrationId: string }) {
   const [sentence, setSentence] = useState("");
   const [note, setNote] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
   const [pending, start] = useTransition();
+  const [reading, startReading] = useTransition();
+  const photoRef = useRef<HTMLInputElement>(null);
+
+  function readPhoto(file: File | undefined) {
+    if (!file) return;
+    setNote(null);
+    startReading(async () => {
+      try {
+        const result = await readFlyerPhoto(await shrinkPhoto(file));
+        if (result.ok) {
+          setSentence(result.text);
+          setNote({ tone: "ok", text: "We read your invitation. Check the text above, fix anything that is wrong, then press Fill in my details." });
+        } else setNote({ tone: "error", text: result.message });
+      } catch {
+        setNote({ tone: "error", text: "We could not open that picture. Please try another photo." });
+      } finally {
+        if (photoRef.current) photoRef.current.value = "";
+      }
+    });
+  }
 
   function run() {
     setNote(null);
@@ -138,6 +169,10 @@ function DescribeBox({ formRef, kind, celebrationId }: { formRef: RefObject<HTML
             <Button type="button" onClick={run} disabled={pending || sentence.trim().length < 15}>
               {pending ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />Drafting…</>) : "Fill in my details"}
             </Button>
+            <Button type="button" variant="outline" onClick={() => photoRef.current?.click()} disabled={pending || reading}>
+              {reading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />Reading photo…</>) : "Or upload a photo of your invitation"}
+            </Button>
+            <input ref={photoRef} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" aria-label="Photo of your invitation or flyer" onChange={(e) => readPhoto(e.target.files?.[0])} />
             <p aria-live="polite" className={`text-sm ${note?.tone === "error" ? "text-destructive" : "text-muted-foreground"}`}>{note?.text}</p>
           </div>
         </div>
