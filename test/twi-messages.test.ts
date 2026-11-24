@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { parseLang, whatsappEventReminder, whatsappInvite, whatsappReminder } from "@/app/dashboard/data";
 
 const text = (href: string) => decodeURIComponent(href.split("?text=")[1]);
-const base = { phone: "0244000000", name: "Esi", title: "Ama and Kofi's wedding", link: "https://x.test/i/1" };
+const base = { phone: "0244000000", name: "Esi", title: "Ama and Kofi's wedding", kind: "wedding" as const, link: "https://x.test/i/1" };
 
 describe("message language", () => {
   it("defaults to English and only accepts tw as Twi", () => {
@@ -25,6 +25,6 @@ describe("message language", () => {
     expect(gentle).not.toContain("!");
   });
   it("keeps English unchanged", () => {
-    expect(text(whatsappInvite({ ...base, remembrance: false }))).toContain("You're invited");
+    expect(text(whatsappInvite({ ...base, remembrance: false }))).toContain("we invite you to");
   });
 });

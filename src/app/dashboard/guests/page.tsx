@@ -13,7 +13,8 @@ import { getOccasion } from "@/lib/occasions";
 import { listEvents } from "@/server/events";
 import { listGuests } from "@/server/guests";
 import { listRsvps } from "@/server/rsvp";
-import { loadDashboard, parseLang, whatsappInvite, whatsappReminder, whatsappEventReminder } from "../data";
+import { STYLES } from "@/lib/message-templates";
+import { loadDashboard, parseLang, parseStyle, whatsappInvite, whatsappReminder, whatsappEventReminder } from "../data";
 import { PageSkeleton } from "@/components/dashboard/skeleton";
 
 export const metadata: Metadata = { title: "Guests" };
@@ -29,6 +30,8 @@ export default function GuestsPage(props: PageProps<"/dashboard/guests">) {
 async function Guests({ searchParams }: PageProps<"/dashboard/guests">) {
   const [{ celebration: c }, sp] = await Promise.all([loadDashboard(), searchParams]);
   const lang = parseLang(sp.lang);
+  const style = parseStyle(sp.style);
+  const q = (l: string, st: string) => `/dashboard/guests?${new URLSearchParams({ ...(l === "tw" ? { lang: l } : {}), ...(st !== "classic" ? { style: st } : {}) }).toString()}`.replace(/\?$/, "");
   const [guests, events, rsvps] = await Promise.all([listGuests(c.id), listEvents(c.id), listRsvps(c.id)]);
   const replyByGuest = new Map(rsvps.filter((r) => r.guestId).map((r) => [r.guestId!, r.answers.some((a) => a.attending) ? "yes" as const : "no" as const]));
   const remembrance = getOccasion(c.kind).after === "remembrance";
@@ -50,8 +53,8 @@ async function Guests({ searchParams }: PageProps<"/dashboard/guests">) {
       sent: Boolean(g.invitationSentAt),
       reply: replyByGuest.get(g.id) ?? null,
       link,
-      whatsapp: whatsappInvite({ phone: g.phone, name: g.name, title: c.title, link, remembrance, lang }),
-      reminder: whatsappReminder({ phone: g.phone, name: g.name, title: c.title, link, deadline, remembrance, lang }),
+      whatsapp: whatsappInvite({ phone: g.phone, name: g.name, title: c.title, link, kind: c.kind, remembrance, lang, style }),
+      reminder: whatsappReminder({ phone: g.phone, name: g.name, title: c.title, link, kind: c.kind, deadline, remembrance, lang, style }),
       remindedAt: g.remindedAt ? g.remindedAt.toISOString() : null,
       remindCount: g.reminderCount,
       tableName: g.tableName,
@@ -73,8 +76,13 @@ async function Guests({ searchParams }: PageProps<"/dashboard/guests">) {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <div role="group" aria-label="Language of WhatsApp messages" className="inline-flex overflow-hidden rounded-full ring-1 ring-border">
-            <Link href="/dashboard/guests" aria-current={lang === "en" ? "true" : undefined} className={`px-3 py-1.5 text-sm ${lang === "en" ? "bg-navy text-white" : "bg-white text-navy"}`}>English</Link>
-            <Link href="/dashboard/guests?lang=tw" aria-current={lang === "tw" ? "true" : undefined} className={`px-3 py-1.5 text-sm ${lang === "tw" ? "bg-navy text-white" : "bg-white text-navy"}`}>Twi</Link>
+            <Link href={q("en", style)} aria-current={lang === "en" ? "true" : undefined} className={`px-3 py-1.5 text-sm ${lang === "en" ? "bg-navy text-white" : "bg-white text-navy"}`}>English</Link>
+            <Link href={q("tw", style)} aria-current={lang === "tw" ? "true" : undefined} className={`px-3 py-1.5 text-sm ${lang === "tw" ? "bg-navy text-white" : "bg-white text-navy"}`}>Twi</Link>
+          </div>
+          <div role="group" aria-label="Style of WhatsApp messages" className="inline-flex overflow-hidden rounded-full ring-1 ring-border">
+            {STYLES.map((s) => (
+              <Link key={s.id} href={q(lang, s.id)} title={s.hint} aria-current={style === s.id ? "true" : undefined} className={`px-3 py-1.5 text-sm ${style === s.id ? "bg-navy text-white" : "bg-white text-navy"}`}>{s.label}</Link>
+            ))}
           </div>
         {views.length > 0 && (
           <Button asChild variant="outline"><a href="/dashboard/guests/export" download><Download className="h-4 w-4" aria-hidden /> Download guest list</a></Button>
@@ -99,8 +107,10 @@ async function Guests({ searchParams }: PageProps<"/dashboard/guests">) {
                 when: `${formatLongDate(due.e.startsAt, due.e.timezone)}, ${formatTime(due.e.startsAt, due.e.timezone)}`,
                 link: g.link,
                 days: due.days!,
+                kind: c.kind,
                 remembrance,
                 lang,
+                style,
               }),
               remindedAt: g.remindedAt,
             }))}
