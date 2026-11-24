@@ -4,6 +4,7 @@ import { requireCurrentCelebration, requireUserForAction } from "@/lib/dal";
 import { aiDraftingEnabled } from "@/lib/env";
 import { rateLimit } from "@/server/rate-limit";
 import { DraftError, draftDetails, type Draft } from "@/server/ai-details";
+import { readFlyer } from "@/server/ai-flyer";
 import { getCelebration } from "@/server/celebrations";
 
 export type DraftResult = { ok: true; draft: Draft } | { ok: false; message: string };
@@ -33,6 +34,22 @@ export async function draftFromSentence(sentence: string): Promise<DraftResult> 
       today: new Date().toISOString().slice(0, 10),
     });
     return { ok: true, draft };
+  } catch (e) {
+    return { ok: false, message: e instanceof DraftError ? e.message : "Something went wrong. Please try again." };
+  }
+}
+
+export type FlyerResult = { ok: true; text: string } | { ok: false; message: string };
+
+/** Reads the text from a photo of an invitation so the host can check it, then draft from it. Nothing is saved. */
+export async function readFlyerPhoto(dataUrl: string): Promise<FlyerResult> {
+  const user = await requireUserForAction();
+  if (!aiDraftingEnabled()) return { ok: false, message: "This is not available yet." };
+  if (!rateLimit(`ai-flyer:hour:${user.id}`, 5, 60 * 60_000) || !rateLimit(`ai-flyer:day:${user.id}`, 12, 24 * 60 * 60_000)) {
+    return { ok: false, message: "You have read a few photos already. Please paste or type the details, or try again later." };
+  }
+  try {
+    return { ok: true, text: await readFlyer(String(dataUrl ?? "")) };
   } catch (e) {
     return { ok: false, message: e instanceof DraftError ? e.message : "Something went wrong. Please try again." };
   }
