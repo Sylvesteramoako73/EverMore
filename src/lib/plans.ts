@@ -24,10 +24,14 @@ export const PAGE_PRICE_CURRENCY = "GHS";
 /** The `plan` column records payment: "free" until the page is paid for, then this value. */
 export const PAID_PLAN = "premium";
 
+/** Set by an admin to let a page go live without payment. Treated as paid everywhere. */
+export const COMPLIMENTARY_PLAN = "complimentary";
+export const isPaidPlan = (plan: string) => plan === PAID_PLAN || plan === COMPLIMENTARY_PLAN;
+
 /**
  * Charging is on when BILLING_ENABLED=true. Until then pages publish without payment (early access).
  */
 export const billingEnabled = () => process.env.BILLING_ENABLED === "true";
 
 /** This page can't be live until its host pays. */
-export const needsPayment = (plan: string) => billingEnabled() && plan !== PAID_PLAN;
+export const needsPayment = (plan: string) => billingEnabled() && !isPaidPlan(plan);

@@ -5,6 +5,8 @@ import { getCurrentUser, membershipRole } from "@/lib/dal";
 export function memberCheck() {
   return async (celebrationId: string) => {
     const user = await getCurrentUser();
-    return user ? (await membershipRole(user.id, celebrationId)) !== null : false;
+    if (!user) return false;
+    if (user.role === "admin") return true;
+    return (await membershipRole(user.id, celebrationId)) !== null;
   };
 }
