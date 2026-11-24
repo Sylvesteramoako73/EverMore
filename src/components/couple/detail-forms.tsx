@@ -3,12 +3,13 @@
 import { PARTY_TITLES } from "@/lib/akan";
 import { Cake, Feather, Heart, Loader2, Sparkles, Store, Users } from "lucide-react";
 import { useActionState, useEffect, useRef, useState, useTransition, type ReactNode, type RefObject } from "react";
-import { draftFromSentence, readFlyerPhoto } from "@/app/actions/ai";
+import { draftFromSentence, questionsForHost, readFlyerPhoto } from "@/app/actions/ai";
 import { saveBasics, saveCelebrationInfo, saveColours, saveRsvpContacts } from "@/app/actions/celebration";
 import { Field, FormAlert, SubmitButton } from "@/components/forms";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { DEFAULT_QUESTIONS } from "@/lib/guided-questions";
 import { getOccasion, OCCASION_GROUPS, OCCASIONS, type ColourSwatch, type OccasionDetails, type OccasionKind, type RsvpContact } from "@/lib/occasions";
 import type { FormState } from "@/lib/validation";
 import { saveEventDrafts } from "@/lib/event-drafts";
@@ -98,11 +99,42 @@ async function shrinkPhoto(file: File, maxSide = 1600): Promise<string> {
 }
 
 function DescribeBox({ formRef, kind, celebrationId }: { formRef: RefObject<HTMLFormElement | null>; kind: OccasionKind; celebrationId: string }) {
+  // Guided by default: the questions are the way in. Hosts who already have a message or a photo can switch to "write it".
+  const [mode, setMode] = useState<"guided" | "write">("guided");
   const [sentence, setSentence] = useState("");
+  const [questions, setQuestions] = useState<string[]>(() => DEFAULT_QUESTIONS[kind] ?? DEFAULT_QUESTIONS.other);
+  const [answers, setAnswers] = useState<string[]>(() => (DEFAULT_QUESTIONS[kind] ?? DEFAULT_QUESTIONS.other).map(() => ""));
+  const [step, setStep] = useState(0);
+  /** Question and answer lines from earlier rounds, kept so follow up questions build on them. */
+  const [earlier, setEarlier] = useState<string[]>([]);
   const [note, setNote] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
   const [pending, start] = useTransition();
   const [reading, startReading] = useTransition();
+  const [asking, startAsking] = useTransition();
   const photoRef = useRef<HTMLInputElement>(null);
+
+  const roundLines = questions.map((q, i) => (answers[i]?.trim() ? `${q} ${answers[i].trim()}` : "")).filter(Boolean);
+  const combined = [mode === "write" ? sentence.trim() : "", ...earlier, ...roundLines].filter(Boolean).join("\n\n");
+  const last = step >= questions.length - 1;
+
+  function setAnswer(value: string) {
+    setAnswers((a) => a.map((x, j) => (j === step ? value : x)));
+  }
+
+  /** Asks the assistant what is still missing, given everything said so far. */
+  function askMore() {
+    setNote(null);
+    startAsking(async () => {
+      const result = await questionsForHost(combined);
+      if (!result.ok) return setNote({ tone: "error", text: result.message });
+      if (!result.questions.length) return setNote({ tone: "ok", text: "That covers the important details. Press Fill in my details." });
+      setEarlier((e) => [...e, ...roundLines]);
+      setQuestions(result.questions);
+      setAnswers(result.questions.map(() => ""));
+      setStep(0);
+      setMode("guided");
+    });
+  }
 
   function readPhoto(file: File | undefined) {
     if (!file) return;
@@ -112,6 +144,7 @@ function DescribeBox({ formRef, kind, celebrationId }: { formRef: RefObject<HTML
         const result = await readFlyerPhoto(await shrinkPhoto(file));
         if (result.ok) {
           setSentence(result.text);
+          setMode("write");
           setNote({ tone: "ok", text: "We read your invitation. Check the text above, fix anything that is wrong, then press Fill in my details." });
         } else setNote({ tone: "error", text: result.message });
       } catch {
@@ -125,7 +158,7 @@ function DescribeBox({ formRef, kind, celebrationId }: { formRef: RefObject<HTML
   function run() {
     setNote(null);
     start(async () => {
-      const result = await draftFromSentence(sentence);
+      const result = await draftFromSentence(combined);
       const form = formRef.current;
       if (!result.ok || !form) return setNote({ tone: "error", text: result.ok ? "Please try again." : result.message });
       const filled: string[] = [];
@@ -135,15 +168,11 @@ function DescribeBox({ formRef, kind, celebrationId }: { formRef: RefObject<HTML
       }
       const events = result.draft.events.filter((e) => e.name || e.date || e.venueName);
       saveEventDrafts(celebrationId, events);
-      const askMore = [
-        !result.draft.story && !form.querySelector<HTMLTextAreaElement>("[name=story]")?.value ? "how you met or your story" : "",
-        !result.draft.announcement && !form.querySelector<HTMLTextAreaElement>("[name=announcement]")?.value ? "anything guests should know, like parking, children or accommodation" : "",
-      ].filter(Boolean);
       const parts = [filled.length ? `Drafted: ${filled.join(", ")}.` : "", events.length ? `${events.length === 1 ? "1 event" : `${events.length} events`} ready to review in the programme step.` : ""].filter(Boolean);
       setNote(
         parts.length
-          ? { tone: "ok", text: `${parts.join(" ")} Please read everything and change anything that is not right.${askMore.length ? ` Want more filled in? Add ${askMore.join(" and ")} to your description and press Fill in my details again.` : ""}` }
-          : { tone: "ok", text: "Nothing new to fill in. Add more detail, or the boxes below are already filled." },
+          ? { tone: "ok", text: `${parts.join(" ")} Please read everything and change anything that is not right. Something missing? Press "What else should I add?" and we will ask about it.` }
+          : { tone: "ok", text: "Nothing new to fill in. Answer a few more questions, or the boxes below are already filled." },
       );
     });
   }
@@ -152,29 +181,80 @@ function DescribeBox({ formRef, kind, celebrationId }: { formRef: RefObject<HTML
     <section aria-labelledby="describe-title" className="rounded-2xl border border-champagne bg-white p-5 sm:p-6">
       <div className="flex items-start gap-3">
         <Sparkles className="mt-1 h-5 w-5 shrink-0 text-champagne-deep" aria-hidden />
-        <div className="min-w-0 flex-1 space-y-3">
+        <div className="min-w-0 flex-1 space-y-4">
           <div>
-            <h2 id="describe-title" className="text-xl text-navy">Describe your event, or paste your invitation</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Type a sentence, or paste the invitation you already sent on WhatsApp. We draft the empty boxes below and your programme for you to review. We never make up a venue, time or name.</p>
+            <h2 id="describe-title" className="text-xl text-navy">{mode === "guided" ? "Let's fill this in together" : "Describe your event, or paste your invitation"}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {mode === "guided"
+                ? "Answer a few quick questions and we draft the boxes below and your programme for you to review. Skip anything you are not sure about. We never make up a venue, time or name."
+                : "Type a sentence, or paste the invitation you already sent on WhatsApp. We draft the empty boxes below for you to review. We never make up a venue, time or name."}
+            </p>
           </div>
-          <Textarea
-            value={sentence}
-            onChange={(e) => setSentence(e.target.value)}
-            rows={4}
-            maxLength={2500}
-            aria-label="Your event, or your pasted invitation"
-            placeholder={SENTENCE_EXAMPLES[kind] ?? "Tell us what it is, when, where and anything guests should know."}
-          />
-          <div className="flex flex-wrap items-center gap-3">
-            <Button type="button" onClick={run} disabled={pending || sentence.trim().length < 15}>
-              {pending ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />Drafting…</>) : "Fill in my details"}
+
+          {mode === "guided" ? (
+            <div className="space-y-3 rounded-xl bg-ivory/60 p-4">
+              <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase" aria-live="polite">Question {step + 1} of {questions.length}</p>
+              <label className="block">
+                <span className="mb-2 block text-lg text-navy">{questions[step]}</span>
+                <Input
+                  key={`${questions[step]}-${step}`}
+                  value={answers[step] ?? ""}
+                  maxLength={300}
+                  autoFocus={step > 0}
+                  onChange={(e) => setAnswer(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      if (!last) setStep(step + 1);
+                    }
+                  }}
+                />
+              </label>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0}>Back</Button>
+                {!last ? (
+                  <Button type="button" size="sm" variant="outline" onClick={() => setStep(step + 1)}>{answers[step]?.trim() ? "Next" : "Skip"}</Button>
+                ) : (
+                  <Button type="button" size="sm" onClick={run} disabled={pending || combined.length < 15}>
+                    {pending ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />Drafting…</>) : "Fill in my details"}
+                  </Button>
+                )}
+                {!last && combined.length >= 15 && (
+                  <Button type="button" size="sm" onClick={run} disabled={pending}>
+                    {pending ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />Drafting…</>) : "Fill in now"}
+                  </Button>
+                )}
+              </div>
+            </div>
+          ) : (
+            <>
+              <Textarea
+                value={sentence}
+                onChange={(e) => setSentence(e.target.value)}
+                rows={4}
+                maxLength={2500}
+                aria-label="Your event, or your pasted invitation"
+                placeholder={SENTENCE_EXAMPLES[kind] ?? "Tell us what it is, when, where and anything guests should know."}
+              />
+              <Button type="button" onClick={run} disabled={pending || combined.length < 15}>
+                {pending ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />Drafting…</>) : "Fill in my details"}
+              </Button>
+            </>
+          )}
+
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+            <Button type="button" variant="outline" size="sm" onClick={askMore} disabled={pending || asking || combined.length < 15}>
+              {asking ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />Thinking…</>) : "What else should I add?"}
             </Button>
-            <Button type="button" variant="outline" onClick={() => photoRef.current?.click()} disabled={pending || reading}>
-              {reading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />Reading photo…</>) : "Or upload a photo of your invitation"}
-            </Button>
+            <button type="button" className="text-navy underline underline-offset-4" onClick={() => setMode(mode === "guided" ? "write" : "guided")}>
+              {mode === "guided" ? "I would rather write it or paste my invitation" : "Ask me questions instead"}
+            </button>
+            <button type="button" className="text-navy underline underline-offset-4 disabled:opacity-50" onClick={() => photoRef.current?.click()} disabled={pending || reading}>
+              {reading ? "Reading photo…" : "Upload a photo of my invitation"}
+            </button>
             <input ref={photoRef} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" aria-label="Photo of your invitation or flyer" onChange={(e) => readPhoto(e.target.files?.[0])} />
-            <p aria-live="polite" className={`text-sm ${note?.tone === "error" ? "text-destructive" : "text-muted-foreground"}`}>{note?.text}</p>
           </div>
+          <p aria-live="polite" className={`text-sm ${note?.tone === "error" ? "text-destructive" : "text-muted-foreground"}`}>{note?.text}</p>
         </div>
       </div>
     </section>
