@@ -32,7 +32,7 @@ const schema = z.object({
   /** Model used for drafting. Groq retires models now and then, so this is a setting, not code. */
   GROQ_MODEL: z.string().default("openai/gpt-oss-120b"),
   /** Models that read photos of invitations and flyers, comma separated, tried in order. Must accept images. */
-  GROQ_VISION_MODEL: z.string().default("qwen/qwen3.6-27b,meta-llama/llama-4-scout-17b-16e-instruct"),
+  GROQ_VISION_MODEL: z.string().default("qwen/qwen3.8-27b,qwen/qwen3.6-27b,meta-llama/llama-4-scout-17b-16e-instruct"),
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
   UPLOAD_DIR: z.string().default("./data/uploads"),

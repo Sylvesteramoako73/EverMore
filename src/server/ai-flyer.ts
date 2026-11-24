@@ -34,7 +34,7 @@ export async function readFlyer(dataUrl: string): Promise<string> {
         body: JSON.stringify({
           model,
           temperature: 0,
-          max_tokens: 3000,
+          max_tokens: 4000,
           messages: [{ role: "user", content: [{ type: "text", text: PROMPT }, { type: "image_url", image_url: { url: image.url } }] }],
         }),
         signal: AbortSignal.timeout(30_000),
