@@ -17,6 +17,6 @@ describe("themes", () => {
     }
   });
   it("keeps the joyful themes away from funerals", () => {
-    for (const id of ["confetti", "golden-hour", "grand-opening", "midnight-gala"]) expect(THEMES.find((t) => t.id === id)!.suitedFor).not.toContain("funeral");
+    for (const id of ["confetti", "golden-hour", "grand-opening", "midnight-gala", "retro-soiree", "kente-heritage", "rose-gold-noir", "ivory-rose"]) expect(THEMES.find((t) => t.id === id)!.suitedFor).not.toContain("funeral");
   });
 });
