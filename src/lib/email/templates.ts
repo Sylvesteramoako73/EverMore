@@ -118,6 +118,47 @@ export const emails = {
       { label: "Open the programme", url },
     );
   },
+  /** The host's briefing on the morning of the event. */
+  hostDayOf: (
+    to: string,
+    d: { name: string; title: string; eventName: string; when: string; venue: string; invited: number; coming: number; declined: number; waiting: number; remembrance: boolean },
+    url: string,
+  ) => {
+    const first = d.name.split(/\s+/)[0] || "there";
+    return message(
+      to,
+      d.remembrance ? `Today: ${d.eventName} for ${d.title}` : `Today is the day: ${d.eventName}`,
+      d.remembrance ? "Today" : "Today is the day",
+      [
+        d.remembrance ? `Dear ${first}, we are thinking of you and your family today.` : `Hi ${first}, today is ${d.eventName} for ${d.title}. We hope it is a beautiful day.`,
+        `When: ${d.when}`,
+        d.venue ? `Where: ${d.venue}` : "",
+        `Replies so far: ${d.coming} people coming, ${d.declined} invitations declined, ${d.waiting} invitations without a reply, out of ${d.invited} invitations.`,
+        "Open the check-in page on your phone to welcome guests at the door and find their tables.",
+      ].filter(Boolean),
+      { label: "Open check-in", url },
+    );
+  },
+  /** Sent to a guest the morning after the last event. */
+  guestThankYou: (
+    to: string,
+    d: { guestName: string; title: string; hostMessage: string; remembrance: boolean; canGive: boolean },
+    url: string,
+  ) => {
+    const first = d.guestName.split(/\s+/)[0] || "there";
+    return message(
+      to,
+      d.remembrance ? `Thank you for being with us: ${d.title}` : `Thank you for celebrating with us: ${d.title}`,
+      "Thank you",
+      [
+        d.remembrance ? `Dear ${first}, thank you for standing with the family during ${d.title}.` : `Hi ${first}, thank you for being part of ${d.title}.`,
+        d.hostMessage,
+        d.remembrance ? "You can read the tributes and share a memory or photo on the page." : "You can see the photos, read the guestbook and add your own pictures and wishes on the page.",
+        d.canGive && !d.remembrance ? "If you would still like to give a gift, the page shows how." : "",
+      ].filter(Boolean),
+      { label: "Open the page", url },
+    );
+  },
   /** Nudges a host who started a page but has not published it. Stage 1, 2 or 3; the last one says it is the last. */
   unfinishedPage: (
     to: string,

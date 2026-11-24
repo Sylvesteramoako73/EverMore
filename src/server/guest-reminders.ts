@@ -1,7 +1,7 @@
 import "server-only";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { celebration, event, guest, guestEvent, guestReminder, rsvp, rsvpResponse } from "@/db/schema";
+import { celebration, event, fund, guest, guestEvent, guestReminder, rsvp, rsvpResponse } from "@/db/schema";
 import { addDays, formatLongDate, formatTime, plainDateInZone } from "@/lib/dates";
 import { emails } from "@/lib/email/templates";
 import { sendEmail } from "@/lib/email/send";
@@ -87,6 +87,75 @@ export async function sendGuestReminders(now = new Date(), limit = 300) {
         },
         appUrl(`/${c.slug}?invite=${g.inviteToken}`),
         directionsUrl(e.venueName, e.venueAddress, e.venueLat, e.venueLng),
+      );
+      const result = await sendEmail(msg).catch((err: unknown) => ({ delivered: false as const, reason: String(err) }));
+      const ok = result.delivered || result.reason.startsWith("Development outbox");
+      await db
+        .update(guestReminder)
+        .set({
+          status: ok ? "sent" : existing.attempts + 1 >= 3 ? "failed" : "pending",
+          attempts: existing.attempts + 1,
+          sentAt: ok ? new Date() : null,
+          lastError: ok ? null : result.delivered ? null : result.reason,
+        })
+        .where(eq(guestReminder.id, existing.id));
+      if (ok) sent++;
+    }
+  }
+  return sent;
+}
+
+/** The morning after a page's last event, in that event's own time zone. */
+export function isDayAfter(lastEventStartsLocal: string, timezone: string, now: Date) {
+  return addDays(lastEventStartsLocal.slice(0, 10), 1) === plainDateInZone(now, timezone);
+}
+
+/**
+ * The morning after the last event, thank each guest by email and point them to the photos and guestbook.
+ * Uses the same switch and the same once only record as the reminders (days_before = -1), so a rerun never repeats.
+ */
+export async function sendPostEventEmails(now = new Date(), limit = 300) {
+  const rows = await db
+    .select({ e: event, c: celebration })
+    .from(event)
+    .innerJoin(celebration, eq(celebration.id, event.celebrationId))
+    .where(and(eq(celebration.status, "published"), eq(celebration.guestRemindersEnabled, true)));
+
+  // Each page's last event.
+  const last = new Map<string, (typeof rows)[number]>();
+  for (const r of rows) {
+    const cur = last.get(r.c.id);
+    if (!cur || r.e.startsAt > cur.e.startsAt) last.set(r.c.id, r);
+  }
+
+  let sent = 0;
+  for (const { e, c } of last.values()) {
+    if (!isDayAfter(e.startsLocal, e.timezone, now)) continue;
+    const guests = (await db.select().from(guest).where(eq(guest.celebrationId, c.id))).filter((g) => g.email.trim());
+    if (guests.length === 0) continue;
+    const [replies, funds] = await Promise.all([
+      db
+        .select({ guestId: rsvp.guestId, attending: rsvpResponse.attending })
+        .from(rsvp)
+        .innerJoin(rsvpResponse, eq(rsvpResponse.rsvpId, rsvp.id))
+        .where(eq(rsvp.celebrationId, c.id)),
+      db.select({ id: fund.id }).from(fund).where(eq(fund.celebrationId, c.id)),
+    ]);
+    // Skip anyone who declined every event they answered; keep everyone who said yes to any, or did not answer.
+    const answered = new Map<string, boolean>();
+    for (const r of replies) if (r.guestId) answered.set(r.guestId, (answered.get(r.guestId) ?? false) || r.attending);
+
+    for (const g of guests) {
+      if (sent >= limit) return sent;
+      if (answered.get(g.id) === false && !g.checkedInAt) continue;
+      const [row] = await db.insert(guestReminder).values({ guestId: g.id, eventId: e.id, daysBefore: -1 }).onConflictDoNothing().returning();
+      const existing = row ?? (await db.select().from(guestReminder).where(and(eq(guestReminder.guestId, g.id), eq(guestReminder.eventId, e.id), eq(guestReminder.daysBefore, -1))))[0];
+      if (!existing || existing.status === "sent" || existing.status === "failed") continue;
+
+      const msg = emails.guestThankYou(
+        g.email.trim(),
+        { guestName: g.name, title: c.title, hostMessage: c.thankYouMessage, remembrance: getOccasion(c.kind).after === "remembrance", canGive: funds.length > 0 },
+        appUrl(`/${c.slug}?invite=${g.inviteToken}`),
       );
       const result = await sendEmail(msg).catch((err: unknown) => ({ delivered: false as const, reason: String(err) }));
       const ok = result.delivered || result.reason.startsWith("Development outbox");
